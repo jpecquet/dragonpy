@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dragonpy"
+version = "2026.4.14"
+dependencies = []
+requires-python = ">=3.8"
+authors = [
+  {name = "Jean Pecquet", email = "jp2667@cornell.edu"}
+]
+description = ""
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Repository = "https://github.com/jpecquet/dragonpy.git"

@@ -1,0 +1,6 @@
+"""
+The outside world, from the standpoint of the dragonfly
+- atmosphere, wind, ...
+- physical surroundings: terrain, vegetation, ...
+- prey
+"""
