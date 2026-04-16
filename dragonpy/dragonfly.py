@@ -36,6 +36,7 @@ class Dragonfly:
     stroke_patterns: list[StrokePattern]
     inertia_body:    np.ndarray              # (3,) diagonal inertia in body frame
 
+    point_mass:      bool  = False
     wing_frequency:  float = 0.0
 
     position:         np.ndarray = field(default_factory=lambda: np.zeros(3))
