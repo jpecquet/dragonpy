@@ -128,6 +128,64 @@ def draw_half_disk(
     return mesh, mode_label
 
 
+def draw_tilt_arrow(
+    ax,
+    tilt:    float,
+    *,
+    length:  float = 4.0,
+    color:   str   = "white",
+    lw:      float = 1.5,
+):
+    """Overlay a bidirectional arrow along the stroke-plane normal on a polar
+    half-disk axes. The arrow's mid-length is pinned at the origin (r=0); the
+    arrowhead marks the +normal end (out of the stroke plane, toward the wing
+    leading edge at zero feathering).
+
+    Convention: stroke-plane tilt is a rotation about the body y-axis from the
+    untilted dorsal normal (+z), so the normal in (x, z) is
+    (sin(tilt), cos(tilt)).
+
+    The arrow is drawn as two radial segments through the origin so the body
+    stays straight in polar coords (a single connector between two arbitrary
+    polar points would interpolate as an arc). The arrowhead is added at the
+    +normal end via a short on-axis annotation.
+    """
+    from matplotlib.patches import FancyArrowPatch
+
+    nx, nz = float(np.sin(tilt)), float(np.cos(tilt))
+    half = 0.5 * length
+
+    # Avoid matplotlib's polar projection for the arrow: with thetamin/max
+    # set, paths whose endpoints fall outside the visible theta range get
+    # dropped from the renderer (clip_on=False does not rescue them). Place
+    # the arrow in axes coords instead — layout-aware but not routed through
+    # the polar transform.
+    #
+    # In a half-disk polar axes (thetamin=-90, thetamax=+90, aspect=equal),
+    # the wedge bbox occupies the axes [0, 1] x [0, 1]. The cartesian origin
+    # (r=0) is the chord midpoint (axes_x=0, axes_y=0.5); +x runs along
+    # axes_y=0.5 to axes_x=1 (arc tip), +z runs along axes_x=0 to axes_y=1.
+    # 1 cart unit = 1/r_outer in axes_x and 1/(2*r_outer) in axes_y, so
+    # the line stays straight in display coords through the origin.
+    r_outer = float(ax.get_rmax())
+    dx = nx * half / r_outer
+    dz = nz * half / (2.0 * r_outer)
+    tip_axes  = (0.0 + dx, 0.5 + dz)
+    tail_axes = (0.0 - dx, 0.5 - dz)
+
+    arrow = FancyArrowPatch(
+        tail_axes, tip_axes,
+        arrowstyle="-|>",
+        color=color, lw=lw,
+        mutation_scale=12,
+        shrinkA=0, shrinkB=0,
+        capstyle="round",
+        transform=ax.transAxes,
+    )
+    arrow.set_clip_on(False)
+    ax.add_patch(arrow)
+
+
 def plot_half_disk(
     result:         CaptureStudyResult,
     capture_radius: float,
@@ -137,6 +195,10 @@ def plot_half_disk(
     title:          str | None = None,
     theme:          str = "dark",
     cmap:           str = "inferno",
+    show_colorbar:  bool = True,
+    show_tilt_arrow: bool = False,
+    width_in:       float = 5.0,
+    height_over_width: float = 0.9,
 ):
     """Render the capture map over the half-disk in (x, z).
 
@@ -151,10 +213,7 @@ def plot_half_disk(
     style = resolve_style(theme=theme)
     apply_matplotlib_style(style)
 
-    # With aspect=equal, the polar disk is a circle of diameter
-    # min(axes_w, axes_h). To make the wedge fill the figure vertically we
-    # need axes_w >= axes_h, i.e. figure slightly wider than tall.
-    w, h = figure_size(0.9, width_in=5.0)
+    w, h = figure_size(height_over_width, width_in=width_in)
     fig, ax = plt.subplots(figsize=(w, h), dpi=300,
                            subplot_kw={"projection": "polar"})
 
@@ -162,32 +221,38 @@ def plot_half_disk(
         ax, result, capture_radius, tilt, style=style, cmap=cmap,
     )
 
-    # Polar axes' transAxes maps to the wedge bbox (after thetamin/max), so
-    # axes-x = 0 is the wedge's left chord and axes-x = 1 is its outer edge.
-    # Place the colorbar just left of the wedge.
-    cb_axes_x  = -0.04
-    cb_axes_w  = 0.025
-    cax = ax.inset_axes([cb_axes_x, 0.0, cb_axes_w, 1.0])
-    cbar = fig.colorbar(mesh, cax=cax)
-    cax.yaxis.set_ticks_position("left")
-    cax.yaxis.set_label_position("left")
-    cbar.set_label(
-        "capture rate" if tilt is None else "captured (1 = yes)",
-        fontsize=style.font_size,
-    )
+    if show_tilt_arrow and tilt is not None:
+        draw_tilt_arrow(ax, float(tilt))
 
-    # Center the title over [cbar (with its left-side tick labels and label)
-    # + wedge]. Approximate the cbar's leftmost extent (label + tick text)
-    # at axes-x ~ -0.18; right edge of composite is the wedge outer at 1.0.
-    auto_title = (
-        f"capture map ({mode_label}), "
-        rf"$r_\mathrm{{cap}} = {capture_radius:g}$"
-    )
-    title_axes_x = 0.5 * (-0.18 + 1.0)
-    ax.set_title(title or auto_title, fontsize=style.font_size, pad=14,
-                 x=title_axes_x)
+    if show_colorbar:
+        # Polar axes' transAxes maps to the wedge bbox (after thetamin/max),
+        # so axes-x = 0 is the wedge's left chord and axes-x = 1 is its outer
+        # edge. Tuck the colorbar against the chord; keep numeric ticks but
+        # skip the axis label so the layout stays compact at small widths.
+        cb_axes_x  = 0.00
+        cb_axes_w  = 0.025
+        cax = ax.inset_axes([cb_axes_x, 0.0, cb_axes_w, 1.0])
+        fig.colorbar(mesh, cax=cax)
+        cax.yaxis.set_ticks_position("left")
+        cax.yaxis.set_label_position("left")
 
-    fig.subplots_adjust(left=0.16, right=0.98, top=0.88, bottom=0.05)
+    if title != "":
+        auto_title = (
+            f"capture map ({mode_label}), "
+            rf"$r_\mathrm{{cap}} = {capture_radius:g}$"
+        )
+        title_axes_x = 0.5 * (-0.18 + 1.0)
+        ax.set_title(title or auto_title, fontsize=style.font_size, pad=14,
+                     x=title_axes_x)
+        top = 0.88
+    else:
+        top = 0.97
+
+    # Reserve left margin for the colorbar (with its left-side ticks) and for
+    # the tilt arrow's backward-pointing endpoint. Without either, pull the
+    # wedge leftward.
+    left = 0.16 if (show_colorbar or show_tilt_arrow) else 0.08
+    fig.subplots_adjust(left=left, right=0.98, top=top, bottom=0.05)
     if savepath is not None:
         fig.savefig(savepath, dpi=300)
     return fig
