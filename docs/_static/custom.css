@@ -1,0 +1,74 @@
+/* Keep content width comfortable for equation-heavy pages */
+.content {
+  max-width: 1100px;
+}
+
+/* Slightly improve table readability */
+table.docutils td,
+table.docutils th {
+  vertical-align: top;
+}
+
+/* Keep embedded media inside the main content column */
+.case-study-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.case-study-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keep prose line spacing consistent even when inline math is present */
+.content p,
+.content li,
+.content dd,
+.content .sd-card-text,
+.bd-content p,
+.bd-content li,
+.bd-content dd,
+.bd-content .sd-card-text {
+  line-height: 1.7;
+}
+
+/* Normalize Sphinx inline-math wrappers */
+.content span.math,
+.content span.math.notranslate,
+.content span.math.notranslate.nohighlight,
+.bd-content span.math,
+.bd-content span.math.notranslate,
+.bd-content span.math.notranslate.nohighlight {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+/* Prevent inline MathJax from expanding line boxes unevenly */
+mjx-container[jax="CHTML"][display="false"] {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  vertical-align: -0.08em;
+}
+
+mjx-container[jax="CHTML"][display="false"] > mjx-math {
+  line-height: 1;
+}
+
+/* Hide the paragraph symbol (¶) on heading hover */
+a.headerlink {
+  display: none !important;
+}
+
+/* Legacy MathJax wrapper class (in case some pages use it) */
+.MathJax {
+  line-height: 0;
+}

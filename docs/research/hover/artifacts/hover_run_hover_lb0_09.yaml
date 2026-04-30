@@ -1,0 +1,61 @@
+algorithm:
+  equilibrium_tol: 0.0001
+  max_eval: 500
+  n_samples: 500
+control_bounds:
+  phi_amp:
+  - 0.349
+  - 1.396
+  psi_amp:
+  - 0.087
+  - 1.047
+  psi_mean:
+  - 0.0
+  - 0.785
+  psi_phase:
+  - 0.0
+  - 6.283
+gamma_sweep:
+- 0.0
+- 1.48353
+- 18
+morphology:
+  omega: 25.1327
+  wings:
+  - aero_model: wang2004
+    ar: 7.0
+    cone: 0.174533
+    lb0: 0.9
+    mu0: 0.025
+    name: fore
+    nu: 0.015
+    phase: 0.0
+    side: left
+  - aero_model: wang2004
+    ar: 7.0
+    cone: 0.174533
+    lb0: 0.9
+    mu0: 0.025
+    name: fore
+    nu: 0.015
+    phase: 0.0
+    side: right
+  - aero_model: wang2004
+    ar: 7.0
+    cone: -0.174533
+    lb0: 0.9
+    mu0: 0.025
+    name: hind
+    nu: 0.015
+    phase: 3.14159
+    side: left
+  - aero_model: wang2004
+    ar: 7.0
+    cone: -0.174533
+    lb0: 0.9
+    mu0: 0.025
+    name: hind
+    nu: 0.015
+    phase: 3.14159
+    side: right
+output: /Users/jean/Code/dragonfly-flight-control/docs/research/hover/artifacts/hover_lb0_09.h5

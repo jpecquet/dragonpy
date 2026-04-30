@@ -1,0 +1,93 @@
+{
+  "convention_mapping": {
+    "dataset_id": "azuma1985",
+    "notes": [
+      "Paper world frame (X backward, Y right, Z up) is rotated 180 deg about +Z to simulator frame (X forward, Y left, Z up).",
+      "Azuma flapping angle theta has opposite sign to simulator phi in current model mapping.",
+      "Azuma pitch angle beta/theta maps to simulator psi by psi_sim = theta - 90 deg."
+    ],
+    "override_inputs_deg": {
+      "fore_stroke_plane_deg": null,
+      "hind_stroke_plane_deg": null,
+      "stroke_plane_deg": null
+    },
+    "resolved_stroke_plane_deg": {
+      "fore": 37.0,
+      "hind": 40.0
+    },
+    "sim_transforms": {
+      "gamma": {
+        "offset_deg": 0.0,
+        "phase_shift_deg": 0.0,
+        "scale": 1.0
+      },
+      "phi": {
+        "offset_deg": 0.0,
+        "phase_shift_deg": 0.0,
+        "scale": -1.0
+      },
+      "psi": {
+        "offset_deg": -90.0,
+        "phase_shift_deg": 0.0,
+        "scale": 1.0
+      }
+    },
+    "source_angle_names": {
+      "gamma": "stroke plane angle",
+      "phi": "flapping angle theta (paper figure typo labels this phi)",
+      "psi": "pitch angle"
+    },
+    "source_to_sim_rotation": [
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "source_typos": [
+      "In azuma1985_coords.png, phi in the transform table should be theta."
+    ],
+    "source_world_axes": {
+      "X": "backward",
+      "Y": "right",
+      "Z": "up"
+    }
+  },
+  "n_harmonics": 3,
+  "n_wingbeats": 5,
+  "nondimensional_parameters": {
+    "fore_lb0_lambda": 0.8375,
+    "fore_mu0_mu": 0.034881875000000014,
+    "hind_lb0_lambda": 0.8125,
+    "hind_mu0_mu": 0.041650000000000006,
+    "omega": 16.650353449898372
+  },
+  "physical_inputs": {
+    "body_length_m": 0.04,
+    "body_mass_kg": 0.00026,
+    "fore_area_m2": 0.000221,
+    "fore_span_m": 0.0335,
+    "fore_stroke_plane_deg": null,
+    "frequency_hz": 41.5,
+    "gravity_m_s2": 9.81,
+    "hind_area_m2": 0.000272,
+    "hind_span_m": 0.0325,
+    "hind_stroke_plane_deg": null,
+    "rho_air_kg_m3": 1.225,
+    "stroke_plane_deg": null
+  },
+  "sim_config_path": "docs/validation/azuma1985/artifacts/sim/sim_azuma1985.cfg",
+  "sim_output_path": "docs/validation/azuma1985/artifacts/sim/output.h5",
+  "steps_per_wingbeat": 200,
+  "tether": false
+}

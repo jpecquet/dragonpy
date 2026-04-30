@@ -1,0 +1,29 @@
+{
+  "git_commit": "509b05bc165a17accf7ee6e2ed3f265cec5e5a2e",
+  "repo_root": ".",
+  "stages": {
+    "sim": {
+      "artifacts": [
+        "docs/validation/azuma1988/artifacts/exp2/sim/sim_azuma1988.cfg",
+        "docs/validation/azuma1988/artifacts/exp2/sim/output.h5"
+      ],
+      "metadata": {
+        "binary": "build/bin/dragonfly",
+        "config": "docs/validation/azuma1988/artifacts/exp2/sim/sim_azuma1988.cfg",
+        "experiment_id": "2",
+        "output_h5": "docs/validation/azuma1988/artifacts/exp2/sim/output.h5"
+      }
+    },
+    "translate": {
+      "artifacts": [
+        "docs/validation/azuma1988/artifacts/exp2/sim/sim_azuma1988.cfg",
+        "docs/validation/azuma1988/artifacts/exp2/sim/translate_summary.json"
+      ],
+      "metadata": {
+        "experiment_id": "2",
+        "sim_config_path": "docs/validation/azuma1988/artifacts/exp2/sim/sim_azuma1988.cfg",
+        "sim_output_path": "docs/validation/azuma1988/artifacts/exp2/sim/output.h5"
+      }
+    }
+  }
+}

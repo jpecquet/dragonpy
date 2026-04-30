@@ -19,8 +19,9 @@ Frame conventions (all right-handed):
          muscle-layer parameter) rotates this axis toward horizontal, at
          which point sweep becomes the intuitive "up-and-down flap" of
          forward flight.  Elevation is about the once-rotated +y (figure-8
-         out-of-plane deviation). Feather is about the twice-rotated +x
-         (wing pitch about the long axis).
+         out-of-plane deviation); positive elevation deflects the wing
+         forward (toward the leading edge in the stroke plane). Feather is
+         about the twice-rotated +x (wing pitch about the long axis).
 
 Units: length L0 = body length, time T0 = sqrt(L0/g), mass m = body mass.
 In these units g = 1 and body mass = 1. Frequencies are in 1/T0.
@@ -115,29 +116,80 @@ def wing_wrench(
     v_rel_body = v_elem_body - wind_body[None, :]            # element vel rel to air
     v_rel_wing = v_rel_body @ R_body_wing                    # rotate body -> wing
 
-    vy = v_rel_wing[:, 1]
+    # In the wing frame +y is the leading edge for right wings but the
+    # trailing edge for left wings (consequence of right-handed hinge
+    # frames with +x always spanwise-outward).  Flip vy by chirality so
+    # that vy_le always points toward the leading edge.
+    vy_le = wing.chirality * v_rel_wing[:, 1]
     vz = v_rel_wing[:, 2]
-    V2 = vy * vy + vz * vz
-    # AOA: zero at head-on chordwise flow (+y wind direction), +pi/2 when wind
-    # hits the dorsal (+z) side. v_wind = -v_rel, so alpha = atan2(-vz, vy).
-    alpha = np.arctan2(-vz, vy)
+    V2 = vy_le * vy_le + vz * vz
+    alpha = np.arctan2(-vz, vy_le)
 
     Cl = wing.lift_coeff(alpha)
     Cd = wing.drag_coeff(alpha)
 
     safeV = np.where(V2 > 1e-24, np.sqrt(V2), 1.0)
-    d_y = -vy / safeV
-    d_z = -vz / safeV
-    # Lift direction in wing frame = cross(drag_dir_3d, x_hat) = (0, d_z, -d_y)
-    l_y =  d_z
-    l_z = -d_y
+    d_le = -vy_le / safeV
+    d_z  = -vz / safeV
+    l_le =  d_z
+    l_z  = -d_le
 
     scale = 0.5 * wing.aero_ratio / N * V2                    # (N,)
-    Fy_wing = scale * (Cl * l_y + Cd * d_y)
-    Fz_wing = scale * (Cl * l_z + Cd * d_z)
+    F_le    = scale * (Cl * l_le + Cd * d_le)
+    Fz_wing = scale * (Cl * l_z  + Cd * d_z)
+    Fy_wing = wing.chirality * F_le
     F_elem_wing = np.stack([np.zeros(N), Fy_wing, Fz_wing], axis=1)
 
     F_elem_body = F_elem_wing @ R_body_wing.T                 # rotate wing -> body
     F_total = F_elem_body.sum(axis=0)
     T_total = np.cross(positions_body, F_elem_body).sum(axis=0)
     return F_total, T_total
+
+
+def wing_force_point_mass(
+    wing: Wing,
+    state: WingState,
+    v_body: np.ndarray,
+    wind_body: np.ndarray,
+) -> np.ndarray:
+    """Force-only aero for the point-mass path.
+
+    Equivalent to `wing_wrench(...)[0]` with `omega_body = 0`, but skips the
+    torque-about-COM computation (unused), the body-angular-velocity kinematic
+    term (zero), and the absolute element positions (only the offset from the
+    hinge enters once omega_body = 0).
+    """
+    R_body_wing = wing.hinge_orientation @ state.R_hinge_from_wing
+    omega_wing_rel_body = wing.hinge_orientation @ state.omega_wing_in_hinge
+
+    N = wing.n_elements
+    r = (np.arange(N) + 0.5) * (wing.span_ratio / N)
+    wing_x_body = R_body_wing[:, 0]
+    r_from_hinge_body = r[:, None] * wing_x_body[None, :]
+
+    v_elem_body = v_body[None, :] + np.cross(omega_wing_rel_body, r_from_hinge_body)
+    v_rel_body = v_elem_body - wind_body[None, :]
+    v_rel_wing = v_rel_body @ R_body_wing
+
+    vy_le = wing.chirality * v_rel_wing[:, 1]
+    vz = v_rel_wing[:, 2]
+    V2 = vy_le * vy_le + vz * vz
+    alpha = np.arctan2(-vz, vy_le)
+
+    Cl = wing.lift_coeff(alpha)
+    Cd = wing.drag_coeff(alpha)
+
+    safeV = np.where(V2 > 1e-24, np.sqrt(V2), 1.0)
+    d_le = -vy_le / safeV
+    d_z  = -vz / safeV
+    l_le =  d_z
+    l_z  = -d_le
+
+    scale = 0.5 * wing.aero_ratio / N * V2
+    F_le    = scale * (Cl * l_le + Cd * d_le)
+    Fz_wing = scale * (Cl * l_z  + Cd * d_z)
+    Fy_wing = wing.chirality * F_le
+    F_elem_wing = np.stack([np.zeros(N), Fy_wing, Fz_wing], axis=1)
+
+    F_elem_body = F_elem_wing @ R_body_wing.T
+    return F_elem_body.sum(axis=0)

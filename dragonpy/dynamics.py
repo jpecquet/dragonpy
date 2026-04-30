@@ -18,7 +18,7 @@ from typing import Callable
 import numpy as np
 
 from .body.muscles import expand_pattern
-from .body.wings import WingState, wing_wrench
+from .body.wings import WingState, wing_force_point_mass, wing_wrench
 from .dragonfly import Dragonfly
 from .numerics.rotations import (
     quat_derivative,
@@ -42,11 +42,18 @@ class Simulation:
 
 
 def _state_size(dfly: Dragonfly) -> int:
+    if dfly.point_mass:
+        return 6 + len(dfly.wings)
     return 13 + len(dfly.wings)
 
 
 def pack(dfly: Dragonfly) -> np.ndarray:
     s = np.empty(_state_size(dfly))
+    if dfly.point_mass:
+        s[0:3] = dfly.position
+        s[3:6] = dfly.velocity
+        s[6:]  = dfly.wing_phases
+        return s
     s[0:3]   = dfly.position
     s[3:7]   = dfly.attitude
     s[7:10]  = dfly.velocity
@@ -56,20 +63,56 @@ def pack(dfly: Dragonfly) -> np.ndarray:
 
 
 def unpack(state: np.ndarray, dfly: Dragonfly) -> None:
-    dfly.position    = state[0:3].copy()
-    dfly.velocity    = state[7:10].copy()
-    dfly.wing_phases = state[13:].copy()
-    if not dfly.point_mass:
-        dfly.attitude         = quat_normalize(state[3:7])
-        dfly.angular_velocity = state[10:13].copy()
+    if dfly.point_mass:
+        dfly.position    = state[0:3].copy()
+        dfly.velocity    = state[3:6].copy()
+        dfly.wing_phases = state[6:].copy()
+        return
+    dfly.position         = state[0:3].copy()
+    dfly.attitude         = quat_normalize(state[3:7])
+    dfly.velocity         = state[7:10].copy()
+    dfly.angular_velocity = state[10:13].copy()
+    dfly.wing_phases      = state[13:].copy()
 
 
 # ---------------------------------------------------------------------------
 # Derivative of the integrated state.
 
 
+def _deriv_point_mass(state: np.ndarray, sim: Simulation) -> np.ndarray:
+    dfly = sim.dragonfly
+    env  = sim.environment
+
+    position = state[0:3]
+    velocity = state[3:6]
+    phases   = state[6:]
+
+    wind_body    = env.wind(position, sim.t)
+    gravity_body = env.gravity_direction
+    omega_phase  = 2.0 * np.pi * dfly.wing_frequency
+
+    F_total = np.zeros(3)
+    for wing, pat, phase in zip(dfly.wings, dfly.stroke_patterns, phases):
+        R_hw, w_hinge = expand_pattern(pat, float(phase), omega_phase, wing.chirality)
+        ws = WingState(R_hinge_from_wing=R_hw, omega_wing_in_hinge=w_hinge)
+        F_total += wing_force_point_mass(wing, ws, velocity, wind_body)
+
+    out = np.empty_like(state)
+    if dfly.tethered:
+        out[0:6] = 0.0
+        out[6:]  = omega_phase
+        return out
+    out[0:3] = velocity
+    out[3:6] = F_total + gravity_body
+    out[6:]  = omega_phase
+    return out
+
+
 def deriv(state: np.ndarray, sim: Simulation) -> np.ndarray:
     dfly = sim.dragonfly
+    if dfly.point_mass:
+        return _deriv_point_mass(state, sim)
+
     env  = sim.environment
 
     position = state[0:3]
@@ -78,18 +121,10 @@ def deriv(state: np.ndarray, sim: Simulation) -> np.ndarray:
     omega    = state[10:13]
     phases   = state[13:]
 
-    point_mass = dfly.point_mass
-
-    if point_mass:
-        R_world_body = np.eye(3)
-        wind_body    = env.wind(position, sim.t)
-        gravity_body = env.gravity_direction
-        omega        = np.zeros(3)
-    else:
-        R_world_body = quat_to_matrix(q)
-        R_body_world = R_world_body.T
-        wind_body    = R_body_world @ env.wind(position, sim.t)
-        gravity_body = R_body_world @ env.gravity_direction
+    R_world_body = quat_to_matrix(q)
+    R_body_world = R_world_body.T
+    wind_body    = R_body_world @ env.wind(position, sim.t)
+    gravity_body = R_body_world @ env.gravity_direction
 
     omega_phase = 2.0 * np.pi * dfly.wing_frequency
 
@@ -100,24 +135,22 @@ def deriv(state: np.ndarray, sim: Simulation) -> np.ndarray:
         ws = WingState(R_hinge_from_wing=R_hw, omega_wing_in_hinge=w_hinge)
         F_i, T_i = wing_wrench(wing, ws, velocity, omega, wind_body)
         F_total += F_i
-        if not point_mass:
-            T_total += T_i
+        T_total += T_i
 
     dpos = R_world_body @ velocity
     dvel = F_total + gravity_body - np.cross(omega, velocity)
 
-    if point_mass:
-        dq     = np.zeros(4)
-        domega = np.zeros(3)
-    else:
-        dq     = quat_derivative(q, omega)
-        I = dfly.inertia_body
-        I_omega = I * omega
-        domega = (T_total - np.cross(omega, I_omega)) / I
+    dq = quat_derivative(q, omega)
+    I = dfly.inertia_body
+    I_omega = I * omega
+    domega = (T_total - np.cross(omega, I_omega)) / I
 
     dphases = np.full(len(phases), omega_phase)
 
-    out = np.empty_like(state)
+    out = np.zeros_like(state)
+    if dfly.tethered:
+        out[13:] = dphases
+        return out
     out[0:3]   = dpos
     out[3:7]   = dq
     out[7:10]  = dvel

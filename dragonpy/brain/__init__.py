@@ -120,10 +120,12 @@ class InterceptBrain(Brain):
         wing_frequency: float,
         k_z: float,
         k_x: float,
+        hover_stroke_plane_tilt: float = 0.0,
         # intercept parameters
-        intercept_sweep_amp: float,
-        intercept_feather_amp: float,
-        k_tilt: float,
+        intercept_sweep_amp: float = 0.0,
+        intercept_feather_amp: float = 0.0,
+        intercept_feather_phase: float = 0.0,
+        k_tilt: float = 0.0,
     ) -> None:
         self.hover_sweep_amp = hover_sweep_amp
         self.feather_amp     = feather_amp
@@ -131,15 +133,17 @@ class InterceptBrain(Brain):
         self.wing_frequency  = wing_frequency
         self.k_z = k_z
         self.k_x = k_x
+        self.hover_stroke_plane_tilt = hover_stroke_plane_tilt
 
         self.intercept_sweep_amp    = intercept_sweep_amp
         self.intercept_feather_amp  = intercept_feather_amp
+        self.intercept_feather_phase = intercept_feather_phase
         self.k_tilt = k_tilt
 
         # live state
         self.sweep_amp     = hover_sweep_amp
         self.feather_mean  = 0.0
-        self.stroke_plane_tilt = 0.0
+        self.stroke_plane_tilt = hover_stroke_plane_tilt
         self.mode: str     = "hover"
         self._installed    = False
 
@@ -147,7 +151,7 @@ class InterceptBrain(Brain):
         if not self._installed:
             dragonfly.wing_frequency = self.wing_frequency
             for p in dragonfly.stroke_patterns:
-                p.stroke_plane_tilt = 0.0
+                p.stroke_plane_tilt = self.hover_stroke_plane_tilt
                 p.sweep_amp = self.sweep_amp
                 p.sweep_mean = 0.0
                 p.sweep_phase = 0.0
@@ -174,13 +178,13 @@ class InterceptBrain(Brain):
         self.sweep_amp += -self.k_z * vel[2] * dt
         self.sweep_amp  = max(self.sweep_amp, 0.0)
         self.feather_mean += self.k_x * vel[0] * dt
-        self.stroke_plane_tilt = 0.0
+        self.stroke_plane_tilt = self.hover_stroke_plane_tilt
 
         for p in dragonfly.stroke_patterns:
             p.sweep_amp = self.sweep_amp
             p.feather_mean = self.feather_mean
             p.feather_amp = self.feather_amp
-            p.stroke_plane_tilt = 0.0
+            p.stroke_plane_tilt = self.hover_stroke_plane_tilt
 
     def _intercept_update(
         self, prey, vel: np.ndarray, dragonfly: "Dragonfly", dt: float,
@@ -195,7 +199,7 @@ class InterceptBrain(Brain):
             vel_elev  = 0.0
         prey_elev = np.arctan2(bearing[2], bearing[0])
 
-        self.stroke_plane_tilt += self.k_tilt * (prey_elev - vel_elev) * dt
+        self.stroke_plane_tilt -= self.k_tilt * (prey_elev - vel_elev) * dt
 
         self.sweep_amp    = self.intercept_sweep_amp
         self.feather_mean = 0.0
@@ -204,6 +208,7 @@ class InterceptBrain(Brain):
             p.sweep_amp = self.sweep_amp
             p.feather_mean = 0.0
             p.feather_amp = self.intercept_feather_amp
+            p.feather_phase = self.intercept_feather_phase
             p.stroke_plane_tilt = self.stroke_plane_tilt
 
 

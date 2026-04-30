@@ -1,0 +1,128 @@
+{
+  "convention_mapping": {
+    "coning_angles_deg": {
+      "fore": 8.0,
+      "hind": -2.0
+    },
+    "dataset_id": "azuma1988:exp1",
+    "notes": [
+      "Paper world frame (X backward, Y right, Z up) is rotated 180 deg about +Z to simulator frame (X forward, Y left, Z up).",
+      "Azuma flapping angle psi has opposite sign to simulator phi.",
+      "Azuma pitch angle theta maps to simulator psi by psi_sim = theta - 90 deg.",
+      "Coning angles (beta_fw=8 deg, beta_hw=-2 deg) are handled separately as static wing geometry.",
+      "For experiments 1-4, gamma uses stroke-plane inclination measured from horizontal line.",
+      "Feathering Fourier coefficients are taken at 0.75R; optional first-harmonic spanwise twist is experiment-configurable."
+    ],
+    "override_inputs_deg": {
+      "fore_stroke_plane_deg": null,
+      "hind_stroke_plane_deg": null,
+      "stroke_plane_deg": null
+    },
+    "pitch_twist_model": {
+      "applied_to": "first harmonic coefficient magnitude of pitch series",
+      "enabled": true,
+      "formula": "coeff(eta) = (coeff(ref_eta)-coeff(0))*(eta/ref_eta) + coeff(0)",
+      "kind": "linear_first_harmonic_along_span",
+      "ref_eta": 0.75,
+      "root_coeff_deg": {
+        "fore": 9.0,
+        "hind": 9.0
+      }
+    },
+    "resolved_stroke_plane_deg": {
+      "fore": 40.0,
+      "hind": 38.0
+    },
+    "sim_transforms": {
+      "gamma": {
+        "offset_deg": 0.0,
+        "phase_shift_deg": 0.0,
+        "scale": 1.0
+      },
+      "phi": {
+        "offset_deg": 0.0,
+        "phase_shift_deg": 0.0,
+        "scale": -1.0
+      },
+      "psi": {
+        "offset_deg": -90.0,
+        "phase_shift_deg": 0.0,
+        "scale": 1.0
+      }
+    },
+    "source_angle_names": {
+      "gamma": "stroke plane angle",
+      "phi": "flapping angle psi (paper notation)",
+      "psi": "pitch angle theta (paper notation)"
+    },
+    "source_to_sim_rotation": [
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "source_typos": [],
+    "source_world_axes": {
+      "X": "backward",
+      "Y": "right",
+      "Z": "up"
+    }
+  },
+  "initial_velocity": {
+    "experiment_reference": {
+      "direction_definition": "atan2(z, x) in XZ plane",
+      "direction_deg": -12.0,
+      "speed_m_s": 0.7
+    },
+    "nondimensional": {
+      "ux0": 0.7982470066030396,
+      "uy0": 0.0,
+      "uz0": -0.16967263908692956
+    },
+    "speed_nondim": 0.8160803195797804,
+    "speed_scale_m_s": 0.8577587073297478
+  },
+  "n_harmonics": 4,
+  "n_wingbeats": 5,
+  "nondimensional_parameters": {
+    "fore_lb0_lambda": 0.6666666666666667,
+    "fore_mu0_mu": 0.03876582278481013,
+    "hind_lb0_lambda": 0.6466666666666667,
+    "hind_mu0_mu": 0.04512341772151899,
+    "omega": 14.558675640722742
+  },
+  "physical_inputs": {
+    "body_length_m": 0.075,
+    "body_mass_kg": 0.00079,
+    "fore_area_m2": 0.0005,
+    "fore_span_m": 0.05,
+    "fore_stroke_plane_deg": null,
+    "frequency_hz": 26.5,
+    "gravity_m_s2": 9.81,
+    "hind_area_m2": 0.0006,
+    "hind_span_m": 0.0485,
+    "hind_stroke_plane_deg": null,
+    "rho_air_kg_m3": 1.225,
+    "stroke_plane_deg": null
+  },
+  "selected_experiment": {
+    "dragonfly": "A",
+    "id": "1",
+    "label": "Experiment 1"
+  },
+  "sim_config_path": "docs/validation/azuma1988/artifacts/exp1/sim/sim_azuma1988.cfg",
+  "sim_output_path": "docs/validation/azuma1988/artifacts/exp1/sim/output.h5",
+  "steps_per_wingbeat": 200,
+  "tether": false
+}

@@ -75,7 +75,7 @@ def make_pattern(sweep_phase_offset: float) -> StrokePattern:
         sweep_phase=sweep_phase_offset,
         elev_amp=0.2,
         elev_mean=0.0,
-        elev_phase=0.0,
+        elev_phase=np.pi,
         elev_harmonic=2,
         feather_amp=0.7,
         feather_mean=0.0,

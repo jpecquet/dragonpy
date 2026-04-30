@@ -1,0 +1,27 @@
+{
+  "git_commit": "0e4a553c376e5238b93b54843f76f54f519dd62e",
+  "repo_root": ".",
+  "stages": {
+    "sim": {
+      "artifacts": [
+        "docs/validation/azuma1985/artifacts/sim/sim_azuma1985.cfg",
+        "docs/validation/azuma1985/artifacts/sim/output.h5"
+      ],
+      "metadata": {
+        "binary": "build/bin/dragonfly",
+        "config": "docs/validation/azuma1985/artifacts/sim/sim_azuma1985.cfg",
+        "output_h5": "docs/validation/azuma1985/artifacts/sim/output.h5"
+      }
+    },
+    "translate": {
+      "artifacts": [
+        "docs/validation/azuma1985/artifacts/sim/sim_azuma1985.cfg",
+        "docs/validation/azuma1985/artifacts/sim/translate_summary.json"
+      ],
+      "metadata": {
+        "sim_config_path": "docs/validation/azuma1985/artifacts/sim/sim_azuma1985.cfg",
+        "sim_output_path": "docs/validation/azuma1985/artifacts/sim/output.h5"
+      }
+    }
+  }
+}

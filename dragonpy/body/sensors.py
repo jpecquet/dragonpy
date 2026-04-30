@@ -107,12 +107,19 @@ class CompoundEye(Sensor):
 
     Returns one `PreyDetection` per prey that is (a) within `max_range` and
     (b) within `fov_half_angle` of the body +x axis.
+
+    An optional `delay` (seconds) buffers detections and exposes them only
+    after the delay has elapsed, modelling neural processing latency.
     """
 
-    def __init__(self, fov_half_angle: float, max_range: float) -> None:
+    def __init__(
+        self, fov_half_angle: float, max_range: float, delay: float = 0.0,
+    ) -> None:
         self.fov_half_angle = float(fov_half_angle)
         self.max_range = float(max_range)
+        self.delay = float(delay)
         self.reading: list[PreyDetection] = []
+        self._buffer: list[tuple[float, list[PreyDetection]]] = []
 
     def sample(self, sim: "Simulation") -> None:
         dfly = sim.dragonfly
@@ -144,7 +151,19 @@ class CompoundEye(Sensor):
                 angular_size=2.0 * np.arctan(prey.radius / dist),
                 angular_velocity=ang_vel,
             ))
-        self.reading = detections
+
+        if self.delay <= 0.0:
+            self.reading = detections
+        else:
+            self._buffer.append((sim.t, detections))
+            # Emit the oldest reading whose timestamp is at least `delay` ago.
+            cutoff = sim.t - self.delay
+            while len(self._buffer) > 1 and self._buffer[1][0] <= cutoff:
+                self._buffer.pop(0)
+            if self._buffer[0][0] <= cutoff:
+                self.reading = self._buffer[0][1]
+            else:
+                self.reading = []
 
 
 class Ocelli(Sensor):
