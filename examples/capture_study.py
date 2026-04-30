@@ -65,14 +65,18 @@ R_HINGE_LEFT  = np.array([[ 0.0, -1.0, 0.0],
 WING_FREQUENCY = 4.0
 
 
-def make_wing(chirality: int) -> Wing:
+def make_wing(
+    chirality: int,
+    aero_ratio: float = 0.025,
+    span_ratio: float = 0.75,
+) -> Wing:
     return Wing(
         hinge_position=np.zeros(3),
         hinge_orientation=R_HINGE_RIGHT if chirality == +1 else R_HINGE_LEFT,
         chirality=chirality,
-        span_ratio=0.75,
+        span_ratio=span_ratio,
         mass_ratio=0.0,
-        aero_ratio=0.025,
+        aero_ratio=aero_ratio,
         lift_coeff=wang_cl,
         drag_coeff=wang_cd,
         n_elements=8,
@@ -97,12 +101,18 @@ def _build_simulation(
     tilt: float,
     target_position: np.ndarray,
     *,
-    k_tilt:            float,
-    sensing_delay:     float,
-    fov_half_angle:    float,
-    hind_phase_offset: float,
+    k_tilt:                float,
+    sensing_delay:         float,
+    fov_half_angle:        float,
+    hind_phase_offset:     float,
+    intercept_feather_amp: float,
+    aero_ratio:            float,
+    span_ratio:            float,
 ) -> Simulation:
-    wings = [make_wing(+1), make_wing(-1), make_wing(+1), make_wing(-1)]
+    wings = [
+        make_wing(c, aero_ratio=aero_ratio, span_ratio=span_ratio)
+        for c in (+1, -1, +1, -1)
+    ]
 
     sensors = Sensors(
         inertial=InertialSensor(),
@@ -125,7 +135,7 @@ def _build_simulation(
         k_x=1.0,
         hover_stroke_plane_tilt=tilt,
         intercept_sweep_amp=np.radians(45),
-        intercept_feather_amp=np.radians(30),
+        intercept_feather_amp=intercept_feather_amp,
         intercept_feather_phase=np.pi / 2,
         k_tilt=k_tilt,
     )
@@ -160,10 +170,13 @@ def _build_simulation(
 
 def make_setup(
     *,
-    k_tilt:            float,
-    sensing_delay:     float,
-    fov_half_angle:    float = np.pi,        # pi == full 360deg sphere
-    hind_phase_offset: float = np.pi / 2,
+    k_tilt:                float,
+    sensing_delay:         float,
+    fov_half_angle:        float = np.pi,        # pi == full 360deg sphere
+    hind_phase_offset:     float = np.pi / 2,
+    intercept_feather_amp: float = np.radians(30),
+    aero_ratio:            float = 0.025,
+    span_ratio:            float = 0.75,
 ):
     """Bind a (gain, delay, kinematics) point and return a setup(tilt, target)
     callable. The result is a functools.partial — picklable for multiprocessing."""
@@ -173,6 +186,9 @@ def make_setup(
         sensing_delay=sensing_delay,
         fov_half_angle=fov_half_angle,
         hind_phase_offset=hind_phase_offset,
+        intercept_feather_amp=intercept_feather_amp,
+        aero_ratio=aero_ratio,
+        span_ratio=span_ratio,
     )
 
 

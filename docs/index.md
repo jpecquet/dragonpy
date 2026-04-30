@@ -28,5 +28,6 @@ validation/wang2007
 
 research/pursuit
 research/pursuit_k_tau
+research/capture_stationary
 research/hover
 ```

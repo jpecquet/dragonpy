@@ -37,8 +37,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     class="case-study-image"
     src="../_static/media/hover/hover_sweep.dark.png"
     alt="Hover sweep: power and optimal control parameters vs. stroke plane angle"
-    data-light-src="../_static/media/hover/hover_sweep.light.png"
-    data-dark-src="../_static/media/hover/hover_sweep.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 1. Left: minimum muscular power as a function of stroke plane angle $\gamma_0$ (dashed line marks the power-minimizing angle). Right: optimal control parameters $\phi_1$, $\psi_0$, $\psi_1$, $\delta_0$.</div>
 </div>
@@ -54,8 +52,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     class="case-study-image"
     src="../_static/media/hover/hover_mu0.dark.png"
     alt="Hover parametric study: effect of aerodynamic loading parameter"
-    data-light-src="../_static/media/hover/hover_mu0.light.png"
-    data-dark-src="../_static/media/hover/hover_mu0.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 2. Effect of aerodynamic loading parameter $\mu_0$.</div>
 </div>
@@ -69,8 +65,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     class="case-study-image"
     src="../_static/media/hover/hover_lb0.dark.png"
     alt="Hover parametric study: effect of wing span ratio"
-    data-light-src="../_static/media/hover/hover_lb0.light.png"
-    data-dark-src="../_static/media/hover/hover_lb0.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 3. Effect of wing span ratio $\lambda_0$.</div>
 </div>
@@ -84,8 +78,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     class="case-study-image"
     src="../_static/media/hover/hover_omega.dark.png"
     alt="Hover parametric study: effect of wingbeat frequency"
-    data-light-src="../_static/media/hover/hover_omega.light.png"
-    data-dark-src="../_static/media/hover/hover_omega.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 4. Effect of wingbeat frequency $\tilde{\omega}$.</div>
 </div>
@@ -99,8 +91,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     class="case-study-image"
     src="../_static/media/hover/hover_nu.dark.png"
     alt="Hover parametric study: effect of wing mass fraction"
-    data-light-src="../_static/media/hover/hover_nu.light.png"
-    data-dark-src="../_static/media/hover/hover_nu.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 5. Effect of wing mass fraction $\nu$.</div>
 </div>
@@ -119,8 +109,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/hover/hover_stick_ref.light.mp4"
-    data-dark-src="../_static/media/hover/hover_stick_ref.dark.mp4"
   >
     <source src="../_static/media/hover/hover_stick_ref.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -140,8 +128,6 @@ where $\tilde{I}_{\phi,i}$ and $\tilde{I}_{\psi,i}$ are the nondimensional flapp
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/hover/hover_stick_high_mu.light.mp4"
-    data-dark-src="../_static/media/hover/hover_stick_high_mu.dark.mp4"
   >
     <source src="../_static/media/hover/hover_stick_high_mu.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -172,8 +158,6 @@ The equilibrium setpoints $\phi_{1,\text{eq}}$ and $\psi_{0,\text{eq}}$ are foun
     class="case-study-image"
     src="../_static/media/hover/hover_control.dark.png"
     alt="Hover control simulation"
-    data-light-src="../_static/media/hover/hover_control.light.png"
-    data-dark-src="../_static/media/hover/hover_control.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 8. Hover stabilization from $(u_x, u_z) = (2.0, -1.0)$. Top: body velocity (within-wingbeat oscillations are physical). Bottom: control inputs $\phi_1$ and $\psi_0$ with dotted equilibrium lines. Parameters: $K_z = 0.7$, $K_x = 1.2$, averaging window $= 0.5\,T_\text{wb}$, muscle lag $\tau = 0.5\,T_\text{wb}$.</div>
 </div>
@@ -188,8 +172,6 @@ The equilibrium setpoints $\phi_{1,\text{eq}}$ and $\psi_{0,\text{eq}}$ are foun
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/hover/hover_control.light.mp4"
-    data-dark-src="../_static/media/hover/hover_control.dark.mp4"
   >
     <source src="../_static/media/hover/hover_control.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.

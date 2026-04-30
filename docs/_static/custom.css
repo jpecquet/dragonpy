@@ -68,6 +68,12 @@ a.headerlink {
   display: none !important;
 }
 
+/* Light mode is not supported. Hide furo's theme toggle entirely. */
+.theme-toggle,
+.theme-toggle-container {
+  display: none !important;
+}
+
 /* Legacy MathJax wrapper class (in case some pages use it) */
 .MathJax {
   line-height: 0;

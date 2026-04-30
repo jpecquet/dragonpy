@@ -86,6 +86,7 @@ def run_one(k_tilt: float, n_workers: int):
         k_tilt=k_tilt,
         sensing_delay=sensing_delay,
         hind_phase_offset=hind_phase,
+        intercept_feather_amp=np.radians(30.0),
     )
     print(f"[k={k_tilt}] saved {npz_path}", flush=True)
     return result, out_dir

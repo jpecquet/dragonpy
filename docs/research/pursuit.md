@@ -33,8 +33,6 @@ Target detection uses an angular field-of-view model: the target must lie within
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/pursuit/pursuit_animation.light.mp4"
-    data-dark-src="../_static/media/pursuit/pursuit_animation.dark.mp4"
   >
     <source src="../_static/media/pursuit/pursuit_animation.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -43,14 +41,8 @@ Target detection uses an angular field-of-view model: the target must lie within
 </div>
 ```
 
-```{image} ../_static/media/pursuit/pursuit_control.light.png
-:align: center
-:class: only-light
-:width: 80%
-```
 ```{image} ../_static/media/pursuit/pursuit_control.dark.png
 :align: center
-:class: only-dark
 :width: 80%
 ```
 <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center; margin-bottom:1.5rem;">Fig. 2. Controller state for Run 1.</div>
@@ -66,8 +58,6 @@ Target detection uses an angular field-of-view model: the target must lie within
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/pursuit/pursuit_descending.light.mp4"
-    data-dark-src="../_static/media/pursuit/pursuit_descending.dark.mp4"
   >
     <source src="../_static/media/pursuit/pursuit_descending.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -76,14 +66,8 @@ Target detection uses an angular field-of-view model: the target must lie within
 </div>
 ```
 
-```{image} ../_static/media/pursuit/pursuit_descending_control.light.png
-:align: center
-:class: only-light
-:width: 80%
-```
 ```{image} ../_static/media/pursuit/pursuit_descending_control.dark.png
 :align: center
-:class: only-dark
 :width: 80%
 ```
 <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center; margin-bottom:1.5rem;">Fig. 4. Controller state for Run 2.</div>
@@ -101,8 +85,6 @@ Same target as Run 1, but with a higher pursuit flapping amplitude $\phi_1 = 45�
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/pursuit/pursuit_fast.light.mp4"
-    data-dark-src="../_static/media/pursuit/pursuit_fast.dark.mp4"
   >
     <source src="../_static/media/pursuit/pursuit_fast.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -111,14 +93,8 @@ Same target as Run 1, but with a higher pursuit flapping amplitude $\phi_1 = 45�
 </div>
 ```
 
-```{image} ../_static/media/pursuit/pursuit_fast_control.light.png
-:align: center
-:class: only-light
-:width: 80%
-```
 ```{image} ../_static/media/pursuit/pursuit_fast_control.dark.png
 :align: center
-:class: only-dark
 :width: 80%
 ```
 <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center; margin-bottom:1.5rem;">Fig. 6. Controller state for Run 3.</div>
@@ -136,8 +112,6 @@ Same configuration as Run 3 ($\phi_1 = 45°$), but the target moves at $2\,\tild
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/pursuit/pursuit_fast_2x.light.mp4"
-    data-dark-src="../_static/media/pursuit/pursuit_fast_2x.dark.mp4"
   >
     <source src="../_static/media/pursuit/pursuit_fast_2x.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -146,14 +120,8 @@ Same configuration as Run 3 ($\phi_1 = 45°$), but the target moves at $2\,\tild
 </div>
 ```
 
-```{image} ../_static/media/pursuit/pursuit_fast_2x_control.light.png
-:align: center
-:class: only-light
-:width: 80%
-```
 ```{image} ../_static/media/pursuit/pursuit_fast_2x_control.dark.png
 :align: center
-:class: only-dark
 :width: 80%
 ```
 <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center; margin-bottom:1.5rem;">Fig. 8. Controller state for Run 4.</div>
@@ -171,8 +139,6 @@ Same configuration as Run 3 ($\phi_1 = 45°$), but the target moves at $4\,\tild
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/pursuit/pursuit_fast_4x.light.mp4"
-    data-dark-src="../_static/media/pursuit/pursuit_fast_4x.dark.mp4"
   >
     <source src="../_static/media/pursuit/pursuit_fast_4x.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -181,14 +147,8 @@ Same configuration as Run 3 ($\phi_1 = 45°$), but the target moves at $4\,\tild
 </div>
 ```
 
-```{image} ../_static/media/pursuit/pursuit_fast_4x_control.light.png
-:align: center
-:class: only-light
-:width: 80%
-```
 ```{image} ../_static/media/pursuit/pursuit_fast_4x_control.dark.png
 :align: center
-:class: only-dark
 :width: 80%
 ```
 <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center; margin-bottom:1.5rem;">Fig. 10. Controller state for Run 5.</div>

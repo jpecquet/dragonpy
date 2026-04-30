@@ -108,10 +108,9 @@ def main():
          fr"$(\tilde{{x}}, \tilde{{z}}) = ({xt:+d}, {zt:+d})$")
         for r, c, xt, zt in QUADRANTS
     ]
-    for theme in ("light", "dark"):
-        out = OUT_DIR / f"{OUT_STEM}.{theme}.png"
-        plot_grid(panels, layout, T_wb, str(out), theme)
-        print(f"saved {out}")
+    out = OUT_DIR / f"{OUT_STEM}.dark.png"
+    plot_grid(panels, layout, T_wb, str(out), "dark")
+    print(f"saved {out}")
 
     # Figure 2: 4x2 phase comparison — rows = phase offset, cols = z-sign at x=+3.
     phase_rows = [
@@ -132,11 +131,10 @@ def main():
                 fr"$(\tilde{{x}}, \tilde{{z}}) = (+3, {zt:+d})$",
             ))
     p_panels, T_wb_p = _build_panels(phase_items)
-    for theme in ("light", "dark"):
-        out = OUT_DIR / f"pursuit_k_tau_phase.{theme}.png"
-        plot_grid(p_panels, phase_layout, T_wb_p, str(out), theme,
-                  width_in=8.5, ratio=1.7)
-        print(f"saved {out}")
+    out = OUT_DIR / "pursuit_k_tau_phase.dark.png"
+    plot_grid(p_panels, phase_layout, T_wb_p, str(out), "dark",
+              width_in=8.5, ratio=1.7)
+    print(f"saved {out}")
 
     # Figure 3: target-distance 2x2 — rows = z-sign, cols = target distance.
     distance_cells = [
@@ -153,10 +151,9 @@ def main():
          fr"$(\tilde{{x}}, \tilde{{z}}) = ({xt:+d}, {zt:+d})$")
         for r, c, xt, zt in distance_cells
     ]
-    for theme in ("light", "dark"):
-        out = OUT_DIR / f"pursuit_k_tau_distance.{theme}.png"
-        plot_grid(d_panels, d_layout, T_wb_d, str(out), theme)
-        print(f"saved {out}")
+    out = OUT_DIR / "pursuit_k_tau_distance.dark.png"
+    plot_grid(d_panels, d_layout, T_wb_d, str(out), "dark")
+    print(f"saved {out}")
 
 
 if __name__ == "__main__":

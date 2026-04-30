@@ -34,8 +34,6 @@ For each blade element, drag and lift coefficients are evaluated from the config
     class="case-study-image"
     src="../_static/media/modeling/blade_elements/aero_coefficients.dark.png"
     alt="Aerodynamic coefficient comparison: Wang 2004 vs Azuma 1985"
-    data-light-src="../_static/media/modeling/blade_elements/aero_coefficients.light.png"
-    data-dark-src="../_static/media/modeling/blade_elements/aero_coefficients.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 1. Lift and drag coefficients vs. angle of attack for built-in coefficient sets.</div>
 </div>

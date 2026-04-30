@@ -8,8 +8,6 @@
     class="case-study-image"
     src="../../_static/media/azuma1988/exp3/kinematics.dark.png"
     alt="Azuma 1988 experiment 3 fore/hind kinematics (phi, psi)"
-    data-light-src="../../_static/media/azuma1988/exp3/kinematics.light.png"
-    data-dark-src="../../_static/media/azuma1988/exp3/kinematics.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 1. Experiment 3 wing kinematics.</div>
 </div>
@@ -24,8 +22,6 @@
     muted
     playsinline
     preload="metadata"
-    data-light-src="../../_static/media/azuma1988/exp3/simulation.light.mp4"
-    data-dark-src="../../_static/media/azuma1988/exp3/simulation.dark.mp4"
   >
     <source src="../../_static/media/azuma1988/exp3/simulation.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -43,8 +39,6 @@
     muted
     playsinline
     preload="metadata"
-    data-light-src="../../_static/media/azuma1988/exp3/stick.light.mp4"
-    data-dark-src="../../_static/media/azuma1988/exp3/stick.dark.mp4"
   >
     <source src="../../_static/media/azuma1988/exp3/stick.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -61,8 +55,6 @@
     class="case-study-image"
     src="../../_static/media/azuma1988/exp3/angle_of_attack_model.dark.png"
     alt="Azuma 1988 experiment 3 forewing and hindwing angle of attack over one wingbeat at 0.75 span with model curves"
-    data-light-src="../../_static/media/azuma1988/exp3/angle_of_attack_model.light.png"
-    data-dark-src="../../_static/media/azuma1988/exp3/angle_of_attack_model.dark.png"
   />
 </div>
 ```
@@ -74,8 +66,6 @@
     class="case-study-image"
     src="../../_static/media/azuma1988/exp3/angle_of_attack_simplified.dark.png"
     alt="Azuma 1988 experiment 3 forewing and hindwing angle of attack over one wingbeat at 0.75 span with simplified curves"
-    data-light-src="../../_static/media/azuma1988/exp3/angle_of_attack_simplified.light.png"
-    data-dark-src="../../_static/media/azuma1988/exp3/angle_of_attack_simplified.dark.png"
   />
 </div>
 ```
@@ -92,8 +82,6 @@
     class="case-study-image"
     src="../../_static/media/azuma1988/exp3/force_components.dark.png"
     alt="Azuma 1988 experiment 3 horizontal and vertical aerodynamic force components over one wingbeat"
-    data-light-src="../../_static/media/azuma1988/exp3/force_components.light.png"
-    data-dark-src="../../_static/media/azuma1988/exp3/force_components.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 5. Experiment 3 horizontal and vertical aerodynamic force components over one wingbeat.</div>
 </div>

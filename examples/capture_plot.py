@@ -52,6 +52,82 @@ def _edges(x: np.ndarray) -> np.ndarray:
     return np.concatenate([[x[0] - 0.5 * d_left], interior, [x[-1] + 0.5 * d_right]])
 
 
+def draw_half_disk(
+    ax,
+    result:         CaptureStudyResult,
+    capture_radius: float,
+    tilt:           float | None,
+    *,
+    style,
+    cmap:           str = "inferno",
+):
+    """Draw the wedge (mesh + outline + theta ticks) onto an existing polar
+    axes. Returns the QuadMesh and a short mode label.
+
+    The caller owns the figure, colorbar, and title — this helper only paints
+    the wedge so it can be reused across single-panel and multi-panel layouts.
+    """
+    captured = captured_mask(result, capture_radius)         # (nR, nTh, nTilt) bool
+
+    if tilt is None:
+        values = captured.mean(axis=2)                        # (nR, nTh) in [0, 1]
+        mode_label = "avg over initial tilts"
+    else:
+        k = int(np.argmin(np.abs(result.tilts - float(tilt))))
+        values = captured[:, :, k].astype(float)              # (nR, nTh) {0, 1}
+        mode_label = f"initial tilt = {np.degrees(result.tilts[k]):.0f} deg"
+
+    theta_edges = _edges(result.thetas)
+    r_edges     = _edges(result.radii)
+
+    mesh = ax.pcolormesh(
+        theta_edges, r_edges, values,
+        cmap=cmap,
+        vmin=0.0, vmax=1.0,
+        shading="flat",
+    )
+
+    ax.set_thetamin(np.degrees(theta_edges[0]))
+    ax.set_thetamax(np.degrees(theta_edges[-1]))
+    ax.set_theta_zero_location("E")     # 0 deg at +x (east)
+    ax.set_theta_direction(1)           # CCW so +theta is up (+z)
+
+    ax.set_rlim(0.0, r_edges[-1])
+    ax.set_rticks(result.radii[::2])
+    ax.set_rlabel_position(180)
+
+    theta_min_deg = np.degrees(theta_edges[0])
+    theta_max_deg = np.degrees(theta_edges[-1])
+    grid_lo = int(np.ceil(theta_min_deg / 30.0)) * 30
+    grid_hi = int(np.floor(theta_max_deg / 30.0)) * 30
+    theta_grid = np.arange(grid_lo, grid_hi + 1, 30)
+    ax.set_thetagrids(theta_grid)
+    ax.tick_params(labelsize=style.font_size - 2)
+
+    ax.grid(False)
+    ax.set_frame_on(False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+        spine.set_linewidth(0)
+        spine.set_color("none")
+    ax.tick_params(axis="both", which="both", length=0)
+
+    outline_color = style.axes_edge_color
+    arc_theta = np.linspace(theta_edges[0], theta_edges[-1], 240)
+    r_inner = r_edges[0]
+    r_outer = r_edges[-1]
+    ax.plot(arc_theta, np.full_like(arc_theta, r_outer),
+            color=outline_color, linewidth=0.8)
+    ax.plot(arc_theta, np.full_like(arc_theta, r_inner),
+            color=outline_color, linewidth=0.8)
+    ax.plot([theta_edges[0],  theta_edges[0]],  [r_inner, r_outer],
+            color=outline_color, linewidth=0.8)
+    ax.plot([theta_edges[-1], theta_edges[-1]], [r_inner, r_outer],
+            color=outline_color, linewidth=0.8)
+
+    return mesh, mode_label
+
+
 def plot_half_disk(
     result:         CaptureStudyResult,
     capture_radius: float,
@@ -75,19 +151,6 @@ def plot_half_disk(
     style = resolve_style(theme=theme)
     apply_matplotlib_style(style)
 
-    captured = captured_mask(result, capture_radius)         # (nR, nTh, nTilt) bool
-
-    if tilt is None:
-        values = captured.mean(axis=2)                        # (nR, nTh) in [0, 1]
-        mode_label = "avg over initial tilts"
-    else:
-        k = int(np.argmin(np.abs(result.tilts - float(tilt))))
-        values = captured[:, :, k].astype(float)              # (nR, nTh) {0, 1}
-        mode_label = f"initial tilt = {np.degrees(result.tilts[k]):.0f} deg"
-
-    theta_edges = _edges(result.thetas)
-    r_edges     = _edges(result.radii)
-
     # With aspect=equal, the polar disk is a circle of diameter
     # min(axes_w, axes_h). To make the wedge fill the figure vertically we
     # need axes_w >= axes_h, i.e. figure slightly wider than tall.
@@ -95,59 +158,9 @@ def plot_half_disk(
     fig, ax = plt.subplots(figsize=(w, h), dpi=300,
                            subplot_kw={"projection": "polar"})
 
-    mesh = ax.pcolormesh(
-        theta_edges, r_edges, values,
-        cmap=cmap,
-        vmin=0.0, vmax=1.0,
-        shading="flat",
+    mesh, mode_label = draw_half_disk(
+        ax, result, capture_radius, tilt, style=style, cmap=cmap,
     )
-
-    # Half-disk: forward hemisphere only (the eye sees forward). aspect='equal'
-    # (default) keeps the wedge a true half-disk; figure aspect is tuned so
-    # the wedge fills the height with minimal blank space.
-    ax.set_thetamin(np.degrees(theta_edges[0]))
-    ax.set_thetamax(np.degrees(theta_edges[-1]))
-    ax.set_theta_zero_location("E")     # 0 deg at +x (east)
-    ax.set_theta_direction(1)           # CCW so +theta is up (+z)
-
-    # Keep the empty inner disk for r < r_min as visual breathing room.
-    ax.set_rlim(0.0, r_edges[-1])
-    ax.set_rticks(result.radii[::2])
-    # Park the radial scale to the left of the wedge, in empty space.
-    ax.set_rlabel_position(180)
-
-    # Snap theta tick *labels* to multiples of 30 deg within the visible wedge.
-    theta_min_deg = np.degrees(theta_edges[0])
-    theta_max_deg = np.degrees(theta_edges[-1])
-    grid_lo = int(np.ceil(theta_min_deg / 30.0)) * 30
-    grid_hi = int(np.floor(theta_max_deg / 30.0)) * 30
-    theta_grid = np.arange(grid_lo, grid_hi + 1, 30)
-    ax.set_thetagrids(theta_grid)
-    ax.tick_params(labelsize=style.font_size - 2)
-
-    # Strip default gridlines, frame, spines, and tick marks: we draw the
-    # wedge outline manually so it wraps the data (r in [r_edges[0],
-    # r_edges[-1]]) rather than running to the polar origin.
-    ax.grid(False)
-    ax.set_frame_on(False)
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-        spine.set_linewidth(0)
-        spine.set_color("none")
-    ax.tick_params(axis="both", which="both", length=0)
-
-    outline_color = style.axes_edge_color
-    arc_theta = np.linspace(theta_edges[0], theta_edges[-1], 240)
-    r_inner = r_edges[0]
-    r_outer = r_edges[-1]
-    ax.plot(arc_theta, np.full_like(arc_theta, r_outer),
-            color=outline_color, linewidth=0.8)
-    ax.plot(arc_theta, np.full_like(arc_theta, r_inner),
-            color=outline_color, linewidth=0.8)
-    ax.plot([theta_edges[0],  theta_edges[0]],  [r_inner, r_outer],
-            color=outline_color, linewidth=0.8)
-    ax.plot([theta_edges[-1], theta_edges[-1]], [r_inner, r_outer],
-            color=outline_color, linewidth=0.8)
 
     # Polar axes' transAxes maps to the wedge bbox (after thetamin/max), so
     # axes-x = 0 is the wedge's left chord and axes-x = 1 is its outer edge.

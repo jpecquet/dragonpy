@@ -19,8 +19,6 @@ Fig. 1A and 1B side to side
       muted
       playsinline
       preload="metadata"
-      data-light-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_side_y.light.mp4"
-      data-dark-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_side_y.dark.mp4"
     >
       <source src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_side_y.dark.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -36,8 +34,6 @@ Fig. 1A and 1B side to side
       muted
       playsinline
       preload="metadata"
-      data-light-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_p111_stroke_planes.light.mp4"
-      data-dark-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_p111_stroke_planes.dark.mp4"
     >
       <source src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_p111_stroke_planes.dark.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -60,8 +56,6 @@ If the wingtip is bound to a plane, it follows from simple geometry that the lin
       muted
       playsinline
       preload="metadata"
-      data-light-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_side_y_cones.light.mp4"
-      data-dark-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_side_y_cones.dark.mp4"
     >
       <source src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_side_y_cones.dark.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -77,8 +71,6 @@ If the wingtip is bound to a plane, it follows from simple geometry that the lin
       muted
       playsinline
       preload="metadata"
-      data-light-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_fore_left_cone_normal.light.mp4"
-      data-dark-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_fore_left_cone_normal.dark.mp4"
     >
       <source src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_fore_left_cone_normal.dark.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -104,8 +96,6 @@ In addition to flapping, the wing motion has a pitching component. Here we take 
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_stick.light.mp4"
-    data-dark-src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_stick.dark.mp4"
   >
     <source src="../_static/media/modeling/wing_kinematics/wing_kinematics_section1_anim1_stick.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.

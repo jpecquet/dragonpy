@@ -39,8 +39,6 @@ which we correct for. The $\phi(t)$ and $\psi(t)$ time series are shown in Fig. 
     class="case-study-image"
     src="../_static/media/azuma1985/kinematics.dark.png"
     alt="Azuma 1985 fore/hind kinematics (phi, psi)"
-    data-light-src="../_static/media/azuma1985/kinematics.light.png"
-    data-dark-src="../_static/media/azuma1985/kinematics.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 1. Wing kinematics.</div>
 </div>
@@ -84,8 +82,6 @@ which we correct for. The $\phi(t)$ and $\psi(t)$ time series are shown in Fig. 
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/azuma1985/simulation.light.mp4"
-    data-dark-src="../_static/media/azuma1985/simulation.dark.mp4"
   >
     <source src="../_static/media/azuma1985/simulation.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -103,8 +99,6 @@ which we correct for. The $\phi(t)$ and $\psi(t)$ time series are shown in Fig. 
     muted
     playsinline
     preload="metadata"
-    data-light-src="../_static/media/azuma1985/stick.light.mp4"
-    data-dark-src="../_static/media/azuma1985/stick.dark.mp4"
   >
     <source src="../_static/media/azuma1985/stick.dark.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -127,8 +121,6 @@ Where $r$ is the distance from the wing root along the span, set here to $0.75R$
     class="case-study-image"
     src="../_static/media/azuma1985/angle_of_attack_model.dark.png"
     alt="Azuma 1985 forewing and hindwing angle of attack over one wingbeat at 0.75 span with model curves"
-    data-light-src="../_static/media/azuma1985/angle_of_attack_model.light.png"
-    data-dark-src="../_static/media/azuma1985/angle_of_attack_model.dark.png"
   />
 </div>
 ```
@@ -140,8 +132,6 @@ Where $r$ is the distance from the wing root along the span, set here to $0.75R$
     class="case-study-image"
     src="../_static/media/azuma1985/angle_of_attack_simplified.dark.png"
     alt="Azuma 1985 forewing and hindwing angle of attack over one wingbeat at 0.75 span with simplified curves"
-    data-light-src="../_static/media/azuma1985/angle_of_attack_simplified.light.png"
-    data-dark-src="../_static/media/azuma1985/angle_of_attack_simplified.dark.png"
   />
 </div>
 ```
@@ -160,8 +150,6 @@ Fig. 5 shows the horizontal and vertical aerodynamic force components over one w
     class="case-study-image"
     src="../_static/media/azuma1985/force_components.dark.png"
     alt="Azuma 1985 horizontal and vertical aerodynamic force components over one wingbeat with forewing, hindwing, total, and mean total curves"
-    data-light-src="../_static/media/azuma1985/force_components.light.png"
-    data-dark-src="../_static/media/azuma1985/force_components.dark.png"
   />
   <div style="font-size:0.85em; line-height:1.2; margin-top:0.3rem; text-align:center;">Fig. 5. Horizontal and vertical aerodynamic force components over one wingbeat.</div>
 </div>

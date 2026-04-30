@@ -114,10 +114,9 @@ def main():
             print(f"K={k:g}  prey ({prey[0]:+g}, {prey[2]:+g}): "
                   f"min_dist={r['min_dist']:.3f} at t={r['t_min_dist']:.2f}s")
 
-    for theme in ("light", "dark"):
-        out = OUT_DIR / f"{OUT_STEM}.{theme}.png"
-        plot_trajectories(runs, str(out), theme)
-        print(f"saved {out}")
+    out = OUT_DIR / f"{OUT_STEM}.dark.png"
+    plot_trajectories(runs, str(out), "dark")
+    print(f"saved {out}")
 
 
 if __name__ == "__main__":
