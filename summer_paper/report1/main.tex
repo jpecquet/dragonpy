@@ -1,0 +1,166 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[numbers]{natbib}
+\usepackage{microtype}
+\usepackage{newtxtext,newtxmath}
+\usepackage{caption}
+
+\hypersetup{%
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=blue!50!black,
+  urlcolor=blue!50!black,
+}
+
+\captionsetup[table]{skip=6pt}
+
+\title{Proportional Control for Maneuvering Flapping Flight}
+\author{Jean Pecquet}
+\date{June 5, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Model Description}%
+\label{sec:model}
+
+\autoref{tab:nondim_params} lists the nondimensionalized
+parameters in the dynamic model. Ranges for the parameters
+$L_w^*$, $A_w^* / m^*$, and $\omega^*$ were obtained from
+the morphological data in \cite{wakeling1997} and the wingbeat
+frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Dimensionless Parameters}\label{tab:nondim_params}
+    \begin{tabular}{lll}\toprule
+        \textbf{Parameter} & \textbf{Description} & \textbf{Range} \\\midrule
+        $L_w^* = \frac{L_w}{L}$ & Wing length ratio & [0.65, 0.85]\\
+        $A_w^* / m^* = \frac{A_w \rho_\text{air}L}{m}$ & Inverse wing loading (per wing) & [0.05, 0.25]\\\midrule
+        $\omega^* = \omega \sqrt{\frac{L}{g}}$ & Wing beat frequency & [8, 20]\\
+        $\gamma_0$ & Wing stroke plane angle & [-180$^\circ$, 180$^\circ$] \\
+        $\phi_1$ & Wing flapping amplitude & [0$^\circ$, 60$^\circ$] \\
+        $\psi_0$ & Mean wing pitch angle & [-60$^\circ$, 60$^\circ$] \\
+        $\psi_1$ & Wing pitch amplitude & [0$^\circ$, 60$^\circ$] \\
+        $\delta_0$ & Wing pitch phase  & [-180$^\circ$, 180$^\circ$] \\
+        $\sigma_0$ & Fore/hind phase  & [-180$^\circ$, 180$^\circ$] \\\bottomrule
+    \end{tabular}
+\end{table}
+
+\noindent Lift and drag coefficients are given by
+\begin{align*}
+    C_L &= C_{L,0} \sin 2\alpha \\
+    C_D &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha
+\end{align*}
+with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$
+
+\section{Equilibrium Solution Space}
+
+A good first step might be to identify those parameter values that
+give an average aerodynamic force over a cycle that is equal
+to or greater than the weight, i.e. $F_a^* = \frac{F_a}{m_b g} \geq 1$.
+Outside of this group of solutions,
+hovering and meaningful maneuveuring flight cannot be achieved.
+This is independent of the
+stroke plane angle $\gamma_0$ and the fore/hind phase
+shift $\sigma_0$, which limits us to just 7 parameters.
+We can further eliminate one parameter by collapsing
+$L_w^*$ and $\phi_1$ into a single wing tip displacement
+amplitude parameter $s_0^* = \frac23 L_w^* \phi_1$,
+resulting in 6 morphological and wingbeat parameters.
+
+As a first, quick verification we compare the
+$F_a^* = 1$ contour result in the ($A^*/m^*$, $\omega^*$) plane
+to the simplified analytical result of \cite{wetherbee2026}
+for a translating element with constant $45^\circ$ pitch through each
+beat half:
+\begin{align}
+    \left(F_a^*\right)_\text{constant pitch} = \frac{C_{L,0}}{4} \frac{A^*}{m^*} \left(s_0^* \omega^*\right)^2
+\end{align}
+Note $A^* = 4 A_w^*$. The result is obtained
+for $s_0^* = 1.5$ (achieved in practice with a small $\phi_1$ and a large $L_w^*$),
+$\psi_0 = 0^\circ$, $\psi_1 = 45^\circ$, and $\delta_0 = 90^\circ$.
+Crucially we do this assuming zero body velocity: the velocity
+of the wings relative to the air is equal to the velocity
+of the wings relative to the body.
+Contours are shown in \autoref{fig:contour_check}.
+Using a single wing element at the $\frac23$-span station,
+there is very close agreement, as expected, with a small difference
+attributable to the sinusoidal wing pitch (as opposed to a square wave).
+The wing element spends less time at large angle of attack
+so the mean force is slightly lower.
+As the number of elements is increased $F_a^*$ converges to a
+lower value (by about 25\%), causing the contour to shift towards
+higher $A^*/m^*$ and $\omega^*$.
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/translating_check.light.png}
+    \caption{Verification of $F_a^*=1$ contour at reference condition}\label{fig:contour_check}
+\end{figure}
+
+The present model allows for more complex wing motions
+than a simple symmetric stroke: the mean pitching
+angle $\psi_0$ may be nonzero, and the phase shift $\delta_0$
+between the pitching and flapping motions may be
+different from 90$^\circ$. One question we can ask is whether
+the contribution of the pitch to the force magnitude $F_a^*$
+can be represented as a coefficient that would depend on $(\psi_0, \psi_1, \delta_0)$,
+independent of the other 3 parameters. Looking back
+to the simple analytical expression for $F_a^*$ for constant pitch,
+we can extract the dimensionless dynamic pressure
+\begin{align}
+    q^* = \frac14 \frac{A^*}{m^*} \left(s_0^* \omega^*\right)^2 = \frac{A_w^*}{m^*} \left(s_0^* \omega^*\right)^2
+\end{align}
+We can then evaluate $F_a^* / q^*$ and check whether it is independent
+of ($\frac{A_w^*}{m^*}$, $s_0^*$, $\omega^*$) over the parameter space,
+i.e.\ whether the two groups of variables can be cleanly separated.
+Again, we do this first assuming zero body velocity, such that $F_a^* = 1$,
+applied in the right direction, would result in a hover.
+As can be seen in \autoref{fig:separation}, the separation is clean, with
+small amounts of scatter associated with the nonlinearity of
+the flapping motion: at large wing angles, there is an appreciable change in the
+effective angle of attack, but the effect is small. The right side of the plot is obtained
+by picking a reference amplitude ($s_0^* = 0.5$) to evaluate $F_a^*$.
+The result is completely independent of $A_w^* / m^*$ and $\omega^*$
+because they appear purely as multiplicative factors in the analytical expression.
+It might be clearer to do a purely analytical treatment of this
+part.
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/reduction_collapse.light.png}
+    \caption{Separation of dynamic pressure and wing pitch factors of the aerodynamic force at zero body velocity. (a) Scatter of mean aerodynamic force as a function of dynamic pressure for random sampling of parameter space (b) Collapse of scatter by introduction of $C_\psi$ parameter evaluated as $F_a^* / q^*$ for a reference amplitude value $s_0^* = 0.5$}\label{fig:separation}
+\end{figure}
+
+This decomposition appears to be useful because $C_\psi$
+provides a measure of the power efficiency of the wingbeat.
+A given net force can be achieved with a faster or slower
+wingbeat depending on the wing pitch pattern. If the pattern
+is such that $C_\psi$ is high, then the wing doesn't have
+to beat as fast, and less energy is expended (provided any
+additional energy required to impart that particular pitch motion
+does not cancel out this benefit, which seems like more of an edge case).
+Presumably then, values of $\psi_0$, $\psi_1$, and $\delta_0$
+that result in higher $C_\psi$ would be preferred in nature.
+Looking again at the simplified case from earlier it seems
+the optimum should sit near $\psi_0 = 0$, $\psi_1 = 45^\circ$, $\delta_0 = 90^\circ$,
+since a $45^\circ$ angle of attack maximizes lift (limit case
+for square wave pitch: $C_\psi = C_{L,0}$). We show the dependence of
+$C_\psi$ on the three parameters in 
+
+Since we are interested not just in hover but in maneuvering flight,
+we of course need to consider the case where the body velocity is nonzero.
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

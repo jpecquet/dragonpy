@@ -1,0 +1,32 @@
+\begin{thebibliography}{3}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Wakeling(1997)]{wakeling1997}
+J.~M. Wakeling.
+\newblock Odonatan wing and body morphologies.
+\newblock \emph{Odonatologica}, 26\penalty0 (1):\penalty0 35--52, 1997.
+\newblock URL \url{https://natuurtijdschriften.nl/pub/592186}.
+
+\bibitem[Aracheloff et~al.(2024)Aracheloff, Garrouste, Nel, Godoy-Diana, and
+  Thiria]{aracheloff2024}
+C.~Aracheloff, R.~Garrouste, A.~Nel, R.~Godoy-Diana, and B.~Thiria.
+\newblock Subtle frequency matching reveals resonant phenomenon in the flight
+  of {Odonata}.
+\newblock \emph{Journal of The Royal Society Interface}, 21\penalty0 (219),
+  2024.
+\newblock \doi{10.1098/rsif.2024.0401}.
+
+\bibitem[Wetherbee and Wang(2026)]{wetherbee2026}
+Owen~C. Wetherbee and Z.~Jane Wang.
+\newblock Stable flapping flight in morphological space: Model, simulation, and
+  explicit stability criteria.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 123\penalty0
+  (18):\penalty0 e2533138123, 2026.
+\newblock \doi{10.1073/pnas.2533138123}.
+\newblock URL \url{https://www.pnas.org/doi/abs/10.1073/pnas.2533138123}.
+
+\end{thebibliography}
