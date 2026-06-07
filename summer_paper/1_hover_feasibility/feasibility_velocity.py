@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from feasibility import Params, avg_force_magnitude
+from feasibility import Params, STUDY_ELEMENT, STUDY_SPAN_FRAC, avg_force_magnitude
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
@@ -45,11 +45,11 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 
 OUT_DIR = HERE / "figures"
 N_PHASE = 128
-SPAN_FRAC_REF = 2.0 / 3.0
+SPAN_FRAC_REF = STUDY_SPAN_FRAC
 
-# Reference amplitude (matches feasibility_reduction): s0 = 0.5 at Lw = 0.75.
-AW_REF, OMEGA_REF, LW_REF, S0_REF = 0.15, 14.0, 0.75, 0.5
-PHI1_REF = S0_REF / (SPAN_FRAC_REF * LW_REF)            # = 1.0 rad
+# Reference amplitude (matches feasibility_reduction): s0 = 0.3 at Lw = 0.75.
+AW_REF, OMEGA_REF, LW_REF, S0_REF = 0.15, 14.0, 0.75, 0.3
+PHI1_REF = S0_REF / (SPAN_FRAC_REF * LW_REF)            # = 0.6 rad
 # Nominal (hover) pitch.
 PITCH_NOM = dict(psi0=0.0, psi1=np.radians(45.0), delta0=np.pi / 2)
 
@@ -83,7 +83,7 @@ def C_ref(J, chi, **pitch):
     s0 = s0_of(LW_REF, PHI1_REF)
     vb = v_body_for(J, chi, s0, OMEGA_REF)
     p = Params(Aw_over_mb=AW_REF, omega_star=OMEGA_REF, phi1=PHI1_REF, Lw=LW_REF,
-               gamma0=0.0, v_body=vb, **pitch)
+               gamma0=0.0, v_body=vb, element_span_fracs=STUDY_ELEMENT, **pitch)
     return avg_force_magnitude(p, N_PHASE) / q_star(AW_REF, LW_REF, PHI1_REF, OMEGA_REF)
 
 
@@ -102,7 +102,7 @@ def collapse_cv(J, chi, rng, n=200, **pitch):
         s0 = s0_of(lw[k], ph[k])
         vb = v_body_for(J, chi, s0, om[k])
         p = Params(Aw_over_mb=Aw[k], omega_star=om[k], phi1=ph[k], Lw=lw[k],
-                   gamma0=0.0, v_body=vb, **pitch)
+                   gamma0=0.0, v_body=vb, element_span_fracs=STUDY_ELEMENT, **pitch)
         ratio[k] = avg_force_magnitude(p, N_PHASE) / q_star(Aw[k], lw[k], ph[k], om[k])
     return float(ratio.std() / ratio.mean())
 

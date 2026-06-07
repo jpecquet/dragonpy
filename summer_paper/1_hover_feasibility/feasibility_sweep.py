@@ -25,7 +25,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from feasibility import Params, WEIGHT, avg_force_magnitude, replace
+from feasibility import (
+    Params, STUDY_ELEMENT, STUDY_SPAN_FRAC, WEIGHT, avg_force_magnitude, replace,
+)
 
 # White at the minimum (low force) deepening to magenta (high force); a black
 # F_a^* = 1 boundary reads clearly against it.
@@ -39,8 +41,8 @@ sys.path.insert(0, str(REPO_ROOT))
 from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 
 OUT_DIR = HERE / "figures"
-LW_FIXED = 0.75            # s0 is realized by sweeping phi1 at this Lw
-SPAN_FRAC_REF = 2.0 / 3.0  # s0 is the displacement of the 2/3-span station
+LW_FIXED = 0.75               # s0 is realized by sweeping phi1 at this Lw
+SPAN_FRAC_REF = STUDY_SPAN_FRAC  # s0 is the displacement of the 2/3-span station
 N_PHASE = 128             # phase samples for the cycle average (smooth -> coarse ok)
 
 
@@ -77,7 +79,8 @@ def main():
     style = resolve_style(theme="light")
     style.font_size = 11  # match the 11pt report body (figures inserted at native size)
     apply_matplotlib_style(style)
-    base = Params(gamma0=0.0)
+    # Single blade element at 2/3 span (overestimates force; see feasibility.py).
+    base = Params(gamma0=0.0, element_span_fracs=STUDY_ELEMENT)
 
     n = 60
     omega = np.linspace(8.0, 20.0, n)

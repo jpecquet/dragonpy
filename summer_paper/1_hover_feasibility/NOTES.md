@@ -17,6 +17,18 @@ Fbar = (1/2pi) integral_0^2pi  sum_wings  F_wing(state(phi)) dphi
 Both pieces already exist in `dragonpy`: `expand_pattern` maps (pattern, phase)
 to a wing pose, and `wing_force_point_mass` maps a pose to a force with
 `v_body = wind = 0`. We sample the phase and average. Units: body length,
+
+**Span model:** the whole study lumps each wing into a *single* blade element
+at 2/3 span (`element_span_fracs=STUDY_ELEMENT` in `feasibility.py`). This is the
+representative-station idealization; it deliberately **overestimates** the true
+span-integrated force, since the force ~ `<V^2>` whose r^2-weighted span mean is
+1/3 while a single 2/3 station gives `(2/3)^2 = 4/9` (~4/3 high; see
+`check_translating.py`). We accept the bias because it makes
+`q* = (Aw/mb) s0^2 omega^2` an *exact* velocity scale -- `s0 = (2/3) Lw phi1` is
+precisely this station's arc-length excursion -- which is what the
+`F_a* = q* C_psi` separation rests on. The 8-element path is retained only as the
+correctness oracle for the vectorized code (`test_feasibility.py`).
+
 `T0 = sqrt(L0/g)`, body mass = 1, so the weight to clear is exactly `W = 1`.
 Aerodynamic coefficients are taken verbatim from section 1
 (`C_L = 1.5 sin 2a`, `C_D = 0.1 cos^2 a + 2 sin^2 a`).
@@ -37,7 +49,7 @@ Files:
 |---|---|
 | (1) `|Fbar|` independent of stroke-plane angle `gamma0` | spread `1.9e-15` of the mean (machine zero); force *direction* swings the full +-180 deg |
 | (2) `|Fbar|` independent of fore/hind phase `sigma0` | spread `4.8e-9` |
-| (3) `Lw`, `phi1` collapse onto `s0 = Lw sin phi1` | within-`s0`-bin scatter = 1.85% of total range |
+| (3) `Lw`, `phi1` collapse onto `s0 = (2/3) Lw phi1` | within-`s0`-bin scatter = 1.45% of total range |
 
 So the 9 parameters of Table 1 reduce to **6** that set the magnitude:
 `s0`, `Aw_over_mb`, `omega_star`, `psi0`, `psi1`, `delta0`.

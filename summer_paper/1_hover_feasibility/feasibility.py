@@ -78,6 +78,17 @@ R_HINGE_LEFT = np.array([[0.0, -1.0, 0.0],
 
 WEIGHT = 1.0  # body mass = 1, g = 1
 
+# Representative-station model for report1 section 2. The whole study lumps each
+# wing into a SINGLE blade element at 2/3 span (SPAN_FRAC_REF). Pass it as
+# element_span_fracs=STUDY_ELEMENT. This deliberately OVERESTIMATES the true
+# span-integrated force: the force ~ <V^2>, whose r^2-weighted span mean is 1/3,
+# while a single 2/3 station gives (2/3)^2 = 4/9 -- a ~4/3 high bias (see
+# check_translating.py). We accept it because it makes q* = (Aw/mb) s0^2 omega^2
+# an EXACT velocity scale -- s0 = (2/3) Lw phi1 is precisely this station's
+# arc-length excursion -- which is what the F_a* = q* C_psi separation rests on.
+STUDY_SPAN_FRAC = 2.0 / 3.0
+STUDY_ELEMENT = (STUDY_SPAN_FRAC,)
+
 
 # ---------------------------------------------------------------------------
 # Parameters.
@@ -351,4 +362,5 @@ __all__ = [
     "Params", "cycle_averaged_force", "cycle_averaged_force_scalar",
     "avg_force_magnitude", "is_feasible",
     "make_wing", "make_pattern", "lift_coeff", "drag_coeff", "WEIGHT", "replace",
+    "STUDY_SPAN_FRAC", "STUDY_ELEMENT",
 ]

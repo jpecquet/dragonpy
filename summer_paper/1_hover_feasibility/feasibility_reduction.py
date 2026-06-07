@@ -26,8 +26,9 @@ This script draws that story in two figures:
     reduction_collapse.light.png  -- before/after collapse: F_a^* vs q^* (fans out)
                                      next to F_a^* vs q^* C_psi (lands on y=x), all
                                      points random in every parameter.
-    pitch_efficiency.light.png    -- C_psi(psi1, delta0) heatmap + C_psi vs psi0
-                                     marginal.
+    pitch_efficiency.light.png    -- C_psi sliced two ways, sharing the psi1 axis:
+                                     C_psi(delta0, psi1) at psi0=0 and
+                                     C_psi(psi0, psi1) at the optimal delta0.
 
 Output: light-mode figures in summer_paper/1_hover_feasibility/figures/.
 Runs on the project env (numpy + matplotlib only).
@@ -40,7 +41,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from feasibility import Params, WEIGHT, avg_force_magnitude, replace
+from feasibility import (
+    Params, STUDY_ELEMENT, STUDY_SPAN_FRAC, WEIGHT, avg_force_magnitude, replace,
+)
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
@@ -55,7 +58,7 @@ CMAP = "RdPu"
 SCATTER_CMAP = LinearSegmentedColormap.from_list(
     "inferno_trim", plt.cm.inferno(np.linspace(0.12, 0.82, 256)))
 N_PHASE = 128
-SPAN_FRAC_REF = 2.0 / 3.0
+SPAN_FRAC_REF = STUDY_SPAN_FRAC
 
 # Parameter ranges (Table 1).
 AW_RANGE = (0.05, 0.25)
@@ -70,9 +73,9 @@ DELTA0_RANGE = np.radians((-180.0, 180.0))
 # function of pitch only. With the arc-length s0, F_a^*/q^* is amplitude-independent
 # to ~2%, so C_psi here differs from a point's own F_a^*/q^* only by that small
 # residual -- the genuine (non-tautological) width of the panel-(b) collapse. The
-# reference excursion is s0 = 0.5 (mid-range), realized at Lw = 0.75, which fixes
-# phi1 = s0 / ((2/3) Lw) = 1.0 rad (~57 deg).
-S0_REF = 0.5
+# reference excursion is s0 = 0.3, realized at Lw = 0.75, which fixes
+# phi1 = s0 / ((2/3) Lw) = 0.6 rad (~34 deg).
+S0_REF = 0.3
 LW_REF = 0.75
 AMP_NOM = dict(Aw_over_mb=0.15, omega_star=14.0,
                phi1=S0_REF / (SPAN_FRAC_REF * LW_REF), Lw=LW_REF)
@@ -92,21 +95,39 @@ def q_star(p):
 
 def cpsi_of_pitch(psi0, psi1, delta0):
     """Pitch-efficiency coefficient C_psi = F_a^*/q^*, at the nominal amplitude."""
-    p = replace(Params(gamma0=0.0), psi0=psi0, psi1=psi1, delta0=delta0, **AMP_NOM)
+    p = replace(Params(gamma0=0.0, element_span_fracs=STUDY_ELEMENT),
+                psi0=psi0, psi1=psi1, delta0=delta0, **AMP_NOM)
     return avg_force_magnitude(p, N_PHASE) / q_star(p)
 
 
 # ---------------------------------------------------------------------------
-# Figure B data: pitch-efficiency surface C_psi(psi1, delta0) and the psi0 marginal.
+# Figure B data: pitch-efficiency C_psi sliced two ways through (psi0, psi1, delta0).
 
-def pitch_grid(psi0, n=56):
+# 73 points over a 360 deg span gives a 5 deg step, so the delta0 grid lands
+# exactly on +-90 and 0. C_psi is symmetric about delta0 = +-90 (machine
+# precision); an off-grid step would put the sampled optimum a few degrees off
+# 90 and make the filled contours look lopsided -- a sampling artifact, not
+# physics.
+def grid_delta0_psi1(psi0, n=73):
+    """C_psi over (delta0, psi1) at fixed psi0; cpsi indexed [psi1, delta0]."""
     psi1 = np.linspace(*PSI1_RANGE, n)
     delta0 = np.linspace(*DELTA0_RANGE, n)
     cpsi = np.empty((n, n))
-    for j, d in enumerate(delta0):
-        for i, ps1 in enumerate(psi1):
+    for j, ps1 in enumerate(psi1):
+        for i, d in enumerate(delta0):
             cpsi[j, i] = cpsi_of_pitch(psi0, ps1, d)
-    return psi1, delta0, cpsi
+    return delta0, psi1, cpsi
+
+
+def grid_psi0_psi1(delta0, n=73):
+    """C_psi over (psi0, psi1) at fixed delta0; cpsi indexed [psi1, psi0]."""
+    psi1 = np.linspace(*PSI1_RANGE, n)
+    psi0 = np.linspace(*PSI0_RANGE, n)
+    cpsi = np.empty((n, n))
+    for j, ps1 in enumerate(psi1):
+        for i, p0 in enumerate(psi0):
+            cpsi[j, i] = cpsi_of_pitch(p0, ps1, delta0)
+    return psi0, psi1, cpsi
 
 
 # ---------------------------------------------------------------------------
@@ -116,14 +137,9 @@ def main():
     style.font_size = 11  # match the 11pt report body (figures inserted at native size)
     apply_matplotlib_style(style)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    base = Params(gamma0=0.0)
+    # Single blade element at 2/3 span (overestimates force; see feasibility.py).
+    base = Params(gamma0=0.0, element_span_fracs=STUDY_ELEMENT)
     rng = np.random.default_rng(7)
-
-    # --- pitch-efficiency surface at psi0 = 0 (drives both figures) ---
-    psi1, delta0, cpsi0 = pitch_grid(0.0)
-    # Locate the optimum (max C_psi) for the psi0 marginal line.
-    jmax, imax = np.unravel_index(np.argmax(cpsi0), cpsi0.shape)
-    psi1_opt, delta0_opt = psi1[imax], delta0[jmax]
 
     # ---------------------------------------------------------------------
     # Figure A: variable separation as a before/after collapse.
@@ -187,42 +203,59 @@ def main():
     fig_a.savefig(out_a, dpi=300, bbox_inches="tight")
 
     # ---------------------------------------------------------------------
-    # Figure B: pitch-efficiency surface C_psi(psi1, delta0) + C_psi-vs-psi0 marginal.
-    fig_b, (axh, axm) = plt.subplots(
-        1, 2, figsize=(6.4, 3.0), gridspec_kw=dict(width_ratios=[3.0, 1.3]))
+    # Figure B: pitch-efficiency C_psi sliced two ways, sharing the psi1 axis.
+    #   (a) C_psi(delta0, psi1) at psi0 = 0       -- pitch-timing lobes
+    #   (b) C_psi(psi0,  psi1) at delta0 = optimum -- weak psi0 dependence
+    # The optimum (psi1, delta0) is read off panel (a) and fixes the delta0 slice of
+    # panel (b); both panels share one color scale and a single colorbar.
+    delta0_ax, psi1_ax, cpsi_dp = grid_delta0_psi1(0.0)
+    jmax, imax = np.unravel_index(np.argmax(cpsi_dp), cpsi_dp.shape)
+    # +-90 are equal maxima (symmetry); report the +90 one to match the text.
+    psi1_opt, delta0_opt = psi1_ax[jmax], abs(delta0_ax[imax])
+    psi0_ax, _, cpsi_pp = grid_psi0_psi1(delta0_opt)
 
-    D1, D0 = np.meshgrid(np.degrees(psi1), np.degrees(delta0))
-    pcm = axh.pcolormesh(D1, D0, cpsi0, shading="auto", cmap=CMAP)
-    fig_b.colorbar(pcm, ax=axh, label=r"$C_\psi = (F_a^\ast/q^\ast)|_{\mathrm{ref}}$")
-    axh.plot(np.degrees(psi1_opt), np.degrees(delta0_opt), marker="*",
-             color="black", ms=12, mfc="white", mew=1.2)
-    axh.set_xlabel(r"$\psi_1$ (deg)")
-    axh.set_ylabel(r"$\delta_0$ (deg)")
-    axh.set_title(r"(a)  $C_\psi(\psi_1,\delta_0)$ at $\psi_0=0$",
+    # 0.1-spaced bins up to the section ceiling C_L,0 = 1.5 (the single 2/3-span
+    # element pushes the peak C_psi to ~1.43, near that limit).
+    levels = np.round(np.arange(0.0, 1.6, 0.1), 2)  # 0.0 .. 1.5, step 0.1
+    line_kw = dict(levels=levels, colors="black", linewidths=0.3, alpha=0.35)
+    star_kw = dict(marker="o", color="white", ms=7, mec="black", mew=0.8,
+                   linestyle="none")
+
+    fig_b, (ax1, ax2) = plt.subplots(
+        1, 2, figsize=(6.4, 3.0), sharey=True, constrained_layout=True)
+
+    D0, P1a = np.meshgrid(np.degrees(delta0_ax), np.degrees(psi1_ax))
+    cf = ax1.contourf(D0, P1a, cpsi_dp, levels=levels, cmap=CMAP)
+    ax1.contour(D0, P1a, cpsi_dp, **line_kw)
+    ax1.plot(np.degrees(delta0_opt), np.degrees(psi1_opt), **star_kw)
+    ax1.set_xlabel(r"$\delta_0$ (deg)")
+    ax1.set_ylabel(r"$\psi_1$ (deg)")
+    ax1.set_title(r"(a)  $C_\psi(\delta_0,\psi_1)$ at $\psi_0=0$",
                   fontsize=style.font_size)
 
-    # Marginal: C_psi vs psi0 at the (psi1, delta0) optimum -- shows weak psi0.
-    psi0_line = np.linspace(*PSI0_RANGE, 41)
-    cpsi_line = np.array([cpsi_of_pitch(p0, psi1_opt, delta0_opt) for p0 in psi0_line])
-    axm.plot(np.degrees(psi0_line), cpsi_line, color="black", lw=1.8)
-    axm.set_xlabel(r"$\psi_0$ (deg)")
-    axm.set_ylabel(r"$C_\psi$ at optimum")
-    axm.set_ylim(0, None)
-    axm.set_title(r"(b)  weak $\psi_0$", fontsize=style.font_size)
+    P0, P1b = np.meshgrid(np.degrees(psi0_ax), np.degrees(psi1_ax))
+    ax2.contourf(P0, P1b, cpsi_pp, levels=levels, cmap=CMAP)
+    ax2.contour(P0, P1b, cpsi_pp, **line_kw)
+    ax2.plot(0.0, np.degrees(psi1_opt), **star_kw)
+    ax2.set_xlabel(r"$\psi_0$ (deg)")
+    ax2.set_title(
+        rf"(b)  $C_\psi(\psi_0,\psi_1)$ at $\delta_0={np.degrees(delta0_opt):.0f}^\circ$",
+        fontsize=style.font_size)
 
-    fig_b.tight_layout()
+    fig_b.colorbar(cf, ax=[ax1, ax2],
+                   label=r"$C_\psi = (F_a^\ast/q^\ast)|_{\mathrm{ref}}$")
     out_b = OUT_DIR / "pitch_efficiency.light.png"
     fig_b.savefig(out_b, dpi=300, bbox_inches="tight")
 
     # --- report numbers ---
     print(f"separation collapse over {n_pts} random 6D points: "
           f"F_a*/(q* C_psi) CV = {cv_sep*100:.1f}%")
-    print(f"C_psi range over (psi1,delta0) at psi0=0: "
-          f"[{cpsi0.min():.3f}, {cpsi0.max():.3f}]")
+    print(f"C_psi range over (delta0,psi1) at psi0=0: "
+          f"[{cpsi_dp.min():.3f}, {cpsi_dp.max():.3f}]")
     print(f"C_psi optimum at psi1={np.degrees(psi1_opt):.1f} deg, "
           f"delta0={np.degrees(delta0_opt):.1f} deg")
-    print(f"C_psi vs psi0 at optimum: [{cpsi_line.min():.3f}, {cpsi_line.max():.3f}] "
-          f"(swing {cpsi_line.max() / cpsi_line.min():.2f}x)")
+    print(f"C_psi range over (psi0,psi1) at delta0={np.degrees(delta0_opt):.0f} deg: "
+          f"[{cpsi_pp.min():.3f}, {cpsi_pp.max():.3f}]")
     print(f"wrote {out_a.relative_to(REPO_ROOT)}")
     print(f"wrote {out_b.relative_to(REPO_ROOT)}")
 

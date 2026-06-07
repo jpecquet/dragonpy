@@ -66,6 +66,8 @@ with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$
 
 \section{Equilibrium Solution Space}
 
+\subsection{Stationary Flight}
+
 A good first step might be to identify those parameter values that
 give an average aerodynamic force over a cycle that is equal
 to or greater than the weight, i.e. $F_a^* = \frac{F_a}{m_b g} \geq 1$.
@@ -128,9 +130,10 @@ Again, we do this first assuming zero body velocity, such that $F_a^* = 1$,
 applied in the right direction, would result in a hover.
 As can be seen in \autoref{fig:separation}, the separation is clean, with
 small amounts of scatter associated with the nonlinearity of
-the flapping motion: at large wing angles, there is an appreciable change in the
-effective angle of attack, but the effect is small. The right side of the plot is obtained
-by picking a reference amplitude ($s_0^* = 0.5$) to evaluate $F_a^*$.
+the flapping motion. The right side of the plot is obtained
+by picking a reference amplitude ($s_0^* = 0.3$, or $\phi_1 \approx 30^\circ$)
+to evaluate $F_a^*$. The sensitivity
+to the choice of $s_0^*$ is very small, about 1 to 2\%.
 The result is completely independent of $A_w^* / m^*$ and $\omega^*$
 because they appear purely as multiplicative factors in the analytical expression.
 It might be clearer to do a purely analytical treatment of this
@@ -138,7 +141,7 @@ part.
 \begin{figure}[h]
     \centering
     \includegraphics{../1_hover_feasibility/figures/reduction_collapse.light.png}
-    \caption{Separation of dynamic pressure and wing pitch factors of the aerodynamic force at zero body velocity. (a) Scatter of mean aerodynamic force as a function of dynamic pressure for random sampling of parameter space (b) Collapse of scatter by introduction of $C_\psi$ parameter evaluated as $F_a^* / q^*$ for a reference amplitude value $s_0^* = 0.5$}\label{fig:separation}
+    \caption{Separation of dynamic pressure and wing pitch factors of the aerodynamic force at zero body velocity. (a) Scatter of mean aerodynamic force as a function of dynamic pressure for random sampling of parameter space (b) Collapse of scatter by introduction of $C_\psi$ parameter evaluated as $F_a^* / q^*$ for a reference amplitude value $s_0^* = 0.3$}\label{fig:separation}
 \end{figure}
 
 This decomposition appears to be useful because $C_\psi$
@@ -154,11 +157,119 @@ that result in higher $C_\psi$ would be preferred in nature.
 Looking again at the simplified case from earlier it seems
 the optimum should sit near $\psi_0 = 0$, $\psi_1 = 45^\circ$, $\delta_0 = 90^\circ$,
 since a $45^\circ$ angle of attack maximizes lift (limit case
-for square wave pitch: $C_\psi = C_{L,0}$). We show the dependence of
-$C_\psi$ on the three parameters in 
+for square wave pitch: $C_\psi = C_{L,0}$).
 
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/pitch_efficiency.light.png}
+    \caption{Dependence of $C_\psi$ on pitch parameters at zero body velocity. Optimal value shown as white dots.}\label{fig:cpsi}
+\end{figure}
+
+We show the dependence of
+$C_\psi$ on the three parameters in \autoref{fig:cpsi}. Again, $C_\psi$
+here is obtained by taking $s_0^* = 0.3$, but this value has little
+effect on $C_\psi$ as seen in the scatter plot from earlier.
+The result is what we expect, with $\psi_1$ slightly larger than
+$45^\circ$ to provide a mean angle of attack that is closer
+to $45^\circ$. The dependence of $F_a^*$ on $\delta_0$ is symmetric
+but the force direction depends on the sign, we highlight $\delta_0 = +90^\circ$
+since with our conventions it results in a force in the direction of the leading edge.
+This optimal value of $C_\psi$ is slightly smaller than $C_{L,0}$.
+Note that because the optimal pitch pattern is symmetric, the drag coefficient
+has no effect (drag component cancels out over the two halves of the wingbeat).
+We notice that with more wing elements, the optimal $C_\psi$ is lower,
+converging to a value just above unity. 
+This suggests the following approximate criterion for hover feasibility,
+which may also extend to maneuverability
+\begin{align}
+    \frac{A_w^*}{m^*} \left(s_0^* \omega^*\right)^2 \geq 1
+\end{align}
+The corresponding 3D surface is shown in \autoref{fig:criterion}.
+The required wingbeat amplitude $\phi_1$ for a given $(\frac{A_w^*}{m^*}, \omega^*)$
+can be recovered by
+\begin{align*}
+    \phi_1 = \frac32 \frac{s_0^*}{L_w^*}
+\end{align*}
+The very high amplitudes ($\phi_1 \approx 60^\circ$) associated with low values
+of both $\frac{A_w^*}{m^*}$ and $\omega^*$ suggest such combinations
+probably do not occur, and that the parameter space can be further restricted.
+The data source for $\omega^*$ does not report measurements necessary
+to obtain $\frac{A_w^*}{m^*}$, but we could maybe find other sources.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/criterion_surface.light.png}
+    \caption{Approximate region of hover feasibility, with boundary surface.}\label{fig:criterion}
+\end{figure}
+
+$C_\psi$ may deviate from its "optimum" value. At this
+value, the wingbeat is symmetric, meaning the net force
+vector is normal to the stroke. This means hovering at the
+optimum $C_\psi$ requires a horizontal stroke plane. 
+Dragonflies however are known to hover with an inclined
+stroke plane, which could be due to efficiency considerations
+that we have ignored (picking the maximum $C_\psi$ may not
+be exactly optimal energy-wise, even if it minimizes $s_0$,
+or our model simply does not capture other real effects
+that lead to the inclined stroke plane being advantageous).
+Without going too deep into these energy considerations
+at least for now, it is interesting at this point to
+consider the effect of the pitch parameters not just on the
+force magnitude but on its \emph{direction}
+relative to the stroke plane. With an inclined stroke
+(angle $\gamma$ to the horizontal), hover (or vertical
+flight) requires the net aerodynamic force vector to be
+angled by $-\gamma$ to the stroke plane normal.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/force_direction_test.light.png}
+    \caption{Effect of $\psi_0$ on force direction and wing stroke efficiency.}\label{fig:beta_vs_psi0}
+\end{figure}
+
+We denote the force direction angle relative to the stroke
+plane with $\beta$. We find numerically (and could probably show analytically)
+that $\beta$ depends only on the mean pitch angle
+$\psi_0$, and on the sign of $\delta_0$. To be exact,
+there is a slight variation in $\beta(\psi_0)$ over the range
+of $\psi_1$ and $|\delta_0|$ on the order of $0.1^\circ$
+to $1^\circ$ depending on the wingbeat amplitude.
+We also find that the $(\psi_1, \delta_0)$ that maximizes
+$C_\psi$ is invariant with $\psi_0$.
+We show $\beta(\psi_0)$ in \autoref{fig:beta_vs_psi0}
+along with the optimal $C_\psi$ at a given $\psi_0$.
+
+Two observations from the plot: (a) $\beta$ is monotonous in
+$\psi_0$, so $\psi_0$ can be used conveniently as a control
+variable for the force direction, in addition to the stroke plane
+angle $\gamma$, and (b) the wing stroke is just
+as good at producing an in-plane force (when $\psi_0 = 90^\circ$)
+as it is an out-of-plane force ($\psi_0 = 0$) since $C_\psi^\text{max}$
+has the same value at both conditions.
+
+\subsubsection*{Hover Controller}
+
+The above insights suggest a few possible ways to achieve
+hover control. Candidates for control variables can be split into
+two groups: those that control force magnitude ($\phi_1, \omega^*$ through
+$q^*$ and $\psi_1, \delta_0$ through $C_\psi$), and those that control force
+direction ($\gamma_0$, $\psi_0$). For simplicity, we
+would rather consider $\omega^*$ to be a fixed parameter, so we will exclude it
+at least for now. We will also consider $\gamma_0$ to be fixed for now.
+In addition, it is beneficial to keep $C_\psi$ at or near its maximum
+value, which sets $\psi_1$ and $\delta_0$. This leaves $\phi_1$ (or $s_0^*$)
+for magnitude and $\psi_0$ for direction.
+
+\subsection{Moving and Maneuvering Flight}
+
+So far we have focused on stationary flight, with at
+most small amplitude motions about a stationary or
+slowly drifting position. That is the case where the
+body velocity relative to the air is much less than
+the wing velocity relative to the body $(v_b^* \ll s_0^*)$.
 Since we are interested not just in hover but in maneuvering flight,
-we of course need to consider the case where the body velocity is nonzero.
+we need to consider the case where $v_b^* \sim s_0^*$, perhaps even
+$v_b^* \gg s_0^*$.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
