@@ -9,7 +9,6 @@
 \usepackage{booktabs}
 \usepackage{siunitx}
 \usepackage{hyperref}
-\usepackage{cleveref}
 \usepackage[numbers]{natbib}
 \usepackage{microtype}
 \usepackage{newtxtext,newtxmath}
@@ -26,7 +25,7 @@
 
 \title{Proportional Control for Maneuvering Flapping Flight}
 \author{Jean Pecquet}
-\date{June 5, 2026}
+\date{\today}
 
 \begin{document}
 \maketitle
@@ -42,7 +41,7 @@ frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
 
 \begin{table}[htbp]
     \centering
-    \caption{Dimensionless Parameters}\label{tab:nondim_params}
+    \caption{Dimensionless parameters}\label{tab:nondim_params}
     \begin{tabular}{lll}\toprule
         \textbf{Parameter} & \textbf{Description} & \textbf{Range} \\\midrule
         $L_w^* = \frac{L_w}{L}$ & Wing length ratio & [0.65, 0.85]\\
@@ -62,24 +61,28 @@ frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
     C_L &= C_{L,0} \sin 2\alpha \\
     C_D &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha
 \end{align*}
-with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$
+with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$.
 
-\section{Equilibrium Solution Space}
+\section{Stationary Flight}
 
-\subsection{Stationary Flight}
+\subsection{Equilibrium Solutions}
 
-A good first step might be to identify those parameter values that
+A good first step for mapping the parameter space
+might be to identify those parameter values that
 give an average aerodynamic force over a cycle that is equal
 to or greater than the weight, i.e. $F_a^* = \frac{F_a}{m_b g} \geq 1$.
 Outside of this group of solutions,
-hovering and meaningful maneuveuring flight cannot be achieved.
+hovering and meaningful maneuvering flight cannot be achieved.
 This is independent of the
 stroke plane angle $\gamma_0$ and the fore/hind phase
 shift $\sigma_0$, which limits us to just 7 parameters.
 We can further eliminate one parameter by collapsing
-$L_w^*$ and $\phi_1$ into a single wing tip displacement
-amplitude parameter $s_0^* = \frac23 L_w^* \phi_1$,
+$L_w^*$ and $\phi_1$ into a single wing displacement
+amplitude parameter $s_0^* = \frac23 L_w^* \phi_1$
+(displacement at $\frac23$-span station, aerodynamic center)
 resulting in 6 morphological and wingbeat parameters.
+
+\subsubsection*{Verification Against Analytical Solution}
 
 As a first, quick verification we compare the
 $F_a^* = 1$ contour result in the ($A^*/m^*$, $\omega^*$) plane
@@ -89,8 +92,9 @@ beat half:
 \begin{align}
     \left(F_a^*\right)_\text{constant pitch} = \frac{C_{L,0}}{4} \frac{A^*}{m^*} \left(s_0^* \omega^*\right)^2
 \end{align}
-Note $A^* = 4 A_w^*$. The result is obtained
-for $s_0^* = 1.5$ (achieved in practice with a small $\phi_1$ and a large $L_w^*$),
+Note $A^* = 4 A_w^*$. We compare our model with the above expression
+at the reference condition from \cite{wetherbee2026}:
+$s_0^* = 1.5$ (achieved in practice with a small $\phi_1$ and a large $L_w^*$),
 $\psi_0 = 0^\circ$, $\psi_1 = 45^\circ$, and $\delta_0 = 90^\circ$.
 Crucially we do this assuming zero body velocity: the velocity
 of the wings relative to the air is equal to the velocity
@@ -103,12 +107,15 @@ The wing element spends less time at large angle of attack
 so the mean force is slightly lower.
 As the number of elements is increased $F_a^*$ converges to a
 lower value (by about 25\%), causing the contour to shift towards
-higher $A^*/m^*$ and $\omega^*$.
+higher $A^*/m^*$ and $\omega^*$. We use a single element
+at $\frac23-$span throughout for simplicity.
 \begin{figure}[h]
     \centering
     \includegraphics{../1_hover_feasibility/figures/translating_check.light.png}
     \caption{Verification of $F_a^*=1$ contour at reference condition}\label{fig:contour_check}
 \end{figure}
+
+\subsubsection*{Separating the Effects of the Parameters on $F_a^*$}
 
 The present model allows for more complex wing motions
 than a simple symmetric stroke: the mean pitching
@@ -126,12 +133,12 @@ we can extract the dimensionless dynamic pressure
 We can then evaluate $F_a^* / q^*$ and check whether it is independent
 of ($\frac{A_w^*}{m^*}$, $s_0^*$, $\omega^*$) over the parameter space,
 i.e.\ whether the two groups of variables can be cleanly separated.
-Again, we do this first assuming zero body velocity, such that $F_a^* = 1$,
+Again, we do this first at zero body velocity, such that $F_a^* = 1$,
 applied in the right direction, would result in a hover.
 As can be seen in \autoref{fig:separation}, the separation is clean, with
 small amounts of scatter associated with the nonlinearity of
 the flapping motion. The right side of the plot is obtained
-by picking a reference amplitude ($s_0^* = 0.3$, or $\phi_1 \approx 30^\circ$)
+by picking a reference amplitude ($s_0^* = 0.25$, or $\phi_1 \approx 30^\circ$)
 to evaluate $F_a^*$. The sensitivity
 to the choice of $s_0^*$ is very small, about 1 to 2\%.
 The result is completely independent of $A_w^* / m^*$ and $\omega^*$
@@ -141,8 +148,10 @@ part.
 \begin{figure}[h]
     \centering
     \includegraphics{../1_hover_feasibility/figures/reduction_collapse.light.png}
-    \caption{Separation of dynamic pressure and wing pitch factors of the aerodynamic force at zero body velocity. (a) Scatter of mean aerodynamic force as a function of dynamic pressure for random sampling of parameter space (b) Collapse of scatter by introduction of $C_\psi$ parameter evaluated as $F_a^* / q^*$ for a reference amplitude value $s_0^* = 0.3$}\label{fig:separation}
+    \caption{Separation of dynamic pressure and wing pitch factors of the aerodynamic force at zero body velocity. (a) Scatter of mean aerodynamic force as a function of dynamic pressure for random sampling of parameter space (b) Collapse of scatter by introduction of $C_\psi$ parameter evaluated as $F_a^* / q^*$ for a reference amplitude value $s_0^* = 0.25$}\label{fig:separation}
 \end{figure}
+
+\subsubsection*{Optimal Wing Pitch Parameters}
 
 This decomposition appears to be useful because $C_\psi$
 provides a measure of the power efficiency of the wingbeat.
@@ -167,7 +176,7 @@ for square wave pitch: $C_\psi = C_{L,0}$).
 
 We show the dependence of
 $C_\psi$ on the three parameters in \autoref{fig:cpsi}. Again, $C_\psi$
-here is obtained by taking $s_0^* = 0.3$, but this value has little
+here is obtained by taking $s_0^* = 0.25$, but this value has little
 effect on $C_\psi$ as seen in the scatter plot from earlier.
 The result is what we expect, with $\psi_1$ slightly larger than
 $45^\circ$ to provide a mean angle of attack that is closer
@@ -182,7 +191,7 @@ converging to a value just above unity.
 This suggests the following approximate criterion for hover feasibility,
 which may also extend to maneuverability
 \begin{align}
-    \frac{A_w^*}{m^*} \left(s_0^* \omega^*\right)^2 \geq 1
+    \frac{A_w^*}{m^*} \left(s_0^* \omega^*\right)^2 \gtrsim 1
 \end{align}
 The corresponding 3D surface is shown in \autoref{fig:criterion}.
 The required wingbeat amplitude $\phi_1$ for a given $(\frac{A_w^*}{m^*}, \omega^*)$
@@ -195,6 +204,12 @@ of both $\frac{A_w^*}{m^*}$ and $\omega^*$ suggest such combinations
 probably do not occur, and that the parameter space can be further restricted.
 The data source for $\omega^*$ does not report measurements necessary
 to obtain $\frac{A_w^*}{m^*}$, but we could maybe find other sources.
+We can estimate the typical hover wingbeat amplitude
+by assuming that the lowest $\omega^*$ occur at the highest
+$\frac{A_w^*}{m^*}$. For this set of parameters ($\omega^* = 8$ and
+$\frac{A_w^*}{m^*} = 0.25$) the amplitude is $s_0^* \approx 0.23$,
+which corresponds to $\phi_1 \approx 26^\circ$.
+
 
 \begin{figure}[h]
     \centering
@@ -202,10 +217,12 @@ to obtain $\frac{A_w^*}{m^*}$, but we could maybe find other sources.
     \caption{Approximate region of hover feasibility, with boundary surface.}\label{fig:criterion}
 \end{figure}
 
+\subsubsection*{Nonzero Mean Wing Pitch for Inclined Stroke Plane Hover}
+
 $C_\psi$ may deviate from its "optimum" value. At this
 value, the wingbeat is symmetric, meaning the net force
 vector is normal to the stroke. This means hovering at the
-optimum $C_\psi$ requires a horizontal stroke plane. 
+optimal $C_\psi$ requires a horizontal stroke plane. 
 Dragonflies however are known to hover with an inclined
 stroke plane, which could be due to efficiency considerations
 that we have ignored (picking the maximum $C_\psi$ may not
@@ -217,9 +234,9 @@ at least for now, it is interesting at this point to
 consider the effect of the pitch parameters not just on the
 force magnitude but on its \emph{direction}
 relative to the stroke plane. With an inclined stroke
-(angle $\gamma$ to the horizontal), hover (or vertical
+(angle $\gamma_0$ to the horizontal), hover (or vertical
 flight) requires the net aerodynamic force vector to be
-angled by $-\gamma$ to the stroke plane normal.
+angled by $-\gamma_0$ to the stroke plane normal.
 
 \begin{figure}[h]
     \centering
@@ -239,37 +256,138 @@ $C_\psi$ is invariant with $\psi_0$.
 We show $\beta(\psi_0)$ in \autoref{fig:beta_vs_psi0}
 along with the optimal $C_\psi$ at a given $\psi_0$.
 
-Two observations from the plot: (a) $\beta$ is monotonous in
+Three observations from the plot: (a) $\beta$ is monotonous in
 $\psi_0$, so $\psi_0$ can be used conveniently as a control
 variable for the force direction, in addition to the stroke plane
-angle $\gamma$, and (b) the wing stroke is just
-as good at producing an in-plane force (when $\psi_0 = 90^\circ$)
-as it is an out-of-plane force ($\psi_0 = 0$) since $C_\psi^\text{max}$
-has the same value at both conditions.
+angle $\gamma_0$, (b) $\beta$ is $\pi-$periodic (modulo $2\pi$)
+in $\psi_0$, i.e. a $90^\circ$ turn in $\psi_0$ reverses the
+force direction, so only moderate changes in $\psi_0$ are needed
+to achieve relatively large changes in $\beta$,
+and (c) the wing stroke is most efficient when
+the mean pitch attitude points out-of-plane or in-plane, and least efficient when
+it forms a $45^\circ$ angle with the stroke plane.
 
-\subsubsection*{Hover Controller}
+\subsubsection*{Hover Control Variables}
 
 The above insights suggest a few possible ways to achieve
 hover control. Candidates for control variables can be split into
 two groups: those that control force magnitude ($\phi_1, \omega^*$ through
 $q^*$ and $\psi_1, \delta_0$ through $C_\psi$), and those that control force
-direction ($\gamma_0$, $\psi_0$). For simplicity, we
+direction ($\gamma_0$, $\psi_0$). Note this is not such a clean
+split, because $\psi_0$ also changes force magnitude through $C_\psi$,
+just more weakly than it changes direction. For simplicity, we
 would rather consider $\omega^*$ to be a fixed parameter, so we will exclude it
-at least for now. We will also consider $\gamma_0$ to be fixed for now.
+at least for now.
+Since we also do not fully understand the factors
+that set the hovering stroke plane angle, we will also
+consider $\gamma_0$ to be fixed for now (later on, we
+compare the effectiveness of $\gamma_0$ and $\psi_0$
+as directional control variables).
 In addition, it is beneficial to keep $C_\psi$ at or near its maximum
 value, which sets $\psi_1$ and $\delta_0$. This leaves $\phi_1$ (or $s_0^*$)
-for magnitude and $\psi_0$ for direction.
+for magnitude and $\psi_0$ for direction. At equilibrium,
+$\psi_0$ will be such that $\beta = -\gamma_0$ (force is vertical),
+and $\phi_1$ such that $F_a^* = 1$. \autoref{tab:hover_psi0} shows
+the required value of $\psi_0$ for different $\gamma_0$,
+for a reference configuration $L_w^* = 0.75$, $\frac{A_w^*}{m^*} = 0.15$,
+and $\omega^* = 14$. Different values of these parameter impose
+a different $\phi_1$ for hover, which results in small
+changes in $\psi_0$ up to a few percent.
+\begin{table}[htbp]
+    \centering
+    \caption{Mean pitch for hover at various stroke plane angles for reference configuration}\label{tab:hover_psi0}
+    \begin{tabular}{lll}\toprule
+        $\boldsymbol{\gamma_0}$ & $\boldsymbol{\psi_0}$ & $\boldsymbol{C_\psi^\text{max}}$ \\\midrule
+        $0^\circ$ & $0^\circ$ & $1.43$ \\
+        $10^\circ$ & $7.9^\circ$ & $1.40$ \\
+        $20^\circ$ & $15.1^\circ$ & $1.31$ \\
+        $30^\circ$ & $21.4^\circ$ & $1.21$ \\
+        $40^\circ$ & $26.7^\circ$ & $1.11$ \\\bottomrule
+    \end{tabular}
+\end{table}
 
-\subsection{Moving and Maneuvering Flight}
+$\phi_1$ is set by
+\begin{align*}
+    \phi_1^\text{hover} = \frac32 \left( L_w^* \omega^* \sqrt{C_\psi^\text{max}(\psi_0) \frac{A_w^*}{m^*}} \right)^{-1}
+\end{align*}
+
+\subsection{Hover Dynamics and Control}
+
+\subsubsection*{Unsteady Dynamics}
+
+Before designing a controller, we look at how the actual, 
+unsteady hover dynamics differ from the equilibrium picture
+we have been working with so far. Indeed the body velocity
+will not be exactly zero throughout, and will oscillate
+according to the fluctuations of the aerodynamic force
+over a wingbeat cycle. There is an additional effect due to
+small but nonzero mass of the wings, which will make the
+body bob up and down in the direction of the flapping motion.
+We have neglected this in our work so far. In this part we will
+evaluate the relative importance of the two effects on the
+body oscillations.
+
+A key parameter here is the fore/hind wing phase shift $\sigma_0$.
+We expect the oscillations to be more pronounced
+when the wings beat in-phase ($\sigma_0 = 0^\circ$) than
+when they beat out-of-phase ($\sigma_0 = 180^\circ$).
+In fact, if the forewing and hindwing motions are identical
+except for the phase shift, the wing inertia effect will be zero
+(true for translation, not for body pitch, which we do not consider
+in the present model).
+
+We introduce a relative wing mass parameter $m_w^* = m_w / m$.
+According to \cite{wakeling1997}, values range from 0.01 to 0.03 for \emph{Anisoptera}.
+We run one hover wingbeat to obtain the body oscillation peak-to-peak amplitude,
+comparing the ideal massless wing case to the $m_w^* = 0.02$ case,
+for the reference configuration with $\gamma_0 = 40^\circ$ (\autoref{fig:oscillations}).
+The wing mass and aerodynamic contributions to the
+body oscillations appear to be of the same order,
+except, as expected, when the wings beat out-of-phase.
+We will consider $m_w^* = 0$ in the following, but
+should keep in mind that this is only effectively true
+at $\sigma = 180^\circ$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/inertia_vs_aero_sigma0.light.png}
+    \caption{Effect of $\sigma_0$ and $m_w^*$ on body oscillations during hover.}\label{fig:oscillations}
+\end{figure}
+
+Another effect of the aerodynamic force oscillations is positional drift.
+For a constant, open-loop wingbeat pattern, the dragonfly settles
+in a steady-state that has a small but nonzero mean body velocity,
+when the equilibrium prediction is that the zero mean force condition
+occurs at exactly zero mean body velocity.
+
+Overall these effects are relatively mild, with instantaneous body velocities
+of approximately $0.25 s_0^* \omega^*$ in the worst case scenario ($\sigma_0 = 0^\circ$,
+$\omega^* = 8$, $A_w^* / m^* = 0.25$), and only about $\frac{1}{10}$ of that
+for $\sigma_0 = 180^\circ$, so the conclusions drawn from the equilibrium
+analysis should be applicable for controller design.
+
+\subsubsection*{Hover Controller}
+
+Recall we identified $\phi_1$ and $\psi_0$ as the two control
+variables for hover. $\phi_1$ controls force magnitude, and
+$\psi_0$ controls force direction, with the secondary effect
+of reducing the force magnitude as it moves away from the stroke
+plane normal mean $\psi_0 = 0$.
+
+\section{Moving and Maneuvering Flight}
 
 So far we have focused on stationary flight, with at
 most small amplitude motions about a stationary or
 slowly drifting position. That is the case where the
 body velocity relative to the air is much less than
-the wing velocity relative to the body $(v_b^* \ll s_0^*)$.
+the wing velocity relative to the body $(v_b^* \ll s_0^* \omega^*)$.
 Since we are interested not just in hover but in maneuvering flight,
-we need to consider the case where $v_b^* \sim s_0^*$, perhaps even
+we need to consider the case where $v_b^* \sim s_0^* \omega^*$, perhaps even
 $v_b^* \gg s_0^*$.
+
+\subsection{Equilibrium Solutions}
+
+\subsection{Control for Maneuvering Flight}
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

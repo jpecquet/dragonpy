@@ -29,7 +29,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from feasibility import Params, STUDY_ELEMENT, cycle_averaged_force, replace
+from feasibility import (
+    Params, REF_AW_OVER_MB, REF_LW, REF_OMEGA_STAR, REF_S0, STUDY_ELEMENT,
+    STUDY_SPAN_FRAC, cycle_averaged_force, replace,
+)
 from feasibility_reduction import cpsi_of_pitch
 
 HERE = Path(__file__).resolve().parent
@@ -43,9 +46,10 @@ N_PHASE = 128
 DELTA0 = np.radians(90.0)
 PSI1 = np.radians(30.0)
 
-# Reference amplitude (matches feasibility_reduction): s0 = 0.3 at Lw = 0.75
-# (phi1 = s0 / ((2/3) Lw) = 0.6 rad).
-AMP_NOM = dict(Aw_over_mb=0.15, omega_star=14.0, phi1=0.6, Lw=0.75)
+# Reference amplitude (matches feasibility_reduction): s0 = 0.25 at Lw = 0.75
+# (phi1 = s0 / ((2/3) Lw) = 0.5 rad).
+AMP_NOM = dict(Aw_over_mb=REF_AW_OVER_MB, omega_star=REF_OMEGA_STAR,
+               phi1=REF_S0 / (STUDY_SPAN_FRAC * REF_LW), Lw=REF_LW)
 
 PSI0_RANGE = np.radians((-90.0, 90.0))
 

@@ -89,6 +89,15 @@ WEIGHT = 1.0  # body mass = 1, g = 1
 STUDY_SPAN_FRAC = 2.0 / 3.0
 STUDY_ELEMENT = (STUDY_SPAN_FRAC,)
 
+# Reference configuration for the rest of the study. The inverse wing loading
+# and wingbeat frequency are fixed at the mid-range of Table 1; the wing length
+# and the reference excursion at which C_psi is read off complete the nominal
+# operating point. Scripts import these so the reference lives in one place.
+REF_AW_OVER_MB = 0.15
+REF_OMEGA_STAR = 14.0
+REF_LW = 0.75
+REF_S0 = 0.25
+
 
 # ---------------------------------------------------------------------------
 # Parameters.
@@ -363,4 +372,5 @@ __all__ = [
     "avg_force_magnitude", "is_feasible",
     "make_wing", "make_pattern", "lift_coeff", "drag_coeff", "WEIGHT", "replace",
     "STUDY_SPAN_FRAC", "STUDY_ELEMENT",
+    "REF_AW_OVER_MB", "REF_OMEGA_STAR", "REF_LW", "REF_S0",
 ]

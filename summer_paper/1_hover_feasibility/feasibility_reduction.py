@@ -42,7 +42,8 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
 from feasibility import (
-    Params, STUDY_ELEMENT, STUDY_SPAN_FRAC, WEIGHT, avg_force_magnitude, replace,
+    Params, REF_AW_OVER_MB, REF_LW, REF_OMEGA_STAR, REF_S0, STUDY_ELEMENT,
+    STUDY_SPAN_FRAC, WEIGHT, avg_force_magnitude, replace,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -73,11 +74,11 @@ DELTA0_RANGE = np.radians((-180.0, 180.0))
 # function of pitch only. With the arc-length s0, F_a^*/q^* is amplitude-independent
 # to ~2%, so C_psi here differs from a point's own F_a^*/q^* only by that small
 # residual -- the genuine (non-tautological) width of the panel-(b) collapse. The
-# reference excursion is s0 = 0.3, realized at Lw = 0.75, which fixes
-# phi1 = s0 / ((2/3) Lw) = 0.6 rad (~34 deg).
-S0_REF = 0.3
-LW_REF = 0.75
-AMP_NOM = dict(Aw_over_mb=0.15, omega_star=14.0,
+# reference excursion is s0 = 0.25, realized at Lw = 0.75, which fixes
+# phi1 = s0 / ((2/3) Lw) = 0.5 rad (~29 deg).
+S0_REF = REF_S0
+LW_REF = REF_LW
+AMP_NOM = dict(Aw_over_mb=REF_AW_OVER_MB, omega_star=REF_OMEGA_STAR,
                phi1=S0_REF / (SPAN_FRAC_REF * LW_REF), Lw=LW_REF)
 
 

@@ -35,7 +35,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from feasibility import Params, STUDY_ELEMENT, STUDY_SPAN_FRAC, avg_force_magnitude
+from feasibility import (
+    Params, REF_AW_OVER_MB, REF_LW, REF_OMEGA_STAR, REF_S0, STUDY_ELEMENT,
+    STUDY_SPAN_FRAC, avg_force_magnitude,
+)
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
@@ -47,9 +50,9 @@ OUT_DIR = HERE / "figures"
 N_PHASE = 128
 SPAN_FRAC_REF = STUDY_SPAN_FRAC
 
-# Reference amplitude (matches feasibility_reduction): s0 = 0.3 at Lw = 0.75.
-AW_REF, OMEGA_REF, LW_REF, S0_REF = 0.15, 14.0, 0.75, 0.3
-PHI1_REF = S0_REF / (SPAN_FRAC_REF * LW_REF)            # = 0.6 rad
+# Reference amplitude (matches feasibility_reduction): s0 = 0.25 at Lw = 0.75.
+AW_REF, OMEGA_REF, LW_REF, S0_REF = REF_AW_OVER_MB, REF_OMEGA_STAR, REF_LW, REF_S0
+PHI1_REF = S0_REF / (SPAN_FRAC_REF * LW_REF)            # = 0.5 rad
 # Nominal (hover) pitch.
 PITCH_NOM = dict(psi0=0.0, psi1=np.radians(45.0), delta0=np.pi / 2)
 
