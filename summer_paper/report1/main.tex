@@ -23,7 +23,7 @@
 
 \captionsetup[table]{skip=6pt}
 
-\title{Proportional Control for Maneuvering Flapping Flight}
+\title{Report --- Proportional Control for Maneuvering Flapping Flight}
 \author{Jean Pecquet}
 \date{\today}
 
@@ -33,7 +33,38 @@
 \section{Model Description}%
 \label{sec:model}
 
-\autoref{tab:nondim_params} lists the nondimensionalized
+We model a dragonfly-like insect with two pairs of wings.
+The sagittal plane is aligned with the fixed frame $(x,z)$
+plane, where $z$ points opposite the direction of gravity.
+The wings in each pair beat symmetrically about the sagittal
+plane, and there is zero initial velocity or wind component
+normal to the sagittal plane, so the motion is constrained
+to the $(x,z)$ plane, rendering the problem two-dimensional.
+A subsequent strong simplification is that the body is reduced
+to a point mass, so there is no coupling between body pitch
+and wing kinematics. In this manner we can focus entirely on
+the translational dynamics without concern for flight stability.
+The dynamical model is nondimensionalized using the body length $L$,
+the body mass $m$, and the gravitational time scale $\sqrt{L/g}$.
+The resulting dimensionless parameters, along with the wing kinematics
+angular parameters, are listed in \autoref{tab:nondim_params}.
+Dimensionless quantities are denoted by an asterisk ($*$).
+
+Each wing is modeled as a single, massless plate element with
+its aerodynamic center at the $\frac23-$span station.
+The lift and drag coefficients of each element are prescribed as
+a function of the instantaneous angle of attack $\alpha$
+(provided at the end of the section).
+The wing kinematic angles are represented in \autoref{fig:wing_kinematics}.
+The wing flapping angle $\phi(t)$ and pitching angle $\psi(t)$
+are prescribed by sinusoidal functions as follows
+\begin{align*}
+    \phi(t^*) &= \phi_1 \sin (\omega^* t^*) \\
+    \psi(t^*) &= \psi_0 + \psi_1 \sin (\omega^* t^* + \delta_0)
+\end{align*}
+The forewing angles are exactly the above, while the hindwing
+angles have an additional phase parameter $\sigma_0$ added
+to the sin phase. \autoref{tab:nondim_params} lists the nondimensionalized
 parameters in the dynamic model. Ranges for the parameters
 $L_w^*$, $A_w^* / m^*$, and $\omega^*$ were obtained from
 the morphological data in \cite{wakeling1997} and the wingbeat
@@ -62,8 +93,29 @@ frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
     C_D &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha
 \end{align*}
 with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$.
+\bigskip
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=4in]{../1_hover_feasibility/figures/wing-angles.png}
+    \caption{Wing kinematic angles for $\delta_0 = 0$, represented on one wing for clarity [placeholder]}\label{fig:wing_kinematics}
+\end{figure}
 
 \section{Stationary Flight}
+
+Main results:
+\begin{itemize}
+    \item Effect of pitch parameters $(\psi_0, \psi_1, \delta_0)$ on
+        mean aerodynamic force is separable from morphological parameters
+        and wingbeat frequency
+    \item Pitch parameters $\psi_0 = 0^\circ$, $\psi_1 \approx 51^\circ$,
+        and $\delta_0 = 90^\circ$ maximize mean aerodynamic force
+        given $(\frac{A_w^*}{m^*}, L_w^*, \omega^*)$
+    \item A two-variable proportional scheme using $\phi_1$ for force magnitude
+        and $\psi_0$ for force direction is sufficient to achieve stable hovering
+    \item Inclined stroke plane hover exhibits increased damping in
+        the vertical direction compared to a horizontal stroke plane
+\end{itemize}
 
 \subsection{Equilibrium Solutions}
 
@@ -219,7 +271,7 @@ which corresponds to $\phi_1 \approx 26^\circ$.
 
 \subsubsection*{Nonzero Mean Wing Pitch for Inclined Stroke Plane Hover}
 
-$C_\psi$ may deviate from its "optimum" value. At this
+$C_\psi$ may deviate from its ``optimum'' value. At this
 value, the wingbeat is symmetric, meaning the net force
 vector is normal to the stroke. This means hovering at the
 optimal $C_\psi$ requires a horizontal stroke plane. 
@@ -256,13 +308,12 @@ $C_\psi$ is invariant with $\psi_0$.
 We show $\beta(\psi_0)$ in \autoref{fig:beta_vs_psi0}
 along with the optimal $C_\psi$ at a given $\psi_0$.
 
-Three observations from the plot: (a) $\beta$ is monotonous in
+Three observations from the plot: (a) $\beta$ is monotonic in
 $\psi_0$, so $\psi_0$ can be used conveniently as a control
 variable for the force direction, in addition to the stroke plane
-angle $\gamma_0$, (b) $\beta$ is $\pi-$periodic (modulo $2\pi$)
-in $\psi_0$, i.e. a $90^\circ$ turn in $\psi_0$ reverses the
+angle $\gamma_0$, (b) a $90^\circ$ turn in $\psi_0$ reverses the
 force direction, so only moderate changes in $\psi_0$ are needed
-to achieve relatively large changes in $\beta$,
+to achieve relatively large changes in $\beta$ (there is factor of $\sim2$),
 and (c) the wing stroke is most efficient when
 the mean pitch attitude points out-of-plane or in-plane, and least efficient when
 it forms a $45^\circ$ angle with the stroke plane.
@@ -290,7 +341,7 @@ $\psi_0$ will be such that $\beta = -\gamma_0$ (force is vertical),
 and $\phi_1$ such that $F_a^* = 1$. \autoref{tab:hover_psi0} shows
 the required value of $\psi_0$ for different $\gamma_0$,
 for a reference configuration $L_w^* = 0.75$, $\frac{A_w^*}{m^*} = 0.15$,
-and $\omega^* = 14$. Different values of these parameter impose
+and $\omega^* = 14$. Different values of these parameters impose
 a different $\phi_1$ for hover, which results in small
 changes in $\psi_0$ up to a few percent.
 \begin{table}[htbp]
@@ -310,6 +361,17 @@ $\phi_1$ is set by
 \begin{align*}
     \phi_1^\text{hover} = \frac32 \left( L_w^* \omega^* \sqrt{C_\psi^\text{max}(\psi_0) \frac{A_w^*}{m^*}} \right)^{-1}
 \end{align*}
+
+The reference configuration used hereafter uses
+the following parameters (\autoref{tab:ref_config})
+\begin{table}[htbp]
+    \centering
+    \caption{Reference configuration}\label{tab:ref_config}
+    \begin{tabular}{llll}\toprule
+        $\boldsymbol{A_w^* / m^*}$ & $\boldsymbol{L_w^*}$ & $\boldsymbol{\omega^*}$ & $\boldsymbol{\gamma_0}$ \\\midrule
+        0.15 & 0.75 & 14 & $40^\circ$ \\\bottomrule
+    \end{tabular}
+\end{table}
 
 \subsection{Hover Dynamics and Control}
 
@@ -340,13 +402,13 @@ We introduce a relative wing mass parameter $m_w^* = m_w / m$.
 According to \cite{wakeling1997}, values range from 0.01 to 0.03 for \emph{Anisoptera}.
 We run one hover wingbeat to obtain the body oscillation peak-to-peak amplitude,
 comparing the ideal massless wing case to the $m_w^* = 0.02$ case,
-for the reference configuration with $\gamma_0 = 40^\circ$ (\autoref{fig:oscillations}).
+for the reference configuration of \autoref{tab:ref_config} (\autoref{fig:oscillations}).
 The wing mass and aerodynamic contributions to the
 body oscillations appear to be of the same order,
 except, as expected, when the wings beat out-of-phase.
 We will consider $m_w^* = 0$ in the following, but
 should keep in mind that this is only effectively true
-at $\sigma = 180^\circ$.
+at $\sigma_0 = 180^\circ$.
 
 \begin{figure}[h]
     \centering
@@ -364,7 +426,7 @@ Overall these effects are relatively mild, with instantaneous body velocities
 of approximately $0.25 s_0^* \omega^*$ in the worst case scenario ($\sigma_0 = 0^\circ$,
 $\omega^* = 8$, $A_w^* / m^* = 0.25$), and only about $\frac{1}{10}$ of that
 for $\sigma_0 = 180^\circ$, so the conclusions drawn from the equilibrium
-analysis should be applicable for controller design.
+analysis should be applicable to controller design.
 
 \subsubsection*{Hover Controller}
 
@@ -372,7 +434,90 @@ Recall we identified $\phi_1$ and $\psi_0$ as the two control
 variables for hover. $\phi_1$ controls force magnitude, and
 $\psi_0$ controls force direction, with the secondary effect
 of reducing the force magnitude as it moves away from the stroke
-plane normal mean $\psi_0 = 0$.
+plane normal mean $\psi_0 = 0$. It seems natural to use $\phi_1$
+to control altitude, and $\psi_0$ to control fore-aft drift
+by tilting the force direction vector from the vertical.
+Specifically we propose the following control scheme
+\begin{align*}
+    \psi_0 &= \psi_0^\text{eq} - K_x (x - x_0) \\
+    \phi_1 &= \phi_1^\text{eq} - K_z (z - z_0)
+\end{align*}
+Note that orienting the force in the $-x$ direction requires
+pitching up (increasing $\psi_0$), so we will need $K_x < 0$.
+To design the proportional gains for the reference configuration
+(\autoref{tab:ref_config}) we begin by forming the Jacobian matrix
+of the wingbeat-averaged aerodynamic force $\vec{F}_a^*$
+at the hover equilibrium, using finite differences,
+to evaluate the control effectiveness of the two variables
+about the force axes. The Jacobian is
+\begin{align*}
+    J = \begin{bmatrix}
+        \displaystyle \frac{\partial F^*_{a,x}}{\partial \psi_0} &\displaystyle  \frac{\partial F^*_{a,x}}{\partial \phi_1} \\
+        \displaystyle  \frac{\partial F^*_{a,z}}{\partial \psi_0} &  \displaystyle \frac{\partial F^*_{a,z}}{\partial \phi_1}
+        \end{bmatrix}
+        \approx \begin{bmatrix}
+            -2.06 & 0.04 \\
+            -0.96 & 5.69
+    \end{bmatrix}
+\end{align*}
+Notably $\phi_1$ has a negligible effect on force tilt
+from the vertical ($F^*_{a,x}$), while as we pointed out before $\psi_0$
+does have a significant secondary effect on $F^*_{a,z}$.
+Since $\phi_1$ cleanly drives $F^*_{a,z}$, its control
+loop will absorb the $\psi_0$ cross term.
+The decoupled dynamics are (note mass matrix is $I$ because of
+nondimensionalization)
+\begin{align*}
+    \ddot{x}^* &= -2.06 \times \delta \psi_0 \\
+    \ddot{z}^* &= 5.69 \times \delta \phi_1
+\end{align*}
+So $\omega_n^2 = -2.06 K_x = 5.69 K_z$. We want $\omega_n$
+slow enough that the controller sees the wingbeat-averaged
+force and not the fluctuations. Using $\omega_n = 1.5$ (10
+times smaller than the reference wingbeat frequency $\omega^* = 14$)
+we get
+\begin{align*}
+    K_x &= -1.09 \\
+    K_z &= 0.39
+\end{align*}
+The step response is shown in \autoref{fig:hover_step}. The figure
+shows the reference configuration along with low and high wing
+loading configuration. $A_w^*/m^*$ was chosen as the variable here because
+it had the greatest effect on the damping of the response.
+The response is very noticeably more damped as $A_w^* / m^*$ increases.
+Over the range of parameters, using the same gains designed for the
+reference configuration, the achieved $\omega_n$ was close to the
+design value of 1.5, and the response did not vary very much
+except along the $A_w^* / m^*$ axis. The controller was stable across
+the full parameter space.
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/hover_control_step.light.png}
+    \caption{Effect of $A_w^* / m^*$ on hover controller step response.}\label{fig:hover_step}
+\end{figure}
+
+A more interesting result is the influence of stroke plane angle
+on damping, as shown in \autoref{fig:hover_step_gamma}. It appears
+that damping is strongest within the stroke plane,
+which means that vertical damping in the $\gamma_0 = 0^\circ$
+case is relatively low, and increases as the stroke plane is tilted.
+Horizontal damping decreases accordingly, with the end
+result being that there is a better match in the damping
+characteristics along both axes.
+Perhaps this is another advantage of hovering
+with an inclined stroke plane.
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/hover_control_step_gamma.light.png}
+    \caption{Effect of $\gamma_0$ on hover controller step response.}\label{fig:hover_step_gamma}
+\end{figure}
+
+\subsubsection*{Robustness to Sensing Delay}
+
+We have assumed instant, perfect knowledge
+of body position. We now introduce a sensing
+delay and evaluate the constraints it imposes
+on controller design [needs to be written out].
 
 \section{Moving and Maneuvering Flight}
 
@@ -387,7 +532,137 @@ $v_b^* \gg s_0^*$.
 
 \subsection{Equilibrium Solutions}
 
+\subsubsection*{Velocity Parameterization}
+
+We characterize the body velocity in the stroke-plane frame,
+by its angle $\chi$ from the stroke-plane normal and by the
+advance ratio
+\begin{align*}
+    J = \frac{v_b^*}{s_0^* \omega^*}
+\end{align*}
+i.e.\ the body speed measured against the wing speed scale.
+This choice has two motivations. First, the $\gamma_0$-invariance
+of the force magnitude carries over: $|\vec{F}_a^*|$ is unchanged
+when the stroke plane and the velocity vector are rotated together
+(verified numerically to machine precision), so a single map
+in $(J, \chi)$ covers all stroke plane angles. Second, scaling the
+speed with $s_0^* \omega^*$ keeps every velocity in the problem
+proportional to the wing speed, which preserves the $q^*$
+magnitude scaling: the effect of the body velocity can only
+enter through the coefficient, which becomes
+$C_\psi(\psi_0, \psi_1, \delta_0;\, J, \chi)$.
+
+This last point assumes the separation $F_a^* = q^* C_\psi$
+itself survives at nonzero velocity, which we check
+in \autoref{fig:velocity_separation} by evaluating the scatter
+of $F_a^* / q^*$ over random draws of
+$(\frac{A_w^*}{m^*}, \omega^*, \phi_1, L_w^*)$ at fixed pitch
+and fixed $(J, \chi)$. The residual is exactly zero for
+axial inflow ($\chi = 0^\circ$ or $180^\circ$) and grows with
+the \emph{in-plane} velocity component, reaching about 7\%
+at $J = 0.5$ and 11\% at $J = 1$ for $\chi = 90^\circ$.
+The distinction is geometric: an axial inflow meets the
+flapping wing at the same relative orientation at every point
+of the stroke arc, so the cycle geometry still depends on
+amplitude only through $s_0^* \omega^*$, while an in-plane wind
+makes an angle with the wing velocity that varies along the arc,
+re-introducing a weak dependence on $\phi_1$ itself.
+The separation therefore remains useful well into the
+maneuvering regime, with the caveat that it is approximate
+for fast in-plane flight.
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/velocity_separation.light.png}
+    \caption{Survival of the $F_a^* = q^* C_\psi$ separation at nonzero
+    body velocity. (a) $C_\psi$ at nominal pitch as a function of advance
+    ratio for several inflow directions $\chi$. (b) Separation residual,
+    evaluated as the coefficient of variation of $F_a^* / q^*$ over random
+    draws of the morphological and wingbeat parameters at fixed pitch.}\label{fig:velocity_separation}
+\end{figure}
+
+\subsubsection*{$C_\psi$ over the Velocity Plane}
+
+With $(J, \chi)$ added to the three pitch parameters, $C_\psi$
+is a function of five variables, which we cannot map directly.
+Three structural observations (all numerical) reduce the
+visualization problem to a manageable size:
+\begin{enumerate}
+    \item Mirror symmetry: $C_\psi(J, \chi, \psi_0) = C_\psi(J, -\chi, -\psi_0)$
+        to machine precision, so at $\psi_0 = 0$ the velocity plane
+        is symmetric about the stroke-plane normal and only a
+        half-plane needs to be computed.
+    \item The optimal pitch phase stays pinned at $\delta_0 = 90^\circ$
+        across the entire velocity plane.
+    \item Consequently only $\psi_1$ retunes with velocity, and it does
+        so smoothly.
+\end{enumerate}
+Since $(J, \chi)$ is just the body velocity vector expressed in
+the stroke-plane frame, we can treat the velocity plane as a disk
+(radius $J$, angle $\chi$) and show each scalar of interest as one
+polar map (\autoref{fig:velocity_cpsi}): (a) $C_\psi$ at the
+\emph{hover-optimal} pitch, i.e.\ how the hover wingbeat performs
+when the body moves; (b) $C_\psi$ with $\psi_1$ re-optimized at
+each velocity within its allowed range; and (c) the re-optimized
+$\psi_1$ itself.
+\begin{figure}[h]
+    \centering
+    \includegraphics{../1_hover_feasibility/figures/velocity_cpsi_maps.light.png}
+    \caption{$C_\psi$ over the body-velocity plane (radius: advance ratio $J$,
+    angle: $\chi$ from the stroke-plane normal), at $\psi_0 = 0$,
+    $\delta_0 = 90^\circ$, for the reference configuration.
+    (a) Hover-optimal pitch ($\psi_1 = 51^\circ$), dashed line marks $C_\psi = 1$.
+    (b) $\psi_1$ re-optimized at each velocity over the range of \autoref{tab:nondim_params}.
+    (c) The re-optimized $\psi_1$.}\label{fig:velocity_cpsi}
+\end{figure}
+
+The maps show three regimes:
+\begin{itemize}
+    \item \textbf{Axial inflow ($\chi$ near $0^\circ$)}: the inflow
+        through the stroke plane washes out the angle of attack and
+        the hover wingbeat loses its force rapidly, from
+        $C_\psi = 1.43$ at hover to $0.90$ at $J = 0.4$ and
+        essentially zero ($0.04$) by $J = 0.8$. Re-tuning recovers
+        force ($1.17$ at $J = 0.4$, $1.00$ at $J = 0.8$) by
+        \emph{reducing} $\psi_1$ to keep the section near its best
+        angle of attack in the combined flow.
+    \item \textbf{In-plane wind ($\chi$ near $\pm 90^\circ$)}: the
+        mean-square relative velocity grows as the wind adds to the
+        wing speed on one half-stroke faster than it subtracts on the
+        other, and $C_\psi$ \emph{increases} strongly ($2.10$ at
+        $J = 0.4$, $3.66$ at $J = 0.8$ at hover pitch). The hover
+        wingbeat is already close to optimal here; re-tuning adds
+        only a few percent.
+    \item \textbf{Reverse axial inflow ($\chi$ near $180^\circ$)}: the
+        inflow steepens the angle of attack, and the optimum saturates
+        at the upper bound of the pitch amplitude range
+        ($\psi_1 = 60^\circ$).
+\end{itemize}
+Between the in-plane and reverse-axial regimes, around
+$\chi \approx \pm 110^\circ$ at high $J$, the optimal $\psi_1$
+switches branches abruptly (from near-zero pitch amplitude, where
+the wing behaves like a fixed-pitch blade in a dominant wind,
+to the large-amplitude branch), visible as the sharp boundary in
+panel (c).
+
+For equilibrium, since the model has no body drag, steady flight at
+any velocity requires the same force as hover: $F_a^* = 1$ directed
+vertically. The magnitude condition is $q^* C_\psi = 1$, so panel (a)
+divides the velocity plane into regions where the hover wingbeat
+produces a force surplus that maneuvering can spend ($C_\psi$ above
+its hover value, roughly the whole lower half-plane) and regions
+where flight demands either a larger $q^*$ (faster or wider flapping)
+or a re-tuned $\psi_1$ (the dashed $C_\psi = 1$ lobe around $\chi = 0$
+marks where climbing flight with the reference $q^* = 1$ becomes
+infeasible at hover pitch). The direction condition is taken up next:
+at nonzero velocity the force direction $\beta$ is no longer a
+function of $\psi_0$ alone but acquires a strong $(J, \chi)$
+dependence (e.g.\ at $\chi = 90^\circ$, $J = 0.3$ the force tilts
+by $-31^\circ$ at $\psi_0 = 0$), which is the central complication
+for the maneuvering controller.
+
 \subsection{Control for Maneuvering Flight}
+
+[needs to be written out]
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

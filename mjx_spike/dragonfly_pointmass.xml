@@ -1,0 +1,22 @@
+<!--
+  Point-mass dragonfly for the MJX spike: a single body with three orthogonal
+  slide joints (x, y, z) and NO rotational DOF, so attitude is frozen exactly as
+  in the report's hover analysis. Mass = 1, gravity = -1 (z), matching the repo's
+  nondimensionalization (weight to clear = 1). The wings are not bodies here:
+  their quasi-steady aero is computed in JAX and applied to the thorax as an
+  external wrench each step (see spike.py). Next step toward the stability work
+  is to swap the three slides for a free joint and feed back aero moments.
+
+  timestep is overwritten from Python (period / steps_per_cycle).
+-->
+<mujoco model="dragonfly_pointmass">
+  <option timestep="0.002" gravity="0 0 -1" integrator="RK4"/>
+  <worldbody>
+    <body name="thorax" pos="0 0 0">
+      <joint name="sx" type="slide" axis="1 0 0"/>
+      <joint name="sy" type="slide" axis="0 1 0"/>
+      <joint name="sz" type="slide" axis="0 0 1"/>
+      <geom name="thorax" type="sphere" size="0.05" mass="1"/>
+    </body>
+  </worldbody>
+</mujoco>

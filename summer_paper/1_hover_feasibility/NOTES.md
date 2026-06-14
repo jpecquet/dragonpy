@@ -81,3 +81,42 @@ test, `|Fbar| >= W`; `gamma0` then aims the surplus.
   rest of the report addresses.
 - Elevation (figure-8) is held at zero, matching Table 1; adding it would be a
   natural sensitivity check.
+
+## Maneuvering: C_psi over the velocity plane (report1, section 3.1)
+
+Body velocity parameterized in the stroke-plane frame: advance ratio
+`J = U*/(s0* omega*)` (radius) and angle `chi` from the stroke-plane normal.
+This keeps the gamma0-invariance (rotate stroke plane + velocity together) and
+preserves the q* scaling, so velocity enters only through `C_psi(pitch; J, chi)`.
+
+Files:
+- `feasibility_velocity.py` — does the `F = q* C_psi` separation survive
+  velocity? Residual is *exactly zero* for axial inflow (chi = 0/180) and grows
+  with the in-plane component only (~7% CV at J=0.5, ~11% at J=1, chi=90).
+  Geometric reason: axial inflow meets the wing identically along the stroke
+  arc; in-plane wind makes a phi-varying angle with the wing velocity,
+  re-introducing a phi1 dependence.
+- `recon_velocity_cpsi.py` — structure checks that license the disk-map
+  visualization (not a report figure).
+- `velocity_cpsi_maps.py` — the report figure: three polar maps over the
+  velocity disk (`figures/velocity_cpsi_maps.light.png`).
+
+Structure found (recon, all numerical, reference config, psi0 = 0 unless noted):
+
+| claim | result |
+|---|---|
+| mirror symmetry `C(J, chi, psi0) = C(J, -chi, -psi0)` | machine zero |
+| optimal `delta0` over the whole disk | pinned at 90 deg |
+| optimal `psi1` | retunes smoothly: ~20 deg head-on, 60-deg bound tail-on |
+| `C(J, chi)` polynomial order in `(u, w)/(s0 omega)` | deg 2 fits to 3.8%, deg 4 to 1.0% |
+
+Regimes: head-on inflow washes out AoA (hover wingbeat C: 1.43 -> 0.04 by
+J=0.8; retuning psi1 down recovers ~1.0); in-plane wind raises mean-square
+relative velocity (C -> 3.7 at J=0.8, hover pitch already near-optimal);
+tail-on inflow steepens AoA (optimum saturates at psi1 = 60 deg). Sharp branch
+switch in psi1* near chi ~ +-110 deg at high J (fixed-pitch-like vs
+large-amplitude strategy).
+
+Control-relevant warning for section 3.2: at velocity, beta is no longer a
+function of psi0 alone — e.g. at chi=90, J=0.3 the mean force tilts -31 deg at
+psi0 = 0, and the beta(psi0) slope roughly doubles by J=0.6 head-on.
