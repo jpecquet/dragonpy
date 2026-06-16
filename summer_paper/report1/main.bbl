@@ -1,9 +1,28 @@
-\begin{thebibliography}{3}
+\begin{thebibliography}{5}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Wang(2004)]{wang2004}
+Z.~Jane Wang.
+\newblock The role of drag in insect hovering.
+\newblock \emph{Journal of Experimental Biology}, 207\penalty0 (23):\penalty0
+  4147--4155, 11 2004.
+\newblock ISSN 0022-0949.
+\newblock \doi{10.1242/jeb.01239}.
+\newblock URL \url{https://doi.org/10.1242/jeb.01239}.
+
+\bibitem[Wang(2008)]{wang2008}
+Z.~Jane Wang.
+\newblock Aerodynamic efficiency of flapping flight: analysis of a two-stroke
+  model.
+\newblock \emph{Journal of Experimental Biology}, 211\penalty0 (2):\penalty0
+  234--238, 01 2008.
+\newblock ISSN 0022-0949.
+\newblock \doi{10.1242/jeb.013797}.
+\newblock URL \url{https://doi.org/10.1242/jeb.013797}.
 
 \bibitem[Wakeling(1997)]{wakeling1997}
 J.~M. Wakeling.

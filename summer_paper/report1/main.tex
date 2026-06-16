@@ -30,8 +30,13 @@
 \begin{document}
 \maketitle
 
+\section{Introduction}%
+\label{sec:intro}
+
 \section{Model Description}%
 \label{sec:model}
+
+\subsection{Summary}
 
 We model a dragonfly-like insect with two pairs of wings.
 The sagittal plane is aligned with the fixed frame $(x,z)$
@@ -50,25 +55,119 @@ The resulting dimensionless parameters, along with the wing kinematics
 angular parameters, are listed in \autoref{tab:nondim_params}.
 Dimensionless quantities are denoted by an asterisk ($*$).
 
-Each wing is modeled as a single, massless plate element with
-its aerodynamic center at the $\frac23-$span station.
-The lift and drag coefficients of each element are prescribed as
-a function of the instantaneous angle of attack $\alpha$
-(provided at the end of the section).
-The wing kinematic angles are represented in \autoref{fig:wing_kinematics}.
-The wing flapping angle $\phi(t)$ and pitching angle $\psi(t)$
-are prescribed by sinusoidal functions as follows
-\begin{align*}
-    \phi(t^*) &= \phi_1 \sin (\omega^* t^*) \\
-    \psi(t^*) &= \psi_0 + \psi_1 \sin (\omega^* t^* + \delta_0)
-\end{align*}
-The forewing angles are exactly the above, while the hindwing
-angles have an additional phase parameter $\sigma_0$ added
-to the sin phase. \autoref{tab:nondim_params} lists the nondimensionalized
-parameters in the dynamic model. Ranges for the parameters
-$L_w^*$, $A_w^* / m^*$, and $\omega^*$ were obtained from
-the morphological data in \cite{wakeling1997} and the wingbeat
-frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
+\subsection{Aerodynamic Force}
+
+\subsubsection{Model and Derivation}
+
+Each wing is modeled as a single, massless plate element of
+area $A_w$ with its aerodynamic center at the $\frac23-$span station,
+$r = \frac23 L_w$, whose
+lift and drag coefficients are prescribed by
+functions of the instantaneous angle of attack $\alpha$.
+These simplified functions, given by \autoref{eq:cl}
+and \autoref{eq:cd}, nevertheless capture the essential phenomena.
+Parameters for the wing kinematics are defined in \autoref{fig:kinematics1}
+and \autoref{fig:kinematics2}
+for a single right-hand-side wing. Since the wings of each pair
+are assumed to beat symmetrically about the sagittal plane,
+the left-hand-side wing kinematics can be obtained by mirroring about
+the $(x,z)$ plane.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5in]{../figures/kinematics1.png}
+    \caption{Wing stroke geometry}\label{fig:kinematics1}
+\end{figure}
+
+Each wing element sweeps along an arc of radius $r = \frac23 L_w$
+that lies inside the stroke plane, with normal vector
+$\vec{n} = \cos \gamma \vec{z} - \sin \gamma \vec{x}$,
+where $\gamma$ is the stroke plane inclination angle
+relative to the vertical. The sweep angle $\phi$ about $\vec{n}$
+is defined relative to the side vector $\vec{y}$, positive
+counterclockwise about $\vec{n}$.
+At any point along the wing stroke, the wing velocity
+relative to the body is
+\begin{align}
+    \vec{v}_{w/b} = \frac23 L_w \dot{\phi} \vec{s}
+\end{align}
+with $\vec{s} = \cos\phi \left( \cos \gamma \vec{x} + \sin \gamma \vec{z} \right) -\sin\phi \vec{y}$.
+The sweep angle $\phi$ for wing pair $i$ is prescribed by
+\begin{align}
+    \phi^{(i)}(t) = \phi_1 \sin \left(\omega t - \sigma_0^{(i)}\right)
+\end{align}
+The phase parameter $\sigma_0^{(i)}$ is set to $0$ for
+the forewing pair, and to $\sigma_0$ for the hindwing pair.
+Both wing pairs beat at the same frequency $\omega$ and
+with the same amplitude $\phi_1$. In addition to the sweeping
+motion, the wing rotates about its own spanwise axis.
+We refer to this as the wing pitch. It is most easily
+described in the $(\vec{s},\vec{n})$ plane.
+\autoref{fig:kinematics2} shows the pitch angle $\psi$
+defined relative to the stroke plane normal $\vec{n}$.
+$\psi$ is prescribed for wing pair $i$ by
+\begin{align}
+    \psi^{(i)}(t) = \psi_0 + \psi_1 \sin \left(\omega t - \delta_0 - \sigma_0^{(i)}\right)
+\end{align}
+Unlike for the sweep angle $\phi$, the mean pitch angle $\psi_0$
+may be nonzero, and can be used to redirect the mean aerodynamic
+force vector, as we will see.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=6in]{../figures/kinematics2.png}
+    \caption{Wing pitch geometry and angle of attack for (a) $\vec{v}_w\cdot\vec{s} > \vec{c}\cdot\vec{s}$ and (b) $\vec{v}_w\cdot\vec{s} < \vec{c}\cdot\vec{s}$}\label{fig:kinematics2}
+\end{figure}
+
+It is convenient to define the chord direction vector
+$\vec{c} = \cos\psi \vec{n} - \sin\psi \vec{s}$.
+The angle of attack $\alpha$ is the angle between
+$\vec{c}$ and $\vec{v}_w$, the projection in the
+$(\vec{s},\vec{n})$ plane of the wing velocity relative
+to the air. Care has to be taken as to the sign of $\alpha$,
+as evidenced by the two panels in \autoref{fig:kinematics2}.
+When $\vec{v}_w \cdot \vec{s} > \vec{c} \cdot \vec{s}$, $\alpha$ has the correct sign
+when defined from $\vec{v}_w$ to $\vec{c}$. When $\vec{v}_w \cdot \vec{s} < \vec{c} \cdot \vec{s}$,
+it has the correct sign when defined from $\vec{c}$ to $\vec{v}_w$.
+The following expression gives the correct sign:
+\begin{align}
+    \alpha = \sin^{-1} \left[\left( \frac{\vec{v}_w}{v_w} \times \vec{c} \right) \cdot \left( \vec{s} \times \vec{n} \right)\right]
+\end{align}
+Lift and drag coefficients are then obtained by
+\begin{align}
+    C_L(\alpha) &= C_{L,0} \sin 2\alpha \label{eq:cl} \\
+    C_D(\alpha) &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha \label{eq:cd}
+\end{align}
+with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$,
+as suggested by numerical simulations and experiments
+across the full range of angle of attack~\cite{wang2004, wang2008}.
+The lift and drag vectors are, respectively,
+\begin{align}
+    \vec{d} &= -\frac{\vec{v}_w}{v_w} \\
+    \vec{\ell} &= \vec{d} \times \left( \vec{s} \times \vec{n} \right)
+\end{align}
+And the aerodynamic force of a single wing is
+\begin{align}
+    \vec{F}_{a,w} &= \frac12 \rho_\text{air} A_w v_w^2 \left( C_D \vec{d} + C_L \vec{\ell} \right)
+\end{align}
+
+
+\subsection{Nondimensionalization}
+
+The flying insect is subjected to gravity and the aerodynamic
+force. The resulting equation of motion is
+\begin{align}
+    m \ddot{x} &= \frac12 \rho_\text{air} A_w \sum_i^{N_w} \left[ v_w^2 \left( C_D \vec{d} + C_L \vec{\ell} \right) \cdot \vec{x} \right]^{(i)} \\
+    m \ddot{z} &= \frac12 \rho_\text{air} A_w \sum_i^{N_w} \left[ v_w^2 \left( C_D \vec{d} + C_L \vec{\ell} \right) \cdot \vec{z} \right]^{(i)} - m g
+\end{align}
+We nondimensionalize it using the body length $L$,
+the body mass $m$, and the gravitational time scale $\sqrt{L/g}$.
+The resulting dimensionless parameters, along with the already
+dimensionless wing angles, are summarized in \autoref{tab:nondim_params}.
+Ranges for the parameters
+$L_w^*$, $A^* / m^*$, and $\omega^*$ were obtained from
+the morphological data in~\cite{wakeling1997} and the wingbeat
+frequency data in~\cite{aracheloff2024} for \emph{Anisoptera}.
 
 \begin{table}[htbp]
     \centering
@@ -76,7 +175,7 @@ frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
     \begin{tabular}{lll}\toprule
         \textbf{Parameter} & \textbf{Description} & \textbf{Range} \\\midrule
         $L_w^* = \frac{L_w}{L}$ & Wing length ratio & [0.65, 0.85]\\
-        $A_w^* / m^* = \frac{A_w \rho_\text{air}L}{m}$ & Inverse wing loading (per wing) & [0.05, 0.25]\\\midrule
+        $A^* / m^* = \frac{N_w A_w \rho_\text{air}L}{m}$ & Inverse wing loading & [0.2, 1.0]\\\midrule
         $\omega^* = \omega \sqrt{\frac{L}{g}}$ & Wing beat frequency & [8, 20]\\
         $\gamma_0$ & Wing stroke plane angle & [-180$^\circ$, 180$^\circ$] \\
         $\phi_1$ & Wing flapping amplitude & [0$^\circ$, 60$^\circ$] \\
@@ -87,19 +186,201 @@ frequency data in \cite{aracheloff2024} for \emph{Anisoptera}.
     \end{tabular}
 \end{table}
 
-\noindent Lift and drag coefficients are given by
-\begin{align*}
-    C_L &= C_{L,0} \sin 2\alpha \\
-    C_D &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha
-\end{align*}
-with $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, $C_{D,\frac{\pi}{2}} = 2$.
-\bigskip
+\subsubsection{Expanded Expression}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=4in]{../1_hover_feasibility/figures/wing-angles.png}
-    \caption{Wing kinematic angles for $\delta_0 = 0$, represented on one wing for clarity [placeholder]}\label{fig:wing_kinematics}
-\end{figure}
+The above is sufficient to implement the aerodynamic
+force model in code, but it is useful to explicitly
+write out the fully expanded expression to get
+some analytical insights. First, the velocity relative
+to the wing relative to the air, projected onto
+the $(n,s)$ plane, is
+\begin{align}
+    \vec{v}_w = \Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr] \vec{s} + \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr] \vec{n} \label{eq:vw}
+\end{align}
+To compute $C_L$ and $C_D$, we need both $\sin\alpha$ and
+$\cos\alpha$, which are given by
+\begin{align}
+    \sin\alpha &= \frac{\Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr] \cos\psi + \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr] \sin\psi}{\sqrt{\Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr]^2 + \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr]^2}
+}\\
+\cos\alpha &= \frac{-\Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr] \sin\psi + \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr] \cos\psi}{\sqrt{\Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr]^2 + \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr]^2}
+}
+\end{align}
+Giving
+\begin{align}
+    v_w^2 C_L &= 2 v_w^2 C_{L,0} \sin\alpha \cos\alpha \\
+              &= 2 C_{L,0} \left( \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr]^2 - \Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr]^2\right) \sin\psi \cos\psi\nonumber \\
+              &\qquad + 2 C_{L,0} \Bigl[ \cos\gamma \dot{z} - \sin\gamma \dot{x} \Bigr]\Bigl[ \frac23 L_w \dot{\phi} + \cos \phi (\cos \gamma \dot{x} + \sin \gamma \dot{z}) \Bigr] (1 - 2 \sin^2 \psi)
+\end{align}
+\begin{align}
+v_w^2 C_D &= v_w^2 \left[ C_{D,0} \cos^2\alpha + C_{D,\frac{\pi}{2}} \sin^2\alpha \right]
+\end{align}
+
+It is more revealing, though, to resolve the force directly onto the
+stroke basis. Projecting $\vec{F}_{a,w}$ onto $\vec{s}$ and $\vec{n}$,
+and using that $\vec{\ell}$ is $\vec{d}$ rotated by $-\frac\pi2$ within
+the plane, the unit-vector normalizations cancel one power of $v_w$ and
+leave the compact scalar form
+\begin{align}
+    F_s &= -\tfrac12 \rho_\text{air} A_w\, v_w \left( C_D v_s + C_L v_n \right) \label{eq:Fs}\\
+    F_n &= \phantom{-}\tfrac12 \rho_\text{air} A_w\, v_w \left( C_L v_s - C_D v_n \right) \label{eq:Fn}
+\end{align}
+where $v_s$ and $v_n$ are the bracketed coefficients of $\vec{s}$ and
+$\vec{n}$ in \autoref{eq:vw}, and $v_w = \sqrt{v_s^2 + v_n^2}$.
+
+At zero body velocity the normal velocity vanishes, $v_n = 0$, and the
+sweep carries the entire relative wind, $v_s = \tfrac23 L_w \dot\phi$,
+$v_w = |v_s|$. The coefficients then lose their dependence on the stroke
+direction,
+\begin{align}
+    C_L = -C_{L,0} \sin 2\psi, \qquad
+    C_D = C_{D,0}\sin^2\psi + C_{D,\frac\pi2}\cos^2\psi,
+\end{align}
+and the force collapses to
+\begin{align}
+    F_s = -\tfrac12 \rho_\text{air} A_w\, C_D\, v_s |v_s|, \qquad
+    F_n = \phantom{-}\tfrac12 \rho_\text{air} A_w\, C_L\, v_s |v_s|. \label{eq:Fsn0}
+\end{align}
+The signed square $v_s|v_s|$ is odd in $\dot\phi$: a nonzero
+cycle-averaged force therefore survives only to the extent that the
+pitch schedule $\psi(t)$ injects matching odd content---which is the
+role of the phase $\delta_0$---while the direction-independent part of
+$C_D$ contributes only an oscillating in-plane drag that averages to
+zero.
+
+For small $\phi$, $\vec{F}_{a,w}$ is effectively confined to
+the $(x,z)$ plane. This renders the model equivalent to
+a common approach in which the wing translates through its
+beating motion instead of doing an angular sweep, like in~\cite{wetherbee2026}.
+As $\phi$ increases, and for a given $\vec{v}_w$, the useful force
+in the $(x,z)$ plane, i.e. $\vec{F}_{a,w} - (\vec{F}_{a,w} \cdot \vec{y}) \vec{y}$,
+decreases in magnitude, as $\vec{s}$ becomes more aligned
+with $\vec{y}$. In addition, the projected wing
+velocity $\vec{v}_w$ itself also decreases if the body velocity
+has a nonzero component along $\vec{s}$.
+In any case, the combined force of all wings is always in
+$(x,z)$ because of the symmetric wingbeat and absence of crosswind.
+
+We can carry the cycle average through analytically in this same
+small-$\phi$ limit. There the stroke basis stops rotating over a cycle,
+$\vec{s} \to \vec{e}_\parallel = \cos\gamma\,\vec{x} + \sin\gamma\,\vec{z}$
+and $\vec{n} \to \vec{e}_\perp = \cos\gamma\,\vec{z} - \sin\gamma\,\vec{x}$,
+so the cycle average of the force vector is simply the average of each
+scalar component along a fixed direction. Writing $\tau = \omega t$, the
+element speed is $v_s = u\cos\tau$ with amplitude $u = s_0 \omega$ and
+sweep amplitude $s_0 = \tfrac23 L_w \phi_1$, so that
+$v_s|v_s| = u^2 g(\tau)$ with the signed-square profile
+$g(\tau) = \cos\tau\,|\cos\tau|$. With
+$\psi(\tau) = \psi_0 + \psi_1 \sin(\tau - \delta_0)$ and
+$\langle\,\cdot\,\rangle = \tfrac1{2\pi}\int_0^{2\pi}(\cdot)\,d\tau$, the
+mean components from \autoref{eq:Fsn0} are
+\begin{align}
+    \langle F_n\rangle &= -\tfrac12 \rho_\text{air} A_w u^2\, C_{L,0}\,
+        \langle \sin 2\psi\; g \rangle, \\
+    \langle F_s\rangle &= -\tfrac12 \rho_\text{air} A_w u^2\,
+        \frac{C_{D,\frac\pi2} - C_{D,0}}{2}\, \langle \cos 2\psi\; g \rangle,
+\end{align}
+where the constant part of $C_D$ has dropped out because
+$\langle g\rangle = 0$.
+
+Summing the identical contributions of the wings and collecting the
+morphological and frequency factors into the dimensionless dynamic
+pressure $q^* = \tfrac14 \frac{A^*}{m^*}\left(s_0^* \omega^*\right)^2$ of
+\autoref{eq:qstar} (with dimensionless sweep amplitude
+$s_0^* = \tfrac23 L_w^* \phi_1$), the mean force magnitude separates
+exactly into a dynamic pressure and a pitch factor, $F_a^* = q^* C_\psi$,
+with
+\begin{align}
+    C_\psi(\psi_0, \psi_1, \delta_0) = 2\sqrt{
+        C_{L,0}^2\, \langle \sin 2\psi\; g\rangle^2
+        + \left(\frac{C_{D,\frac\pi2} - C_{D,0}}{2}\right)^2
+          \langle \cos 2\psi\; g\rangle^2 }. \label{eq:cpsi_analytic}
+\end{align}
+This is the central simplification: the pitch coefficient $C_\psi$ is a
+function of the three pitch parameters alone, with the wing loading,
+length, and beat frequency entirely absorbed into $q^*$. The small
+residual scatter seen in \autoref{fig:separation} is exactly the
+$O(\phi^2)$ rotation of the stroke basis that this limit discards.
+
+Two limits confirm the expression. For a square-wave pitch,
+$\sin 2\psi \to \operatorname{sign}(\cos\tau)$ locked to the stroke and
+the drag term vanishes, giving
+$\langle \operatorname{sign}(\cos\tau)\, g\rangle = \tfrac12$ and
+$C_\psi \to C_{L,0}$. For the symmetric sinusoidal pitch $\psi_0 = 0$,
+$\delta_0 = \tfrac\pi2$, the $\cos 2\psi$ term vanishes by parity and the
+coefficient reduces to the single integral
+\begin{align}
+    C_\psi = \frac{4 C_{L,0}}{\pi} \int_0^{\pi/2}
+        \sin\!\left(2\psi_1 \cos\tau\right) \cos^2\tau \, d\tau,
+\end{align}
+maximized at $\psi_1 \approx 51^\circ$ with $C_\psi \approx 1.43$, in
+agreement with the numerical optimum of \autoref{fig:cpsi}.
+
+\section{Two Analytical Cases}
+
+\subsection{Stationary Flight}
+
+In stationary flight, or \emph{hovering}, the wingbeat-averaged
+aerodynamic force vector is opposed to and equal in magnitude to
+the weight vector. There are residual oscillations of the body
+due to fluctuations in the aerodynamic force over a wingbeat cycle,
+and inertial coupling between the body and wings (not modeled here).
+Assuming the corresponding body velocities are small compared to the
+characteristic wing velocity $\frac23 L_w^* \phi_1 \omega^*$, we can approximate
+the mean aerodynamic force analytically by setting $\dot{x}^* = \dot{z}^* = 0$.
+As a result, the angle of attack is a simple function of the pitch
+angle $\psi$ and the instantaneous sign of the flapping velocity:
+\begin{align}
+    \alpha = - \frac{\dot{\phi}}{|\dot{\phi}|} \left[ \frac{\pi}{2} - \psi \right]
+\end{align}
+After making use of the appropriate trigonometric identities, this
+gives the lift and drag coefficients
+\begin{align}
+    C_L &= \frac{\dot{\phi}}{|\dot{\phi}|} C_{L,0} \sin 2\psi \\
+    C_D &= C_{D,0} \sin^2 \psi + C_{D,\frac{\pi}{2}} \cos^2 \psi \nonumber \\
+        &= \frac{C_{D,\frac{\pi}{2}} + C_{D,0}}{2} + \frac{C_{D,\frac{\pi}{2}} - C_{D,0}}{2} \cos 2\psi
+\end{align}
+The aerodynamic force normal to the stroke plane (along $\vec{n}$)
+is pure drag, and the force within the stroke plane (along $\vec{s}$)
+is pure lift. Denoting these two components as $F_n^*$ and $F_s^*$,
+respectively, they are
+\begin{align}
+    F_n^* &= \frac12 \frac{A_w^*}{m^*} \left( \frac23 L_w^* \dot{\phi} \right)^2 C_L \\
+    F_s^* &= - \frac{\dot{\phi}}{|\dot{\phi}|} \frac12 \frac{A_w^*}{m^*} \left( \frac23 L_w^* \dot{\phi} \right)^2 C_D
+\end{align}
+At this point, it is useful to linearize, in a sense, about the $\phi = 0$
+position, by treating $\vec{s}$ as a fixed vector, parallel to the $(x,z)$
+plane. This is a common modeling choice, see \emph{e.g.} \cite{wetherbee2026}.
+The effect of the simplification is that force is increasingly
+overestimated as the wingbeat amplitude $\phi_1$ increases. The effect is
+small for reasonable values of $\phi_1$.
+Note the numerical model retains the moving $\vec{s}$ (wing beats along an arc,
+not a straight line) and we only perform the simplification for the analytical
+derivation, so that the time integral depends on $\phi_1$ only as a
+simple scaling factor. Note further that the simplification
+has no effect on the mean if the wing pitch is symmetric
+for both halves of the stroke, since $\langle F_s^* \rangle$ would be zero regardless.
+
+With the above simplification made, we introduce the
+the sweep kinematics $\phi(t^*) = \phi_1 \sin \omega^* t^*$,
+giving $\dot{\phi} = \phi_1 \omega^* \cos \omega^* t^*$.
+With the notation $\tau^* = \omega^* t^*$, we evaluate the
+wingbeat cycle integral $\langle\cdot\rangle = \frac{1}{2\pi} \int_0^{2\pi} (\cdot) d\tau^*$.
+An important question is how to deal with the sign flips
+due to the $\dot{\phi}/\phi$ factors appearing in both $F_n^*$
+(through $C_L$) and $F_s^*$. We can actually fold them
+into the "velocity squared" factors as follows
+\begin{align}
+    \frac{\dot{\phi}}{|\dot\phi|} \dot{\phi}^2 &= \dot{\phi} |\dot{\phi}| \nonumber \\
+                                              &= \phi_1 \omega^* \cos\tau^* |\cos\tau^*|
+\end{align}
+It is also convenient to introduce the wingbeat amplitude
+shorthand $s_0^* = \frac23 L_w^* \phi_1$. Evaluating the integrals, we obtain
+\begin{align}
+    \langle F_n^* \rangle &= \frac12 \frac{A_w^*}{m^*} \left( s_0^* \omega^* \right)^2 C_{L,0} \langle \sin 2\psi\; \cos \tau^* |\cos \tau^*| \rangle, \\
+    \langle F_s^* \rangle &= \frac12 \frac{A_w^*}{m^*} \left( s_0^* \omega^* \right)^2 \frac{C_{D,\frac\pi2} - C_{D,0}}{2}\, \langle \cos 2\psi\; \cos^2 \tau^* \rangle,
+\end{align}
+
+\subsection{Stroke-Plane-Normal Flight}
 
 \section{Stationary Flight}
 
@@ -110,11 +391,16 @@ Main results:
         and wingbeat frequency
     \item Pitch parameters $\psi_0 = 0^\circ$, $\psi_1 \approx 51^\circ$,
         and $\delta_0 = 90^\circ$ maximize mean aerodynamic force
-        given $(\frac{A_w^*}{m^*}, L_w^*, \omega^*)$
+        given $(\frac{A^*}{m^*}, L_w^*, \omega^*)$
     \item A two-variable proportional scheme using $\phi_1$ for force magnitude
         and $\psi_0$ for force direction is sufficient to achieve stable hovering
     \item Inclined stroke plane hover exhibits increased damping in
         the vertical direction compared to a horizontal stroke plane
+    \item Power efficiency, measured by a cost of endurance $P^*$, is a
+        distinct objective from force production ($C_\psi$): the force-maximizing
+        pitch is not the power-minimizing one, and inclined-stroke hover costs
+        \emph{more} power in this quasi-steady model, even though drag takes on
+        an increasing share of the weight as in \cite{wang2004}
 \end{itemize}
 
 \subsection{Equilibrium Solutions}
@@ -163,7 +449,7 @@ higher $A^*/m^*$ and $\omega^*$. We use a single element
 at $\frac23-$span throughout for simplicity.
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/translating_check.light.png}
+    \includegraphics{../figures/translating_check.light.png}
     \caption{Verification of $F_a^*=1$ contour at reference condition}\label{fig:contour_check}
 \end{figure}
 
@@ -180,10 +466,10 @@ independent of the other 3 parameters. Looking back
 to the simple analytical expression for $F_a^*$ for constant pitch,
 we can extract the dimensionless dynamic pressure
 \begin{align}
-    q^* = \frac14 \frac{A^*}{m^*} \left(s_0^* \omega^*\right)^2 = \frac{A_w^*}{m^*} \left(s_0^* \omega^*\right)^2
+    q^* = \frac14 \frac{A^*}{m^*} \left(s_0^* \omega^*\right)^2 \label{eq:qstar}
 \end{align}
 We can then evaluate $F_a^* / q^*$ and check whether it is independent
-of ($\frac{A_w^*}{m^*}$, $s_0^*$, $\omega^*$) over the parameter space,
+of ($\frac{A^*}{m^*}$, $s_0^*$, $\omega^*$) over the parameter space,
 i.e.\ whether the two groups of variables can be cleanly separated.
 Again, we do this first at zero body velocity, such that $F_a^* = 1$,
 applied in the right direction, would result in a hover.
@@ -193,28 +479,26 @@ the flapping motion. The right side of the plot is obtained
 by picking a reference amplitude ($s_0^* = 0.25$, or $\phi_1 \approx 30^\circ$)
 to evaluate $F_a^*$. The sensitivity
 to the choice of $s_0^*$ is very small, about 1 to 2\%.
-The result is completely independent of $A_w^* / m^*$ and $\omega^*$
+The result is completely independent of $A^* / m^*$ and $\omega^*$
 because they appear purely as multiplicative factors in the analytical expression.
 It might be clearer to do a purely analytical treatment of this
 part.
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/reduction_collapse.light.png}
+    \includegraphics{../figures/reduction_collapse.light.png}
     \caption{Separation of dynamic pressure and wing pitch factors of the aerodynamic force at zero body velocity. (a) Scatter of mean aerodynamic force as a function of dynamic pressure for random sampling of parameter space (b) Collapse of scatter by introduction of $C_\psi$ parameter evaluated as $F_a^* / q^*$ for a reference amplitude value $s_0^* = 0.25$}\label{fig:separation}
 \end{figure}
 
 \subsubsection*{Optimal Wing Pitch Parameters}
 
-This decomposition appears to be useful because $C_\psi$
-provides a measure of the power efficiency of the wingbeat.
-A given net force can be achieved with a faster or slower
-wingbeat depending on the wing pitch pattern. If the pattern
-is such that $C_\psi$ is high, then the wing doesn't have
-to beat as fast, and less energy is expended (provided any
-additional energy required to impart that particular pitch motion
-does not cancel out this benefit, which seems like more of an edge case).
-Presumably then, values of $\psi_0$, $\psi_1$, and $\delta_0$
-that result in higher $C_\psi$ would be preferred in nature.
+This decomposition is also a first handle on the power efficiency
+of the wingbeat. A given net force can be achieved with a faster
+or slower wingbeat depending on the wing pitch pattern, and a higher
+$C_\psi$ lets the wing beat more slowly for the same force. As we
+make precise later (\autoref{sec:power}), $C_\psi$ is not by itself
+the efficiency---the cost also depends on how much drag the pattern
+incurs---but it enters that cost strongly (as $C_\psi^{-3/2}$), so
+higher-$C_\psi$ patterns are energetically favored, all else being equal.
 Looking again at the simplified case from earlier it seems
 the optimum should sit near $\psi_0 = 0$, $\psi_1 = 45^\circ$, $\delta_0 = 90^\circ$,
 since a $45^\circ$ angle of attack maximizes lift (limit case
@@ -222,7 +506,7 @@ for square wave pitch: $C_\psi = C_{L,0}$).
 
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/pitch_efficiency.light.png}
+    \includegraphics{../figures/pitch_efficiency.light.png}
     \caption{Dependence of $C_\psi$ on pitch parameters at zero body velocity. Optimal value shown as white dots.}\label{fig:cpsi}
 \end{figure}
 
@@ -243,29 +527,29 @@ converging to a value just above unity.
 This suggests the following approximate criterion for hover feasibility,
 which may also extend to maneuverability
 \begin{align}
-    \frac{A_w^*}{m^*} \left(s_0^* \omega^*\right)^2 \gtrsim 1
+    \frac14 \frac{A^*}{m^*} \left(s_0^* \omega^*\right)^2 \gtrsim 1
 \end{align}
 The corresponding 3D surface is shown in \autoref{fig:criterion}.
-The required wingbeat amplitude $\phi_1$ for a given $(\frac{A_w^*}{m^*}, \omega^*)$
+The required wingbeat amplitude $\phi_1$ for a given $(\frac{A^*}{m^*}, \omega^*)$
 can be recovered by
 \begin{align*}
     \phi_1 = \frac32 \frac{s_0^*}{L_w^*}
 \end{align*}
 The very high amplitudes ($\phi_1 \approx 60^\circ$) associated with low values
-of both $\frac{A_w^*}{m^*}$ and $\omega^*$ suggest such combinations
+of both $\frac{A^*}{m^*}$ and $\omega^*$ suggest such combinations
 probably do not occur, and that the parameter space can be further restricted.
 The data source for $\omega^*$ does not report measurements necessary
-to obtain $\frac{A_w^*}{m^*}$, but we could maybe find other sources.
+to obtain $\frac{A^*}{m^*}$, but we could maybe find other sources.
 We can estimate the typical hover wingbeat amplitude
 by assuming that the lowest $\omega^*$ occur at the highest
-$\frac{A_w^*}{m^*}$. For this set of parameters ($\omega^* = 8$ and
-$\frac{A_w^*}{m^*} = 0.25$) the amplitude is $s_0^* \approx 0.23$,
+$\frac{A^*}{m^*}$. For this set of parameters ($\omega^* = 8$ and
+$\frac{A^*}{m^*} = 1.0$) the amplitude is $s_0^* \approx 0.23$,
 which corresponds to $\phi_1 \approx 26^\circ$.
 
 
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/criterion_surface.light.png}
+    \includegraphics{../figures/criterion_surface.light.png}
     \caption{Approximate region of hover feasibility, with boundary surface.}\label{fig:criterion}
 \end{figure}
 
@@ -288,11 +572,11 @@ force magnitude but on its \emph{direction}
 relative to the stroke plane. With an inclined stroke
 (angle $\gamma_0$ to the horizontal), hover (or vertical
 flight) requires the net aerodynamic force vector to be
-angled by $-\gamma_0$ to the stroke plane normal.
+angled by $+\gamma_0$ to the stroke plane normal.
 
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/force_direction_test.light.png}
+    \includegraphics{../figures/force_direction_test.light.png}
     \caption{Effect of $\psi_0$ on force direction and wing stroke efficiency.}\label{fig:beta_vs_psi0}
 \end{figure}
 
@@ -318,6 +602,128 @@ and (c) the wing stroke is most efficient when
 the mean pitch attitude points out-of-plane or in-plane, and least efficient when
 it forms a $45^\circ$ angle with the stroke plane.
 
+\subsubsection*{Power Efficiency}%
+\label{sec:power}
+
+$C_\psi$ measures how much cycle-averaged force the wingbeat
+produces per unit dynamic pressure; it is an effective lift
+coefficient, not an energetic efficiency. The preceding result
+that inclined-stroke hover costs $C_\psi$ raises the natural
+question of whether it also costs power. To address this we add
+an energetic measure, following \cite{wang2008}.
+
+With massless wings the only mechanical cost is the work done
+against aerodynamic drag: lift is perpendicular to the air-relative
+velocity and does no work, and the pitch-axis torque is dropped along
+with the wing inertia (the inertial cost vanishes over a cycle for the
+near-symmetric pitch reversal, as noted by \cite{wang2008}). For one
+element the instantaneous aerodynamic power is
+\begin{align}
+    P = |\vec{F}_d|\, v_w = \tfrac12 \rho_\text{air} A_w v_w^3 C_D(\alpha),
+\end{align}
+with $v_w$ the same in-plane air-relative speed that enters the force
+law. Summing over wings and averaging over a cycle gives the mean
+aerodynamic power $\bar{P}^*$ (in units of $m_b g \sqrt{gL}$). Following
+\cite{wang2008} we form the dimensionless \emph{cost of endurance}, the
+power required to support unit weight at the reference speed
+$U_\text{ref} = \sqrt{2 m_b g / \rho_\text{air} A}$,
+\begin{align}
+    P^* = \frac{\bar{P}^*}{U_\text{ref}^*}, \qquad
+    U_\text{ref}^* = \sqrt{\frac{2}{A^*/m^*}}.
+\end{align}
+For a steadily translating wing supporting its weight by lift this
+reduces to the familiar $P^* = C_D / C_L^{3/2}$, and it is the quantity
+to minimize. Imposing the hover constraint $F_a^* = q^* C_\psi = 1$
+eliminates the amplitude scale ($A^*/m^*$, $s_0^*$, $\omega^*$ enter
+only through $q^*$), leaving a pure function of the kinematics
+\begin{align}
+    P^* = 2\sqrt{2}\;
+    \frac{\left\langle |\cos \omega t|^3\, C_D(\alpha) \right\rangle}{C_\psi^{3/2}},
+    \label{eq:cost}
+\end{align}
+the flapping analogue of $C_D / C_L^{3/2}$: the velocity-weighted drag
+coefficient in the numerator plays the role of $C_D$, and the force
+coefficient $C_\psi$ plays the role of $C_L$.
+
+Two consequences follow. First, $C_\psi$ is related to but not identical
+with efficiency. Through \autoref{eq:cost} the cost falls as
+$C_\psi^{-3/2}$, so a larger force coefficient helps, but the
+drag-power factor matters too and the two optima differ. Holding the
+force vertical, $P^*$ keeps decreasing as the pitch amplitude $\psi_1$
+is raised past the $C_\psi$ peak ($\psi_1 \approx 51^\circ$): the
+power optimum sits at the upper edge of the morphological range
+($\psi_1 \approx 60^\circ$, and $\approx 77^\circ$ if unconstrained),
+where the wingbeat is about 20\% cheaper than at the $C_\psi$-optimal
+pitch. The extra angle of attack is added near stroke reversal, where
+the wing is slow and the $v^3$ weighting in \autoref{eq:cost} is small,
+so it sheds drag power faster than it sheds force. This is the
+quasi-steady counterpart of the observation of \cite{wang2008} that
+maximizing the averaged lift-to-drag ratio is not the same as
+minimizing the aerodynamic power.
+
+Second---and this answers the question above---inclined-stroke hover
+\emph{does} cost power in this model. \autoref{fig:power}(a) shows $P^*$
+against $\gamma_0$ for both the force-optimal pitch (the $C_\psi^\text{max}$
+strategy used elsewhere in this report) and the power-optimal pitch;
+in both cases $P^*$ rises with $\gamma_0$, by roughly 50 to 70\% from
+$\gamma_0 = 0$ to $40^\circ$. The drag mechanism of \cite{wang2004} is
+nonetheless present: as the stroke tilts, the two half-strokes' drag no
+longer cancels vertically and drag takes on a growing share of the
+weight, reaching 75\% at $\gamma_0 = 60^\circ$
+(\autoref{fig:power}(b))---in close quantitative agreement with the 76\%
+at $63^\circ$ reported by \cite{wang2004}. But the drag recruited this
+way is expensive force, generated at high angle of attack where $C_D$ is
+large, so the net force coefficient $C_\psi$ falls and, through the
+$C_\psi^{-3/2}$ dependence, the cost rises.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{../figures/power_efficiency.light.png}
+    \caption{Hover power efficiency vs. stroke-plane angle, reference
+    configuration. (a) Cost of endurance $P^*$ for the force-optimal
+    (maximum-$C_\psi$) pitch and for the power-optimal pitch with a
+    sinusoidal and a square-wave feather, all re-trimmed to hover at each
+    $\gamma_0$; the steady-flight ideal $C_D/C_L^{3/2}$ is shown for
+    reference. (b) Share of the cycle-averaged vertical force carried by
+    drag rather than lift, with the result of \cite{wang2004} marked.}%
+    \label{fig:power}
+\end{figure}
+
+One might ask whether this is an artifact of the sinusoidal pitch, since
+the cheap return stroke of an efficient hoverer is a \emph{feathered}
+stroke---one held at a near-constant, small angle of attack---which a
+sinusoid coupled to the sweep cannot produce. Flattening the feather
+toward a square wave (\autoref{fig:power}(a), dash-dotted), which holds a
+constant pitch on each half-stroke, helps but does not change the
+conclusion. It is cheaper at every $\gamma_0$, because each half-stroke
+can sit near its best angle of attack instead of sweeping through the
+wasteful high-$\alpha$ region at mid-stroke; at $\gamma_0 = 0$ it costs
+$P^* \approx 0.47$ against the sinusoid's $0.59$. And it \emph{does}
+feather the return: the power-optimal square wave at $\gamma_0 = 40^\circ$
+holds one half-stroke at a mean angle of attack of $61^\circ$, which
+carries 92\% of the cycle's power, and the other at just $7^\circ$,
+carrying only 8\%---a nearly free return stroke that the sinusoid cannot
+make (its lighter half stays near $23^\circ$). Yet $P^*$ still climbs
+with $\gamma_0$, from $0.47$ to $0.91$ over $0$ to $40^\circ$. The
+obstacle is the other half-stroke: aiming the resultant vertically forces
+the \emph{powered} stroke to over-pitch to $\approx 60^\circ$, well past
+the angle of best lift-to-drag, and that penalty outweighs the saving
+from the free return. A horizontal stroke sidesteps it entirely---the two
+half-strokes' drag cancels, so both can run near the optimal angle---which
+is why it stays the cheapest hover here.
+
+This still falls short of \cite{wang2004}, who finds the specific power
+of hovering roughly independent of stroke-plane angle up to $\approx
+60^\circ$. The gap is principally unsteady aerodynamics: that flat
+specific power comes from full Navier--Stokes computations, and
+\cite{wang2004} notes the favorable behavior up to $\beta \approx
+60^\circ$ is not captured by a quasi-steady model---which is what we have
+used throughout. The cheapest hover here is about $1.4$ times the
+steady-optimal $C_D/C_L^{3/2}$, and within this quasi-steady model the
+inclined stroke plane---even with a feathered return---is not explained
+by power efficiency. It remains, as far as the present analysis goes, a
+means of force-direction control.
+
 \subsubsection*{Hover Control Variables}
 
 The above insights suggest a few possible ways to achieve
@@ -337,10 +743,10 @@ as directional control variables).
 In addition, it is beneficial to keep $C_\psi$ at or near its maximum
 value, which sets $\psi_1$ and $\delta_0$. This leaves $\phi_1$ (or $s_0^*$)
 for magnitude and $\psi_0$ for direction. At equilibrium,
-$\psi_0$ will be such that $\beta = -\gamma_0$ (force is vertical),
+$\psi_0$ will be such that $\beta = +\gamma_0$ (force is vertical),
 and $\phi_1$ such that $F_a^* = 1$. \autoref{tab:hover_psi0} shows
 the required value of $\psi_0$ for different $\gamma_0$,
-for a reference configuration $L_w^* = 0.75$, $\frac{A_w^*}{m^*} = 0.15$,
+for a reference configuration $L_w^* = 0.75$, $\frac{A^*}{m^*} = 0.6$,
 and $\omega^* = 14$. Different values of these parameters impose
 a different $\phi_1$ for hover, which results in small
 changes in $\psi_0$ up to a few percent.
@@ -350,16 +756,16 @@ changes in $\psi_0$ up to a few percent.
     \begin{tabular}{lll}\toprule
         $\boldsymbol{\gamma_0}$ & $\boldsymbol{\psi_0}$ & $\boldsymbol{C_\psi^\text{max}}$ \\\midrule
         $0^\circ$ & $0^\circ$ & $1.43$ \\
-        $10^\circ$ & $7.9^\circ$ & $1.40$ \\
-        $20^\circ$ & $15.1^\circ$ & $1.31$ \\
-        $30^\circ$ & $21.4^\circ$ & $1.21$ \\
-        $40^\circ$ & $26.7^\circ$ & $1.11$ \\\bottomrule
+        $10^\circ$ & $-7.9^\circ$ & $1.40$ \\
+        $20^\circ$ & $-15.1^\circ$ & $1.31$ \\
+        $30^\circ$ & $-21.4^\circ$ & $1.21$ \\
+        $40^\circ$ & $-26.7^\circ$ & $1.11$ \\\bottomrule
     \end{tabular}
 \end{table}
 
 $\phi_1$ is set by
 \begin{align*}
-    \phi_1^\text{hover} = \frac32 \left( L_w^* \omega^* \sqrt{C_\psi^\text{max}(\psi_0) \frac{A_w^*}{m^*}} \right)^{-1}
+    \phi_1^\text{hover} = 3 \left( L_w^* \omega^* \sqrt{C_\psi^\text{max}(\psi_0) \frac{A^*}{m^*}} \right)^{-1}
 \end{align*}
 
 The reference configuration used hereafter uses
@@ -368,8 +774,8 @@ the following parameters (\autoref{tab:ref_config})
     \centering
     \caption{Reference configuration}\label{tab:ref_config}
     \begin{tabular}{llll}\toprule
-        $\boldsymbol{A_w^* / m^*}$ & $\boldsymbol{L_w^*}$ & $\boldsymbol{\omega^*}$ & $\boldsymbol{\gamma_0}$ \\\midrule
-        0.15 & 0.75 & 14 & $40^\circ$ \\\bottomrule
+        $\boldsymbol{A^* / m^*}$ & $\boldsymbol{L_w^*}$ & $\boldsymbol{\omega^*}$ & $\boldsymbol{\gamma_0}$ \\\midrule
+        0.6 & 0.75 & 14 & $40^\circ$ \\\bottomrule
     \end{tabular}
 \end{table}
 
@@ -412,7 +818,7 @@ at $\sigma_0 = 180^\circ$.
 
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/inertia_vs_aero_sigma0.light.png}
+    \includegraphics{../figures/inertia_vs_aero_sigma0.light.png}
     \caption{Effect of $\sigma_0$ and $m_w^*$ on body oscillations during hover.}\label{fig:oscillations}
 \end{figure}
 
@@ -424,7 +830,7 @@ occurs at exactly zero mean body velocity.
 
 Overall these effects are relatively mild, with instantaneous body velocities
 of approximately $0.25 s_0^* \omega^*$ in the worst case scenario ($\sigma_0 = 0^\circ$,
-$\omega^* = 8$, $A_w^* / m^* = 0.25$), and only about $\frac{1}{10}$ of that
+$\omega^* = 8$, $A^* / m^* = 1.0$), and only about $\frac{1}{10}$ of that
 for $\sigma_0 = 180^\circ$, so the conclusions drawn from the equilibrium
 analysis should be applicable to controller design.
 
@@ -456,8 +862,8 @@ about the force axes. The Jacobian is
         \displaystyle  \frac{\partial F^*_{a,z}}{\partial \psi_0} &  \displaystyle \frac{\partial F^*_{a,z}}{\partial \phi_1}
         \end{bmatrix}
         \approx \begin{bmatrix}
-            -2.06 & 0.04 \\
-            -0.96 & 5.69
+            -2.06 & -0.05 \\
+            +0.93 & 5.83
     \end{bmatrix}
 \end{align*}
 Notably $\phi_1$ has a negligible effect on force tilt
@@ -469,9 +875,9 @@ The decoupled dynamics are (note mass matrix is $I$ because of
 nondimensionalization)
 \begin{align*}
     \ddot{x}^* &= -2.06 \times \delta \psi_0 \\
-    \ddot{z}^* &= 5.69 \times \delta \phi_1
+    \ddot{z}^* &= 5.83 \times \delta \phi_1
 \end{align*}
-So $\omega_n^2 = -2.06 K_x = 5.69 K_z$. We want $\omega_n$
+So $\omega_n^2 = -2.06 K_x = 5.83 K_z$. We want $\omega_n$
 slow enough that the controller sees the wingbeat-averaged
 force and not the fluctuations. Using $\omega_n = 1.5$ (10
 times smaller than the reference wingbeat frequency $\omega^* = 14$)
@@ -482,18 +888,18 @@ we get
 \end{align*}
 The step response is shown in \autoref{fig:hover_step}. The figure
 shows the reference configuration along with low and high wing
-loading configuration. $A_w^*/m^*$ was chosen as the variable here because
+loading configuration. $A^*/m^*$ was chosen as the variable here because
 it had the greatest effect on the damping of the response.
-The response is very noticeably more damped as $A_w^* / m^*$ increases.
+The response is very noticeably more damped as $A^* / m^*$ increases.
 Over the range of parameters, using the same gains designed for the
 reference configuration, the achieved $\omega_n$ was close to the
 design value of 1.5, and the response did not vary very much
-except along the $A_w^* / m^*$ axis. The controller was stable across
+except along the $A^* / m^*$ axis. The controller was stable across
 the full parameter space.
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/hover_control_step.light.png}
-    \caption{Effect of $A_w^* / m^*$ on hover controller step response.}\label{fig:hover_step}
+    \includegraphics{../figures/hover_control_step.light.png}
+    \caption{Effect of $A^* / m^*$ on hover controller step response.}\label{fig:hover_step}
 \end{figure}
 
 A more interesting result is the influence of stroke plane angle
@@ -508,7 +914,7 @@ Perhaps this is another advantage of hovering
 with an inclined stroke plane.
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/hover_control_step_gamma.light.png}
+    \includegraphics{../figures/hover_control_step_gamma.light.png}
     \caption{Effect of $\gamma_0$ on hover controller step response.}\label{fig:hover_step_gamma}
 \end{figure}
 
@@ -556,7 +962,7 @@ This last point assumes the separation $F_a^* = q^* C_\psi$
 itself survives at nonzero velocity, which we check
 in \autoref{fig:velocity_separation} by evaluating the scatter
 of $F_a^* / q^*$ over random draws of
-$(\frac{A_w^*}{m^*}, \omega^*, \phi_1, L_w^*)$ at fixed pitch
+$(\frac{A^*}{m^*}, \omega^*, \phi_1, L_w^*)$ at fixed pitch
 and fixed $(J, \chi)$. The residual is exactly zero for
 axial inflow ($\chi = 0^\circ$ or $180^\circ$) and grows with
 the \emph{in-plane} velocity component, reaching about 7\%
@@ -572,13 +978,85 @@ maneuvering regime, with the caveat that it is approximate
 for fast in-plane flight.
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/velocity_separation.light.png}
+    \includegraphics{../figures/velocity_separation.light.png}
     \caption{Survival of the $F_a^* = q^* C_\psi$ separation at nonzero
     body velocity. (a) $C_\psi$ at nominal pitch as a function of advance
     ratio for several inflow directions $\chi$. (b) Separation residual,
     evaluated as the coefficient of variation of $F_a^* / q^*$ over random
     draws of the morphological and wingbeat parameters at fixed pitch.}\label{fig:velocity_separation}
 \end{figure}
+
+\subsubsection*{Axial Inflow}
+
+The simplest slice of the velocity plane is axial inflow, $\chi = 0$,
+where the body moves along the stroke-plane normal. Dragonflies are
+observed to hold roughly this configuration, with the stroke-plane
+normal and the flight direction nearly aligned, so it is also the most
+relevant slice. It is the one case in which the zero-velocity analysis
+of \autoref{eq:cpsi_analytic} carries over essentially unchanged,
+because the body velocity has no component along the in-plane sweep
+direction $\vec{e}_\parallel$. The sweep term in $v_s$ is then untouched
+by the body motion,
+\begin{align}
+    v_s = \tfrac23 L_w \dot\phi, \qquad v_n = \text{const},
+\end{align}
+so the $\cos\phi$ coupling that produced the residual scatter at
+$\chi \neq 0$ disappears; this is exactly why the separation residual
+was found to be \emph{zero} for axial inflow in
+\autoref{fig:velocity_separation}. The wing sees an oscillating sweep
+superposed on a uniform normal inflow---the classical
+heaving-plus-inflow kinematics of a blade element---and the angle of
+attack splits additively into the pitch and an inflow angle,
+\begin{align}
+    \alpha(\tau) = \psi(\tau) + \theta(\tau), \qquad
+    \theta(\tau) = \operatorname{atan2}(v_s, v_n), \label{eq:alpha_inflow}
+\end{align}
+with $\tau = \omega t$. As the inflow vanishes ($J \to 0$) the inflow
+angle returns to $\theta \to \pm\tfrac\pi2$ and the hover result is
+recovered.
+
+Writing the sweep-speed amplitude as $u = s_0 \omega$ and the normal
+inflow through the advance ratio $J = v_b^* / (s_0^* \omega^*)$, we have
+$v_s = u\cos\tau$, $v_n = J u$ for a body advancing along the cycle-mean
+force, and $v_w = u\sqrt{\cos^2\tau + J^2}$. Substituting
+into \autoref{eq:Fs} and \autoref{eq:Fn} and cycle-averaging in the
+small-$\phi$ limit---where, as in \autoref{eq:cpsi_analytic}, the stroke
+basis is frozen and the average of the vector equals the vector of the
+averages---gives the moving-flight coefficient
+\begin{align}
+    C_\psi(\psi_0, \psi_1, \delta_0;\, J)
+        &= 2\sqrt{\langle \tilde F_s\rangle^2 + \langle \tilde F_n\rangle^2}, \label{eq:cpsi_axial}\\
+    \tilde F_n &= \sqrt{\cos^2\tau + J^2}\,\bigl(C_{L,0}\sin 2\alpha\,\cos\tau - J\,C_D\bigr), \\
+    \tilde F_s &= -\sqrt{\cos^2\tau + J^2}\,\bigl(C_D \cos\tau + J\,C_{L,0}\sin 2\alpha\bigr),
+\end{align}
+where $\tilde F_s, \tilde F_n$ are the stroke-frame components in units
+of $\tfrac12 \rho_\text{air} A_w u^2$ and $\alpha$ is given by
+\autoref{eq:alpha_inflow}. The entire velocity dependence has collapsed
+onto the single parameter $J$: along the axial line the five-variable
+coefficient $C_\psi(\psi_0,\psi_1,\delta_0; J,\chi)$ reduces to a
+one-parameter family.
+
+A parity argument sharpens the picture. For symmetric pitch
+($\psi_0 = 0$, $\delta_0 = \tfrac\pi2$) the substitution
+$\tau \to \pi - \tau$ sends $v_s \to -v_s$, $\psi \to -\psi$, and hence
+$\alpha \to -\alpha$ at fixed $v_n$, so the $\tilde F_s$ integrand is odd
+and $\langle \tilde F_s\rangle = 0$: the cycle-mean force lies
+\emph{exactly} along the stroke-plane normal at all advance ratios
+(verified numerically to $0.01^\circ$). The aligned wingbeat therefore
+produces a force purely along the flight axis; redirecting it---for
+instance to support weight away from vertical flight---requires breaking
+the symmetry through the mean pitch $\psi_0$, the same lever used in
+hover. The coefficient then reduces to the single integral
+\begin{align}
+    C_\psi(J) = 2\left| \Bigl\langle \sqrt{\cos^2\tau + J^2}\,
+        \bigl( C_{L,0}\sin 2\alpha\,\cos\tau - J\,C_D \bigr) \Bigr\rangle \right|,
+\end{align}
+which returns to \autoref{eq:cpsi_analytic} as $J\to0$ and decreases
+monotonically with $J$ as the growing inflow detunes the angle of attack
+and bleeds off force---the wing losing authority as it advances into its
+own induced direction. The values track the numerical coefficient of
+\autoref{fig:velocity_cpsi} along $\chi = 0$: $C_\psi = 1.43$ at hover,
+$1.21$ at $J = 0.2$, and $0.90$ at $J = 0.4$.
 
 \subsubsection*{$C_\psi$ over the Velocity Plane}
 
@@ -606,7 +1084,7 @@ each velocity within its allowed range; and (c) the re-optimized
 $\psi_1$ itself.
 \begin{figure}[h]
     \centering
-    \includegraphics{../1_hover_feasibility/figures/velocity_cpsi_maps.light.png}
+    \includegraphics{../figures/velocity_cpsi_maps.light.png}
     \caption{$C_\psi$ over the body-velocity plane (radius: advance ratio $J$,
     angle: $\chi$ from the stroke-plane normal), at $\psi_0 = 0$,
     $\delta_0 = 90^\circ$, for the reference configuration.
@@ -662,7 +1140,117 @@ for the maneuvering controller.
 
 \subsection{Control for Maneuvering Flight}
 
-[needs to be written out]
+Two features of the model shape the whole control problem. First, with
+no body drag, steady straight flight at \emph{any} velocity needs the
+same net force as hover---the weight, pointing up---so there is no
+trim curve to chase with speed; ``cruise'' is just a re-trim of the
+controls as the wing comes to see inflow, and maneuvering proper
+(accelerating, changing flight path) is a transient excursion of the
+force vector away from weight-up. Second, the cycle-averaged force is a
+velocity-scheduled map $\vec{F}_a^*(\vec{u};\, \vec{v}_b)$ of the
+controls $\vec{u}$, of which the hover controller of the previous
+section is the $\vec{v}_b = 0$ slice. The maneuvering controller is
+therefore the hover controller scheduled on velocity, and the new
+content lives entirely in the velocity dependence already mapped in
+\autoref{fig:velocity_cpsi}.
+
+We keep $\delta_0 = 90^\circ$ (optimal everywhere) and use four
+controls: the two hover handles $\phi_1$ (magnitude) and $\psi_0$
+(direction), plus the two redundant degrees of freedom $\psi_1$ and
+$\gamma_0$. We resolve the redundancy by minimizing the cycle-averaged
+aerodynamic power---the operative form of the cost of endurance
+$P^*$ of \autoref{sec:power}, which it equals up to the constant
+weight-support normalization.
+
+\subsubsection*{Power-Optimal Trim Across the Velocity Plane}
+
+For straight flight at body velocity $\vec{v}_b$ we solve for the
+power-optimal $\vec{u}$ producing weight-up, sweeping the redundant
+$(\gamma_0, \psi_1)$ and trimming $(\phi_1, \psi_0)$ to the force at
+each node. The result (\autoref{fig:man_trim}) sets up the controller.
+The power-optimal stroke plane is \emph{horizontal} ($\gamma_0 = 0$)
+for hover, forward flight and climb alike; only descent rewards a tilt.
+In forward flight $\psi_0$ does the steering, swinging from $0$ to
+$-54^\circ$ and saturating near its $-60^\circ$ bound by $J \approx
+0.9$; $\psi_1$ re-tunes \emph{down} with inflow ($60^\circ$ to
+$39^\circ$), as the velocity maps anticipated; and $\phi_1$ grows to
+hold the magnitude. The cost of forward flight rises steeply and
+monotonically (about ninefold by $J = 0.9$): with no induced-power
+reduction modeled, the drag dissipation simply grows with the cube of
+the relative speed, so there is no efficient cruise speed here. Vertical
+flight is gentler. Climb stays feasible by re-tuning $\psi_1$ (the
+infeasibility of the hover wingbeat at $\chi = 0$ is lifted once the
+pitch is allowed to adapt), at an aerodynamic cost that is mild until
+the climb work $\vec{v}_b \cdot \vec{F}_a^* = V_z W$ is added back to
+give the true metabolic cost; in descent the wing approaches an
+autorotative state, flapping little while the upward inflow carries the
+load.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{../figures/maneuver_trim.light.png}
+    \caption{Power-optimal straight-flight trim vs. body velocity,
+    reference configuration. (a) Aerodynamic power $\bar{P}^*$ vs.
+    advance ratio for forward and vertical flight; the dotted curve adds
+    the climb work $V_z W$ to the vertical aerodynamic power to give the
+    metabolic cost. (b) The forward-flight control schedule: $\psi_0$
+    steers (and saturates), $\psi_1$ re-tunes down, $\phi_1$ grows for
+    magnitude, and the power-optimal $\gamma_0$ stays at zero.}%
+    \label{fig:man_trim}
+\end{figure}
+
+\subsubsection*{Directional Authority: $\psi_0$ vs.\ $\gamma_0$}
+
+The previous section flagged that at velocity the force direction is no
+longer set by $\psi_0$ alone. We can now compare the two directional
+controls quantitatively. At hover $\psi_0$ is the better lever, tilting
+the force by $1.25^\circ$ per degree against $1.00^\circ$ per degree for
+$\gamma_0$, and it has its full range available. As forward speed grows,
+the two trade places: $\psi_0$'s authority falls (to $0.80^\circ$ per
+degree by $J = 0.8$) while $\gamma_0$'s rises (to $1.26^\circ$),
+crossing near $J \approx 0.5$. Worse, the $\psi_0$ \emph{trim} itself
+marches toward its bound (to $-55^\circ$, leaving $5^\circ$ of headroom
+by $J = 0.8$), so it runs out of steering range just as it loses
+sensitivity. This is why we hold $\gamma_0$ horizontal at low speed,
+where $\psi_0$ is both more effective and unsaturated, and reserve
+$\gamma_0$ as the directional control for fast forward flight, where
+$\psi_0$ can no longer do the job.
+
+\subsubsection*{Closed-Loop Maneuvers}
+
+The controller is a first-order velocity tracker with feedforward,
+$\vec{a}_\text{des} = \vec{a}_\text{ref} + K_v (\vec{v}_\text{ref} -
+\vec{v}_b)$, whose required force $\vec{F}_\text{des} =
+\vec{a}_\text{des} - \vec{g}$ is realized by dynamic inversion of the
+cycle-averaged map: hold $\gamma_0 = 0$, re-optimize $\psi_1$ for power,
+and trim $(\phi_1, \psi_0)$ to $\vec{F}_\text{des}$ at the current
+velocity. As at hover, the control is updated once per wingbeat---an
+order of magnitude below $\omega^*$---held across the beat, and the
+\emph{unsteady} instantaneous force is integrated, so the run is a
+genuine test of the cycle-averaged design.
+
+\autoref{fig:man_ctrl} shows two maneuvers. In the forward dash the body
+tracks an accelerate--cruise--decelerate velocity command to $J \approx
+0.5$ and back, with only a small within-cycle ripple at cruise
+(standard deviation $\approx 0.018$ in $v_x^*$) and a peak tracking
+error of $0.19$ confined to the hardest acceleration phase. In the
+pull-up the velocity command rotates from forward to vertical, and the
+body follows it through a smooth quarter-turn in the sagittal plane,
+with $\psi_0$ steering from $-42^\circ$ to near $0$ as the flight path
+swings into the climb (peak speed error $0.04$). Both confirm that the
+velocity-scheduled, power-optimal inversion controls maneuvering flight
+across the regimes where the inflow strongly reshapes the force map.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{../figures/maneuver_control.light.png}
+    \caption{Closed-loop maneuvers (unsteady simulation, control updated
+    once per wingbeat). (a) Forward dash: commanded vs. achieved forward
+    velocity through accelerate--cruise--decelerate. (b) Pull-up: the
+    sagittal-plane path, with body-velocity arrows rotating from
+    horizontal to vertical.}%
+    \label{fig:man_ctrl}
+\end{figure}
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

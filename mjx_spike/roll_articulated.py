@@ -78,12 +78,12 @@ def make_rollout(mx, info, cfg, n_steps, thid, dof,
         ph = cfg.omega * t
         c = jnp.zeros(nu)
         for k in info:
-            th = ph + (cfg.sigma0 if k["hind"] else 0.0)
+            th = ph - (cfg.sigma0 if k["hind"] else 0.0)
             ch, om = k["ch"], cfg.omega
-            sweep = -ch * phi1 * jnp.sin(th)
-            sweep_d = -ch * phi1 * om * jnp.cos(th)
-            feather = ch * (psi0 + jnp.pi / 2 + cfg.psi1 * jnp.sin(th + cfg.delta0))
-            feather_d = ch * cfg.psi1 * om * jnp.cos(th + cfg.delta0)
+            sweep = ch * phi1 * jnp.sin(th)
+            sweep_d = ch * phi1 * om * jnp.cos(th)
+            feather = ch * (psi0 + jnp.pi / 2 + cfg.psi1 * jnp.sin(th - cfg.delta0))
+            feather_d = ch * cfg.psi1 * om * jnp.cos(th - cfg.delta0)
             c = (c.at[k["sweep_p"]].set(sweep).at[k["sweep_v"]].set(sweep_d)
                   .at[k["feather_p"]].set(feather).at[k["feather_v"]].set(feather_d))
         return c

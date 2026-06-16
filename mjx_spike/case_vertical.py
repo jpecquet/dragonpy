@@ -21,12 +21,12 @@ import jax
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parents[0] / "summer_paper" / "1_hover_feasibility"))
+sys.path.insert(0, str(HERE.parents[0] / "summer_paper" / "scripts"))
 sys.path.insert(0, str(HERE.parents[0]))
 
 import articulated as A           # noqa: E402
 import roll_articulated as R      # noqa: E402
-from feasibility import Params, replace, cycle_averaged_force  # noqa: E402
+from feasibility import Params, replace, cycle_averaged_force, N_WINGS  # noqa: E402
 
 # Two-winged insect emulated by 4 in-phase wings at one hinge station, each with
 # the (halved) area below. Long wings (Lw=6) -> large flapping counter-torque.
@@ -50,7 +50,7 @@ N_CYCLES = 30
 
 def solve_phi1(cfg, M):
     """phi1 so the cycle-averaged |force| = M, via the trusted numpy oracle."""
-    base = Params(Lw=cfg.Lw, Aw_over_mb=cfg.Aw, omega_star=cfg.omega,
+    base = Params(Lw=cfg.Lw, A_over_m=N_WINGS * cfg.Aw, omega_star=cfg.omega,
                   gamma0=cfg.gamma0, psi0=PSI0, psi1=cfg.psi1, delta0=cfg.delta0,
                   sigma0=cfg.sigma0, element_span_fracs=(2.0 / 3.0,))
     lo, hi = 0.05, 3.0
@@ -114,7 +114,7 @@ def run(cfg, phi1, init_deg, label):
 def solve_psi1_hover(M):
     """Feather amplitude psi1 (deg<51) so cycle-avg |F| = M, with phi1 fixed."""
     def Fmag(psi1):
-        p = Params(Lw=LW, Aw_over_mb=AW, omega_star=OMEGA, gamma0=GAMMA0,
+        p = Params(Lw=LW, A_over_m=N_WINGS * AW, omega_star=OMEGA, gamma0=GAMMA0,
                    phi1=PHI1, psi0=PSI0, psi1=psi1, delta0=np.pi / 2.0,
                    sigma0=SIGMA0, element_span_fracs=(2.0 / 3.0,))
         return np.linalg.norm(cycle_averaged_force(p, 256))
@@ -130,7 +130,7 @@ def main():
     cfg = A.Cfg(gamma0=GAMMA0, psi1=psi1, delta0=np.pi / 2.0,
                 omega=OMEGA, Aw=AW, Lw=LW, sigma0=SIGMA0)
     Fbar = cycle_averaged_force(
-        Params(Lw=cfg.Lw, Aw_over_mb=cfg.Aw, omega_star=cfg.omega, gamma0=cfg.gamma0,
+        Params(Lw=cfg.Lw, A_over_m=N_WINGS * cfg.Aw, omega_star=cfg.omega, gamma0=cfg.gamma0,
                phi1=PHI1, psi0=PSI0, psi1=cfg.psi1, delta0=cfg.delta0,
                sigma0=cfg.sigma0, element_span_fracs=(2.0 / 3.0,)), 256)
     Fmag = np.linalg.norm(Fbar)

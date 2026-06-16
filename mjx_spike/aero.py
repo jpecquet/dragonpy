@@ -1,6 +1,6 @@
 """
 JAX port of the report's quasi-steady blade-element aero (single 2/3-span
-element, four wings), faithful to `summer_paper/1_hover_feasibility/feasibility.py`
+element, four wings), faithful to `summer_paper/scripts/feasibility.py`
 `_wing_force_vec` with `element_span_fracs=(2/3,)`, evaluated at ONE phase.
 
 Everything here is `jnp`, pure, and differentiable. The instantaneous total
@@ -75,10 +75,10 @@ def _Rz(a):
 def _wing_force(vel, theta, phi1, psi0, ch, H, cfg):
     """Body-frame force from one wing at phase `theta` (scalar). Mirrors the
     numpy `_wing_force_vec` single-element path line for line."""
-    sweep = -ch * phi1 * jnp.sin(theta)
-    sweep_d = -ch * phi1 * cfg.omega * jnp.cos(theta)
-    feather = ch * (psi0 + jnp.pi / 2 + cfg.psi1 * jnp.sin(theta + cfg.delta0))
-    feather_d = ch * (cfg.psi1 * cfg.omega * jnp.cos(theta + cfg.delta0))
+    sweep = ch * phi1 * jnp.sin(theta)
+    sweep_d = ch * phi1 * cfg.omega * jnp.cos(theta)
+    feather = ch * (psi0 + jnp.pi / 2 + cfg.psi1 * jnp.sin(theta - cfg.delta0))
+    feather_d = ch * (cfg.psi1 * cfg.omega * jnp.cos(theta - cfg.delta0))
     tilt = -ch * cfg.gamma0
 
     R_tilt = _Rx(tilt)
@@ -118,7 +118,7 @@ def aero_force(vel, phase, phi1, psi0, cfg):
     """Total instantaneous aero force (body frame, (3,)) from all four wings."""
     F = jnp.zeros(3)
     for ch, H, hind in _WINGS:
-        theta = phase + hind * cfg.sigma0
+        theta = phase - hind * cfg.sigma0
         F = F + _wing_force(vel, theta, phi1, psi0, ch, H, cfg)
     return F
 

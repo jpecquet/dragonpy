@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: references.bib
-You've used 3 entries,
+You've used 5 entries,
             2481 wiz_defined-function locations,
-            577 strings with 5078 characters,
-and the built_in function-call counts, 1218 in all, are:
-= -- 106
-> -- 55
-< -- 2
-+ -- 22
-- -- 16
-* -- 102
-:= -- 204
-add.period$ -- 13
-call.type$ -- 3
-change.case$ -- 6
-chr.to.int$ -- 3
-cite$ -- 3
-duplicate$ -- 56
-empty$ -- 108
-format.name$ -- 21
-if$ -- 250
+            597 strings with 5393 characters,
+and the built_in function-call counts, 2004 in all, are:
+= -- 188
+> -- 69
+< -- 4
++ -- 30
+- -- 20
+* -- 166
+:= -- 328
+add.period$ -- 25
+call.type$ -- 5
+change.case$ -- 10
+chr.to.int$ -- 5
+cite$ -- 5
+duplicate$ -- 94
+empty$ -- 186
+format.name$ -- 27
+if$ -- 422
 int.to.chr$ -- 1
-int.to.str$ -- 4
-missing$ -- 3
-newline$ -- 27
-num.names$ -- 9
-pop$ -- 17
+int.to.str$ -- 6
+missing$ -- 5
+newline$ -- 43
+num.names$ -- 15
+pop$ -- 25
 preamble$ -- 1
-purify$ -- 3
+purify$ -- 5
 quote$ -- 0
-skip$ -- 35
+skip$ -- 55
 stack$ -- 0
-substring$ -- 58
-swap$ -- 6
+substring$ -- 110
+swap$ -- 12
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 21
+type$ -- 35
 warning$ -- 0
-while$ -- 9
+while$ -- 15
 width$ -- 0
-write$ -- 54
+write$ -- 92

@@ -112,12 +112,12 @@ def solve_trim():
 def crosscheck_against_numpy(phi1, psi0):
     """JAX aero vs the trusted numpy feasibility oracle (single 2/3 element)."""
     try:
-        sys.path.insert(0, str(HERE.parents[0] / "summer_paper" / "1_hover_feasibility"))
+        sys.path.insert(0, str(HERE.parents[0] / "summer_paper" / "scripts"))
         sys.path.insert(0, str(HERE.parents[0]))
-        from feasibility import Params, replace, cycle_averaged_force
+        from feasibility import Params, replace, cycle_averaged_force, N_WINGS
     except Exception as e:  # pragma: no cover - oracle is optional
         return None, f"(numpy oracle unavailable: {e})"
-    p = Params(Lw=CFG.Lw, Aw_over_mb=CFG.Aw, omega_star=CFG.omega,
+    p = Params(Lw=CFG.Lw, A_over_m=N_WINGS * CFG.Aw, omega_star=CFG.omega,
                gamma0=CFG.gamma0, phi1=phi1, psi0=psi0, psi1=CFG.psi1,
                delta0=CFG.delta0, sigma0=CFG.sigma0,
                element_span_fracs=(2.0 / 3.0,))

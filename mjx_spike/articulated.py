@@ -85,23 +85,23 @@ def default_wings(root_fore=0.2, root_hind=-0.2):
 # Kinematics (feasibility sign conventions; unchanged by the frame reflection).
 
 def sweep_angle(theta, phi1, ch):
-    return -ch * phi1 * np.sin(theta)
+    return ch * phi1 * np.sin(theta)
 
 
 def sweep_rate(theta, phi1, ch, omega):
-    return -ch * phi1 * omega * np.cos(theta)
+    return ch * phi1 * omega * np.cos(theta)
 
 
 def feather_angle(theta, psi0, cfg, ch):
-    return ch * (psi0 + np.pi / 2.0 + cfg.psi1 * np.sin(theta + cfg.delta0))
+    return ch * (psi0 + np.pi / 2.0 + cfg.psi1 * np.sin(theta - cfg.delta0))
 
 
 def feather_rate(theta, cfg, ch, omega):
-    return ch * cfg.psi1 * omega * np.cos(theta + cfg.delta0)
+    return ch * cfg.psi1 * omega * np.cos(theta - cfg.delta0)
 
 
 def wing_phase(theta, spec, cfg):
-    return theta + (cfg.sigma0 if spec.hind else 0.0)
+    return theta - (cfg.sigma0 if spec.hind else 0.0)
 
 
 # ---------------------------------------------------------------------------
