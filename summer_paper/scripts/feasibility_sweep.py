@@ -87,8 +87,8 @@ def main():
     aero = np.linspace(0.2, 1.0, n)        # total inverse wing loading A*/m*
     phi1 = np.radians(np.linspace(2.0, 60.0, n))
     s0 = s0_axis(phi1)
-    psi0 = np.radians(np.linspace(-60.0, 60.0, n))
-    psi1 = np.radians(np.linspace(0.0, 60.0, n))
+    psi0 = np.radians(np.linspace(-90.0, 90.0, n))
+    psi1 = np.radians(np.linspace(0.0, 90.0, n))
     delta0 = np.radians(np.linspace(-180.0, 180.0, n))
 
     fig, axes = plt.subplots(2, 2, figsize=(11, 9))

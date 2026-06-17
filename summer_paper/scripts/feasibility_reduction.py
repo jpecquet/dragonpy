@@ -13,22 +13,32 @@ Section 2 leaves six parameters that set the cycle-averaged force F_a^*:
 Numerically (see the CVs printed below) the force factors into an amplitude
 "dynamic-pressure" group times a pitch-efficiency coefficient:
 
-    F_a^*  ~  q^*  x  C_psi(psi0, psi1, delta0),
-    q^* = (Aw/mb) s0^2 omega^*^2.
+    F_a^*  ~  q^*  x  C_{F^*}(psi0, psi1, delta0),
+    q^* = (1/4)(A^*/m^*) s0^2 omega^*^2.
 
 So the three amplitude parameters collapse onto a single axis q^*, and the only
-genuinely multi-dimensional residual is the pitch-efficiency surface C_psi, which
-is in turn dominated by (psi1, delta0) with weak psi0 dependence. With this
-normalization C_psi is an effective lift coefficient: its ideal ceiling is the
+genuinely multi-dimensional residual is the pitch-efficiency surface C_{F^*},
+which is in turn dominated by (psi1, delta0) with weak psi0 dependence. With this
+normalization C_{F^*} is an effective lift coefficient: its ideal ceiling is the
 section value C_L,0 = 1.5 (square-wave translating element).
+
+C_{F^*} has the closed form derived in section 2 (translating-element idealization,
+fixed stroke tangent):
+
+    C_{F^*,n} = -2 C_L,0          <sin 2psi  cos tau |cos tau|>
+    C_{F^*,s} = -(C_D,90 - C_D,0) <cos 2psi  cos tau |cos tau|>
+    C_{F^*}   = sqrt(C_{F^*,n}^2 + C_{F^*,s}^2),   psi(tau) = psi0 + psi1 sin(tau - delta0).
+
+The contour figure is drawn from this analytical expression; `main` also reports
+its agreement with the full-arc numerical model (|Fbar|/q^*) it replaces.
 
 This script draws that story in two figures:
     reduction_collapse.light.png  -- before/after collapse: F_a^* vs q^* (fans out)
-                                     next to F_a^* vs q^* C_psi (lands on y=x), all
+                                     next to F_a^* vs q^* C_{F^*} (lands on y=x), all
                                      points random in every parameter.
-    pitch_efficiency.light.png    -- C_psi sliced two ways, sharing the psi1 axis:
-                                     C_psi(delta0, psi1) at psi0=0 and
-                                     C_psi(psi0, psi1) at the optimal delta0.
+    pitch_efficiency.light.png    -- C_{F^*} sliced two ways, sharing the psi1 axis:
+                                     C_{F^*}(delta0, psi1) at psi0=0 and
+                                     C_{F^*}(psi0, psi1) at the optimal delta0.
 
 Output: light-mode figures in summer_paper/figures/.
 Runs on the project env (numpy + matplotlib only).
@@ -42,8 +52,8 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
 from feasibility import (
-    Params, REF_A_OVER_M, REF_LW, REF_OMEGA_STAR, REF_S0, STUDY_ELEMENT,
-    STUDY_SPAN_FRAC, WEIGHT, N_WINGS, avg_force_magnitude, replace,
+    CD_0, CD_90, CL_0, Params, REF_A_OVER_M, REF_LW, REF_OMEGA_STAR, REF_S0,
+    STUDY_ELEMENT, STUDY_SPAN_FRAC, WEIGHT, N_WINGS, avg_force_magnitude, replace,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -66,13 +76,13 @@ AW_RANGE = (0.05, 0.25)
 OMEGA_RANGE = (8.0, 20.0)
 PHI1_RANGE = np.radians((2.0, 60.0))
 LW_RANGE = (0.65, 0.85)
-PSI0_RANGE = np.radians((-60.0, 60.0))
-PSI1_RANGE = np.radians((0.0, 60.0))
+PSI0_RANGE = np.radians((-90.0, 90.0))
+PSI1_RANGE = np.radians((0.0, 90.0))
 DELTA0_RANGE = np.radians((-180.0, 180.0))
 
-# Fixed REFERENCE amplitude at which C_psi = F_a^*/q^* is read off, making C_psi a
+# Fixed REFERENCE amplitude at which C_{F^*} = F_a^*/q^* is read off, making C_{F^*} a
 # function of pitch only. With the arc-length s0, F_a^*/q^* is amplitude-independent
-# to ~2%, so C_psi here differs from a point's own F_a^*/q^* only by that small
+# to ~2%, so C_{F^*} here differs from a point's own F_a^*/q^* only by that small
 # residual -- the genuine (non-tautological) width of the panel-(b) collapse. The
 # reference excursion is s0 = 0.25, realized at Lw = 0.75, which fixes
 # phi1 = s0 / ((2/3) Lw) = 0.5 rad (~29 deg).
@@ -95,40 +105,70 @@ def q_star(p):
 
 
 def cpsi_of_pitch(psi0, psi1, delta0):
-    """Pitch-efficiency coefficient C_psi = F_a^*/q^*, at the nominal amplitude."""
+    """Numerical C_{F^*} = F_a^*/q^* from the full-arc model, at the nominal amplitude.
+
+    Kept as the reference the analytical closed form is checked against.
+    """
     p = replace(Params(gamma0=0.0, element_span_fracs=STUDY_ELEMENT),
                 psi0=psi0, psi1=psi1, delta0=delta0, **AMP_NOM)
     return avg_force_magnitude(p, N_PHASE) / q_star(p)
 
 
+# Analytical pitch-efficiency coefficient (report section 2). In the
+# translating-element idealization the cycle-averaged force splits into a
+# stroke-normal (lift) and an in-stroke (drag) coefficient,
+#   C_{F^*,n} = -2 C_L,0          <sin 2psi  cos tau |cos tau|>
+#   C_{F^*,s} = -(C_D,90 - C_D,0) <cos 2psi  cos tau |cos tau|>,
+# with psi(tau) = psi0 + psi1 sin(tau - delta0) and <.> the wingbeat average.
+# C_{F^*} = hypot(C_{F^*,n}, C_{F^*,s}) is amplitude-independent: pitch alone.
+_TAU = np.linspace(0.0, 2.0 * np.pi, 2048, endpoint=False)
+_W = np.cos(_TAU) * np.abs(np.cos(_TAU))   # cos tau |cos tau|
+
+
+def cpsi_analytic(psi0, psi1, delta0):
+    """Closed-form C_{F^*}(psi0, psi1, delta0) of section 2."""
+    psi = psi0 + psi1 * np.sin(_TAU - delta0)
+    c_n = -2.0 * CL_0 * np.mean(np.sin(2.0 * psi) * _W)
+    c_s = -(CD_90 - CD_0) * np.mean(np.cos(2.0 * psi) * _W)
+    return float(np.hypot(c_n, c_s))
+
+
 # ---------------------------------------------------------------------------
-# Figure B data: pitch-efficiency C_psi sliced two ways through (psi0, psi1, delta0).
+# Figure B data: pitch-efficiency C_{F^*} sliced two ways through (psi0, psi1, delta0).
 
 # 73 points over a 360 deg span gives a 5 deg step, so the delta0 grid lands
-# exactly on +-90 and 0. C_psi is symmetric about delta0 = +-90 (machine
+# exactly on +-90 and 0. C_{F^*} is symmetric about delta0 = +-90 (machine
 # precision); an off-grid step would put the sampled optimum a few degrees off
 # 90 and make the filled contours look lopsided -- a sampling artifact, not
 # physics.
 def grid_delta0_psi1(psi0, n=73):
-    """C_psi over (delta0, psi1) at fixed psi0; cpsi indexed [psi1, delta0]."""
+    """C_{F^*} over (delta0, psi1) at fixed psi0; arrays indexed [psi1, delta0].
+
+    Returns the analytical surface (plotted) and the full-arc numerical surface
+    (agreement check only).
+    """
     psi1 = np.linspace(*PSI1_RANGE, n)
     delta0 = np.linspace(*DELTA0_RANGE, n)
-    cpsi = np.empty((n, n))
+    cf = np.empty((n, n))
+    cf_num = np.empty((n, n))
     for j, ps1 in enumerate(psi1):
         for i, d in enumerate(delta0):
-            cpsi[j, i] = cpsi_of_pitch(psi0, ps1, d)
-    return delta0, psi1, cpsi
+            cf[j, i] = cpsi_analytic(psi0, ps1, d)
+            cf_num[j, i] = cpsi_of_pitch(psi0, ps1, d)
+    return delta0, psi1, cf, cf_num
 
 
 def grid_psi0_psi1(delta0, n=73):
-    """C_psi over (psi0, psi1) at fixed delta0; cpsi indexed [psi1, psi0]."""
+    """C_{F^*} over (psi0, psi1) at fixed delta0; arrays indexed [psi1, psi0]."""
     psi1 = np.linspace(*PSI1_RANGE, n)
     psi0 = np.linspace(*PSI0_RANGE, n)
-    cpsi = np.empty((n, n))
+    cf = np.empty((n, n))
+    cf_num = np.empty((n, n))
     for j, ps1 in enumerate(psi1):
         for i, p0 in enumerate(psi0):
-            cpsi[j, i] = cpsi_of_pitch(p0, ps1, delta0)
-    return psi0, psi1, cpsi
+            cf[j, i] = cpsi_analytic(p0, ps1, delta0)
+            cf_num[j, i] = cpsi_of_pitch(p0, ps1, delta0)
+    return psi0, psi1, cf, cf_num
 
 
 # ---------------------------------------------------------------------------
@@ -148,12 +188,12 @@ def main():
     # No operating point is privileged: every point is drawn at random in ALL
     # six parameters (psi0 included). For each point we form
     #   q*     amplitude group, a function of (Aw, s0, omega) only;
-    #   C_psi  pitch efficiency, MEASURED AT A FIXED REFERENCE AMPLITUDE so it is a
+    #   C_{F^*}  pitch efficiency, MEASURED AT A FIXED REFERENCE AMPLITUDE so it is a
     #          function of (psi0, psi1, delta0) only;
     #   F_a*   the actual cycle-averaged force at the point's OWN amplitude.
     # (a) F_a* vs q*      -- points fan out: amplitude alone does not set the force.
-    # (b) F_a* vs q*C_psi -- points fall on y=x: force separates as q* x C_psi(pitch).
-    # Because C_psi is taken at the reference amplitude and still predicts F at each
+    # (b) F_a* vs q*C_{F^*} -- points fall on y=x: force separates as q* x C_{F^*}(pitch).
+    # Because C_{F^*} is taken at the reference amplitude and still predicts F at each
     # point's different amplitude, the collapse is a genuine test of separability.
     n_pts = 1500
     Aw = rng.uniform(*AW_RANGE, n_pts)
@@ -195,7 +235,7 @@ def main():
     sc = axR.scatter(pred, Fs, **sckw)
     lim = float(max(pred.max(), Fs.max()))
     axR.plot([0, lim], [0, lim], color="black", lw=1.2, zorder=0)
-    axR.set_xlabel(r"$q^\ast \, C_\psi(\psi_0,\psi_1,\delta_0)$")
+    axR.set_xlabel(r"$q^\ast \, C_{F^\ast}(\psi_0,\psi_1,\delta_0)$")
     axR.set_xlim(left=0.0)
     axR.set_title(r"(b)", fontsize=style.font_size)
 
@@ -204,19 +244,19 @@ def main():
     fig_a.savefig(out_a, dpi=300, bbox_inches="tight")
 
     # ---------------------------------------------------------------------
-    # Figure B: pitch-efficiency C_psi sliced two ways, sharing the psi1 axis.
-    #   (a) C_psi(delta0, psi1) at psi0 = 0       -- pitch-timing lobes
-    #   (b) C_psi(psi0,  psi1) at delta0 = optimum -- weak psi0 dependence
+    # Figure B: pitch-efficiency C_{F^*} sliced two ways, sharing the psi1 axis.
+    #   (a) C_{F^*}(delta0, psi1) at psi0 = 0       -- pitch-timing lobes
+    #   (b) C_{F^*}(psi0,  psi1) at delta0 = optimum -- weak psi0 dependence
     # The optimum (psi1, delta0) is read off panel (a) and fixes the delta0 slice of
     # panel (b); both panels share one color scale and a single colorbar.
-    delta0_ax, psi1_ax, cpsi_dp = grid_delta0_psi1(0.0)
+    delta0_ax, psi1_ax, cpsi_dp, cpsi_dp_num = grid_delta0_psi1(0.0)
     jmax, imax = np.unravel_index(np.argmax(cpsi_dp), cpsi_dp.shape)
     # +-90 are equal maxima (symmetry); report the +90 one to match the text.
     psi1_opt, delta0_opt = psi1_ax[jmax], abs(delta0_ax[imax])
-    psi0_ax, _, cpsi_pp = grid_psi0_psi1(delta0_opt)
+    psi0_ax, _, cpsi_pp, cpsi_pp_num = grid_psi0_psi1(delta0_opt)
 
-    # 0.1-spaced bins up to the section ceiling C_L,0 = 1.5 (the single 2/3-span
-    # element pushes the peak C_psi to ~1.43, near that limit).
+    # 0.1-spaced bins up to the section ceiling C_L,0 = 1.5 (the sinusoidal pitch
+    # pushes the peak C_{F^*} to ~1.43, near that limit).
     levels = np.round(np.arange(0.0, 1.6, 0.1), 2)  # 0.0 .. 1.5, step 0.1
     line_kw = dict(levels=levels, colors="black", linewidths=0.3, alpha=0.35)
     star_kw = dict(marker="o", color="white", ms=7, mec="black", mew=0.8,
@@ -231,7 +271,7 @@ def main():
     ax1.plot(np.degrees(delta0_opt), np.degrees(psi1_opt), **star_kw)
     ax1.set_xlabel(r"$\delta_0$ (deg)")
     ax1.set_ylabel(r"$\psi_1$ (deg)")
-    ax1.set_title(r"(a)  $C_\psi(\delta_0,\psi_1)$ at $\psi_0=0$",
+    ax1.set_title(r"(a)  $C_{F^\ast}(\delta_0,\psi_1)$ at $\psi_0=0$",
                   fontsize=style.font_size)
 
     P0, P1b = np.meshgrid(np.degrees(psi0_ax), np.degrees(psi1_ax))
@@ -240,23 +280,34 @@ def main():
     ax2.plot(0.0, np.degrees(psi1_opt), **star_kw)
     ax2.set_xlabel(r"$\psi_0$ (deg)")
     ax2.set_title(
-        rf"(b)  $C_\psi(\psi_0,\psi_1)$ at $\delta_0={np.degrees(delta0_opt):.0f}^\circ$",
+        rf"(b)  $C_{{F^\ast}}(\psi_0,\psi_1)$ at $\delta_0={np.degrees(delta0_opt):.0f}^\circ$",
         fontsize=style.font_size)
 
-    fig_b.colorbar(cf, ax=[ax1, ax2],
-                   label=r"$C_\psi = (F_a^\ast/q^\ast)|_{\mathrm{ref}}$")
+    fig_b.colorbar(cf, ax=[ax1, ax2], label=r"$C_{F^\ast}$")
     out_b = OUT_DIR / "pitch_efficiency.light.png"
     fig_b.savefig(out_b, dpi=300, bbox_inches="tight")
 
     # --- report numbers ---
     print(f"separation collapse over {n_pts} random 6D points: "
-          f"F_a*/(q* C_psi) CV = {cv_sep*100:.1f}%")
-    print(f"C_psi range over (delta0,psi1) at psi0=0: "
-          f"[{cpsi_dp.min():.3f}, {cpsi_dp.max():.3f}]")
-    print(f"C_psi optimum at psi1={np.degrees(psi1_opt):.1f} deg, "
+          f"F_a*/(q* C_F*) CV = {cv_sep*100:.1f}%")
+    print(f"C_F* range over (delta0,psi1) at psi0=0: "
+          f"[{cpsi_dp.min():.3f}, {cpsi_dp.max():.3f}] (analytical)")
+    print(f"C_F* optimum at psi1={np.degrees(psi1_opt):.1f} deg, "
           f"delta0={np.degrees(delta0_opt):.1f} deg")
-    print(f"C_psi range over (psi0,psi1) at delta0={np.degrees(delta0_opt):.0f} deg: "
-          f"[{cpsi_pp.min():.3f}, {cpsi_pp.max():.3f}]")
+    print(f"C_F* range over (psi0,psi1) at delta0={np.degrees(delta0_opt):.0f} deg: "
+          f"[{cpsi_pp.min():.3f}, {cpsi_pp.max():.3f}] (analytical)")
+
+    # --- agreement of the analytical closed form with the full-arc numerical
+    #     model it replaces (the values these panels previously plotted) ---
+    d_dp = np.abs(cpsi_dp - cpsi_dp_num)
+    d_pp = np.abs(cpsi_pp - cpsi_pp_num)
+    print(f"analytical vs numerical C_F* over (delta0,psi1) grid: "
+          f"max|dC|={d_dp.max():.4f}, mean|dC|={d_dp.mean():.4f} "
+          f"({100*d_dp.max()/cpsi_dp.max():.2f}% of peak)")
+    print(f"analytical vs numerical C_F* over (psi0,psi1) grid:  "
+          f"max|dC|={d_pp.max():.4f}, mean|dC|={d_pp.mean():.4f}")
+    print(f"at optimum: analytical={cpsi_dp.max():.4f}, "
+          f"numerical={cpsi_dp_num[jmax, imax]:.4f}")
     print(f"wrote {out_a.relative_to(REPO_ROOT)}")
     print(f"wrote {out_b.relative_to(REPO_ROOT)}")
 

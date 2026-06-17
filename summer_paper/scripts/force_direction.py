@@ -69,19 +69,22 @@ def main():
     fy_max = 0.0
     for i, p0 in enumerate(psi0):
         F = cycle_averaged_force(replace(base, psi0=p0), N_PHASE)
-        beta[i] = np.degrees(np.arctan2(F[0], F[2]))
+        # beta: force angle from the stroke-plane normal, positive counterclockwise
+        # (x right, z up). At gamma0 = 0 the normal is +z, so beta = -atan2(Fx, Fz);
+        # the leading minus makes it CCW-positive (beta = -gamma for vertical hover).
+        beta[i] = -np.degrees(np.arctan2(F[0], F[2]))
         fy_max = max(fy_max, abs(float(F[1])))
 
     # At psi0 = -90 the force points straight down with Fx at numerical -0, so
-    # atan2 returns -180; the curve actually approaches it from +178 deg. Flip that
-    # degenerate endpoint to +180 so beta stays continuous and monotone.
-    if beta[0] < 0.0 < beta[1]:
-        beta[0] += 360.0
+    # -atan2 returns +180; the curve actually approaches it from -178 deg. Drop that
+    # degenerate endpoint to -180 so beta stays continuous and monotone.
+    if beta[0] > 0.0 > beta[1]:
+        beta[0] -= 360.0
 
     # C_psi^max(psi0): max pitch-efficiency over the pitch amplitude psi1. The
     # optimal phase is psi0-independent (delta0 = 90 deg; verified separately), so
     # we fix it and search psi1 only. Evaluated at the reference amplitude.
-    psi1_search = np.radians(np.linspace(0.0, 60.0, 61))
+    psi1_search = np.radians(np.linspace(0.0, 90.0, 91))
     psi0_c = np.linspace(*PSI0_RANGE, 61)
     cpsi_max = np.empty_like(psi0_c)
     psi1_opt = np.empty_like(psi0_c)
@@ -108,9 +111,9 @@ def main():
 
     ax2 = ax.twinx()
     (l_cpsi,) = ax2.plot(np.degrees(psi0_c), cpsi_max, color="black", lw=1.8,
-                         ls=":", label=r"$C_\psi^{\max}$")
+                         ls=":", label=r"$C_{F^\ast}^{\max}$")
     # Label sits over the tick range (top half of the axis), not the axis center.
-    ax2.set_ylabel(r"$C_\psi^{\max}$", y=0.75)
+    ax2.set_ylabel(r"$C_{F^\ast}^{\max}$", y=0.75)
     ax2.set_ylim(-cpsi_lim, cpsi_lim)            # zero centered, aligned with beta
     ax2.set_yticks(np.arange(0.0, cpsi_lim + 0.01, 0.5))  # positive ticks only
 
