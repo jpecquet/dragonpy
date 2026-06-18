@@ -1,17 +1,18 @@
 """
-The hover-feasibility criterion q* >= 1 as a 3-D surface.
+The hover-feasibility criterion as a 3-D surface.
 
-Section 2 reduces feasibility to a single inequality in the three amplitude
-groups,
+Section 2 reduces feasibility to a single condition in the three amplitude
+groups: hover needs the cycle-averaged force to carry the weight,
 
-    q* = (1/4) (A*/m*) (s0* omega*)^2 >= 1,
+    F_a* = q* C_F* = 1,   q* = (1/4) (A*/m*) (s0* omega*)^2,
 
-obtained by taking the pitch coefficient C_psi ~ 1 (its many-element converged
-value). Its boundary q* = 1 is a 2-D surface in (omega*, A*/m*, s0*) space; the
-hover-capable region is ABOVE it (larger excursion -> more force). Solving for the
-vertical axis,
+and the most generous pitch uses the maximum force coefficient C_F*^max (~1.43
+for the single 2/3-span element of section 2), which sets the smallest excursion
+that can hover. The boundary q* C_F*^max = 1 is a 2-D surface in
+(omega*, A*/m*, s0*) space; the hover-capable region is ABOVE it (larger
+excursion -> more force). Solving for the vertical axis,
 
-    s0*  =  2 / (omega* sqrt(A*/m*)).
+    s0*  =  2 / (omega* sqrt(A*/m* C_F*^max)).
 
 We draw that surface and shade the feasible region above it as a translucent
 volume.
@@ -32,6 +33,7 @@ REPO_ROOT = HERE.parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
+from cf_components_contour import cf_components  # noqa: E402
 
 OUT_DIR = HERE.parent / "figures"
 
@@ -40,10 +42,17 @@ OMEGA_RANGE = (8.0, 20.0)
 AW_RANGE = (0.2, 1.0)   # total inverse wing loading A*/m* (Table 1)
 Z_TOP = 0.6  # top of the plotted box / feasible cloud
 
+# Maximum force coefficient over the pitch parameters (psi0 = 0, delta0 = 90 deg,
+# psi1 optimized); the single 2/3-span element of section 2 gives ~1.43. The
+# hover criterion q* C_F*^max = 1 uses the best pitch, i.e. the smallest excursion
+# that can carry the weight.
+_PSI1 = np.linspace(0.0, np.pi / 2.0, 181)
+CF_MAX = max(float(np.hypot(*cf_components(0.0, p1, np.pi / 2.0))) for p1 in _PSI1)
+
 
 def s0_criterion(omega, aw):
-    """s0* on the q* = 1 surface: q* = (1/4) aw s0^2 omega^2 = 1 (aw = total A*/m*)."""
-    return 2.0 / (omega * np.sqrt(aw))
+    """s0* on the hover surface q* C_F*^max = 1: s0* = 2/(omega* sqrt(A*/m* C_F*^max))."""
+    return 2.0 / (omega * np.sqrt(aw * CF_MAX))
 
 
 def main():
@@ -104,7 +113,12 @@ def main():
     out = OUT_DIR / "criterion_surface.light.png"
     fig.savefig(out, dpi=300, bbox_inches="tight", pad_inches=0.45)
 
+    print(f"C_F*^max = {CF_MAX:.4f}")
     print(f"s0* criterion range: [{S0.min():.3f}, {S0.max():.3f}]")
+    print(f"example (omega*=8, A*/m*=1.0): s0* = {s0_criterion(8.0, 1.0):.3f}, "
+          f"phi1 = {np.degrees(1.5 * s0_criterion(8.0, 1.0) / 0.75):.1f} deg")
+    print(f"worst corner (omega*=8, A*/m*=0.2): s0* = {s0_criterion(8.0, 0.2):.3f}, "
+          f"phi1 = {np.degrees(1.5 * s0_criterion(8.0, 0.2) / 0.75):.1f} deg")
     print(f"wrote {out.relative_to(REPO_ROOT)}")
 
 

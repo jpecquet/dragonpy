@@ -48,8 +48,8 @@ DELTA0 = np.pi / 2.0
 
 # Control bounds (Table 1 ranges).
 PHI1_LIM = np.radians((2.0, 60.0))
-PSI0_LIM = np.radians((-60.0, 60.0))
-PSI1_LIM = np.radians((5.0, 60.0))
+PSI0_LIM = np.radians((-90.0, 90.0))
+PSI1_LIM = np.radians((5.0, 90.0))
 GAMMA0_LIM = np.radians((0.0, 70.0))
 
 

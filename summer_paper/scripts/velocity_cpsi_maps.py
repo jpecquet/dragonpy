@@ -50,7 +50,7 @@ DELTA0 = np.pi / 2
 
 J_GRID = np.linspace(0.0, 0.8, 11)
 CHI_HALF = np.radians(np.linspace(0.0, 180.0, 19))   # mirrored for display
-PSI1_SEARCH = np.radians(np.arange(0.0, 61.0, 2.0))  # Table 1 range
+PSI1_SEARCH = np.radians(np.arange(0.0, 61.0, 2.0))  # lift-branch search (see note)
 
 
 def C_of(J, chi, psi1):
