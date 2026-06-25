@@ -428,11 +428,6 @@ INPUT ../figures/axial_cpsi.light.png
 INPUT ../figures/axial_cpsi.light.png
 INPUT ../figures/axial_cpsi.light.png
 INPUT ../figures/axial_cpsi.light.png
-INPUT ../figures/maneuver_trim.light.png
-INPUT ../figures/maneuver_trim.light.png
-INPUT ../figures/maneuver_trim.light.png
-INPUT ../figures/maneuver_trim.light.png
-INPUT ../figures/maneuver_trim.light.png
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/vf/public/newtx/ntx-Bold-tlf-ot1.vf
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/newtx/txbmiaX.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/newtx/ntx-Bold-tlf-ot1r.tfm
@@ -444,6 +439,9 @@ INPUT ../figures/inertia_vs_aero_sigma0.light.png
 INPUT ../figures/inertia_vs_aero_sigma0.light.png
 INPUT ../figures/inertia_vs_aero_sigma0.light.png
 INPUT ../figures/inertia_vs_aero_sigma0.light.png
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/vf/public/newtx/ntx-Bold-tlf-ot1.vf
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/newtx/txbmiaX.tfm
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/newtx/ntx-Bold-tlf-ot1r.tfm
 INPUT ../figures/hover_control_step.light.png
 INPUT ../figures/hover_control_step.light.png
 INPUT ../figures/hover_control_step.light.png

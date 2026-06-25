@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1781750604.62782 "main.aux" "main.bbl" "main" 1781750606.97375 0
+["bibtex main"] 1781759941.72485 "main.aux" "main.bbl" "main" 1781759944.02067 0
   "./references.bib" 1781711500.19671 2470 f85b14ec690cf9d8400d7d42fb97a375 ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/natbib/unsrtnat.bst" 1233624470 24550 a41a6405f4de768c43e871d9fbce2bc8 ""
-  "main.aux" 1781750606.77088 14777 1f43dcb95b0bbd51b8237d17ac4a2808 "pdflatex"
+  "main.aux" 1781759943.81683 14561 5e95c15dbcd06d95ef25848e9b3a00a0 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1781750604.69919 "main.tex" "main.pdf" "main" 1781750606.97387 0
+["pdflatex"] 1781759941.7957 "main.tex" "main.pdf" "main" 1781759944.02078 0
   "../figures/axial_cpsi.light.png" 1781746846.31479 63733 5bd509077e1a892d98611f266e6ef2d6 ""
   "../figures/cf_components.light.png" 1781734670.75205 460685 30510982632e3cd4432e4e1d2467b97d ""
   "../figures/criterion_surface.light.png" 1781738471.93434 304590 56ba1d3af98f0c437c855934be51a39d ""
@@ -16,12 +16,11 @@
   "../figures/gen_maneuver.light.png" 1781748208.92791 61652 fe3e2d8848675ee299ce31761e242a49 ""
   "../figures/gen_pursuit.light.png" 1781749937.16398 63591 9a826bb79ccbfa8b322f83e6f4859d85 ""
   "../figures/generalized_control_compare.light.png" 1781748514.44348 159833 7a90ac811dbc0fcb34b2e82d7e2bd9a2 ""
-  "../figures/hover_control_step.light.png" 1781558477.84542 103983 9df446a9916301f1e636a9beddeb2430 ""
-  "../figures/hover_control_step_gamma.light.png" 1781558497.16879 78318 1535f5f09fb4a183bb2771510e21b5fe ""
+  "../figures/hover_control_step.light.png" 1781751538.10852 96865 a3b5404fb9e5e00a1d4e3153575e3a1d ""
+  "../figures/hover_control_step_gamma.light.png" 1781751575.56185 76749 d1d065abd9fd79d3230d988137105cdd ""
   "../figures/inertia_vs_aero_sigma0.light.png" 1781560030.44301 41858 866b6c042d06048f7dff1e7ee70706b4 ""
   "../figures/kinematics1.png" 1781456158.75 600152 6f24cdd33f694bbe13d52e299393c77d ""
   "../figures/kinematics2.png" 1781463612.34744 393676 a1686817de5bbeed74442c4bc023e2ec ""
-  "../figures/maneuver_trim.light.png" 1781565987.28778 75463 e5499f315d8f039c53c8657125e59638 ""
   "../figures/pitch_efficiency.light.png" 1781729188.49799 418205 8185beecb5da688adf77390586ceb8a7 ""
   "../figures/pitch_power.light.png" 1781729107.93287 322465 54b6d4b115d882318671f200448ce88d ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1254269338 2375 baa924870cfb487815765f9094cf3728 ""
@@ -214,11 +213,11 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1773947882 5541377 04880c840ca220163a28f1a3af0ee662 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1772409757 3636768 9f94d239f422c02416e379a36a852ffd ""
   "/usr/local/texlive/2026/texmf.cnf" 1772409725 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "main.aux" 1781750606.77088 14777 1f43dcb95b0bbd51b8237d17ac4a2808 "pdflatex"
-  "main.bbl" 1781750604.69681 2471 54f80e6660743bad6e72c2ba88066616 "bibtex main"
-  "main.out" 1781750606.77168 4362 eda84bc17084e1ac59a234eb3e75fea7 "pdflatex"
-  "main.tex" 1781750589.62888 56374 4dc8c56c059b012c10a863f49fe913bc ""
-  "main.toc" 1781750606.77186 2312 7de769cbc85142b57a4ce4e05a3e97a4 "pdflatex"
+  "main.aux" 1781759943.81683 14561 5e95c15dbcd06d95ef25848e9b3a00a0 "pdflatex"
+  "main.bbl" 1781759941.79362 2471 54f80e6660743bad6e72c2ba88066616 "bibtex main"
+  "main.out" 1781759943.81779 4201 11a4ebb0f23ef045dcde79ad733a5b54 "pdflatex"
+  "main.tex" 1781759884.20456 53288 7c7781119409edaec4fe6be60c3d6ffd ""
+  "main.toc" 1781759943.81798 2217 a176f3d6338d5821567a4524ff9c9146 "pdflatex"
   (generated)
   "main.aux"
   "main.log"

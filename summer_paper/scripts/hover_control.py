@@ -80,8 +80,9 @@ def trim(p):
     return replace(p, psi0=psi0, phi1=phi1)
 
 
-def simulate_control(p, g_phi, g_psi, n_cycles=N_CYCLES, steps_per_cycle=SPC):
-    """Closed-loop P-only point-mass run from (X0, Z0) to the origin, fixed gains."""
+def simulate_control(p, g_phi, g_psi, n_cycles=N_CYCLES, steps_per_cycle=SPC,
+                     x0=X0, z0=Z0):
+    """Closed-loop P-only point-mass run from (x0, z0) to the origin, fixed gains."""
     omega = 2.0 * np.pi * p.wing_frequency
     period = 2.0 * np.pi / omega
     dt = period / steps_per_cycle
@@ -103,7 +104,7 @@ def simulate_control(p, g_phi, g_psi, n_cycles=N_CYCLES, steps_per_cycle=SPC):
         d[6] = omega
         return d
 
-    s = np.array([X0, 0.0, Z0, 0.0, 0.0, 0.0, 0.0])
+    s = np.array([x0, 0.0, z0, 0.0, 0.0, 0.0, 0.0])
     t = np.empty(n_steps + 1)
     pos = np.empty((n_steps + 1, 3))
     t[0], pos[0] = 0.0, s[0:3]
@@ -137,14 +138,20 @@ def damping_ratios(g_phi, g_psi, eff):
     return wn_z, zz, wn_x, zx
 
 
-def step_figure(configs, out_path, g_phi, g_psi, font_size, match_omega_n=False):
+def step_figure(configs, out_path, g_phi, g_psi, font_size, match_omega_n=False,
+                single_axis=False):
     """Overlay P-only step responses (x*, z*) for a list of (label, overrides, ls).
 
     Each plant is re-trimmed to hover. With match_omega_n=False every config uses
     the same fixed gains (a robustness view). With match_omega_n=True the gains are
     retuned per config to hit OMEGA_N on both axes, so the curves share a bandwidth
     and the only remaining difference is the damping ratio -- the right convention
-    when the figure's job is to isolate the passive damping (e.g. vs gamma0)."""
+    when the figure's job is to isolate the passive damping (e.g. vs gamma0).
+
+    With single_axis=True each panel is driven by an independent single-axis kick
+    (x-panel: x0 offset only; z-panel: z0 offset only) so each curve reflects that
+    axis's own damping, free of the dFz/dpsi0 cross-coupling that otherwise leaks
+    the (poorly damped at high gamma0) x-axis ringing into the z response."""
     fig, (axX, axZ) = plt.subplots(1, 2, figsize=(6.0, 3.0), sharex=True,
                                    constrained_layout=True)
     for lab, over, ls in configs:
@@ -154,6 +161,12 @@ def step_figure(configs, out_path, g_phi, g_psi, font_size, match_omega_n=False)
             gp, gs = OMEGA_N ** 2 / bz, OMEGA_N ** 2 / bx
         else:
             gp, gs = g_phi, g_psi
+        if single_axis:
+            tx, posX, period, _spc = simulate_control(p, gp, gs, x0=X0, z0=0.0)
+            _tz, posZ, _per, _ = simulate_control(p, gp, gs, x0=0.0, z0=Z0)
+            axX.plot(tx / period, posX[:, 0], color="black", lw=1.5, ls=ls, label=lab)
+            axZ.plot(tx / period, posZ[:, 2], color="black", lw=1.5, ls=ls, label=lab)
+            continue
         t, pos, period, _spc = simulate_control(p, gp, gs)
         cyc = t / period
         axX.plot(cyc, pos[:, 0], color="black", lw=1.5, ls=ls, label=lab)
@@ -192,7 +205,7 @@ def main():
         (r"$A^*/m^* = 1.0$", dict(A_over_m=1.0), ":"),
     ]
     out = step_figure(wing_loading, OUT_DIR / "hover_control_step.light.png",
-                      g_phi, g_psi, style.font_size)
+                      g_phi, g_psi, style.font_size, single_axis=True)
     print(f"wrote {out.relative_to(REPO_ROOT)}")
 
     # --- step response: stroke-plane angle (damping anisotropy) ---
@@ -201,7 +214,8 @@ def main():
         (r"$\gamma_0 = 40^\circ$", {}, "-"),
     ]
     out_g = step_figure(stroke_plane, OUT_DIR / "hover_control_step_gamma.light.png",
-                        g_phi, g_psi, style.font_size, match_omega_n=True)
+                        g_phi, g_psi, style.font_size, match_omega_n=True,
+                        single_axis=True)
     print(f"wrote {out_g.relative_to(REPO_ROOT)}")
 
     # --- robustness: same fixed gains, off-nominal morphology ---

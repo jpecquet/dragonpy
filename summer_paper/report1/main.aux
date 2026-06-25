@@ -16,8 +16,8 @@
 \newlabel{eq:cd}{{6}{3}{Aerodynamic Force Derivation}{equation.6}{}}
 \citation{wakeling1997}
 \citation{aracheloff2024}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Wing pitch geometry and angle of attack for (a) $\vec  {v}_w\cdot \vec  {s} > \vec  {c}\cdot \vec  {s}$ and (b) $\vec  {v}_w\cdot \vec  {s} < \vec  {c}\cdot \vec  {s}$}}{4}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:kinematics2}{{2}{4}{Wing pitch geometry and angle of attack for (a) $\vec {v}_w\cdot \vec {s} > \vec {c}\cdot \vec {s}$ and (b) $\vec {v}_w\cdot \vec {s} < \vec {c}\cdot \vec {s}$}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Wing pitch geometry and angle of attack for (a) $\vec  {v}_w\cdot \vec  {s} > 0$ and (b) $\vec  {v}_w\cdot \vec  {s} < 0$}}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:kinematics2}{{2}{4}{Wing pitch geometry and angle of attack for (a) $\vec {v}_w\cdot \vec {s} > 0$ and (b) $\vec {v}_w\cdot \vec {s} < 0$}{figure.caption.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Nondimensionalization}{4}{subsection.2.3}\protected@file@percent }
 \citation{wetherbee2026}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Dimensionless parameters}}{5}{table.caption.4}\protected@file@percent }
@@ -43,8 +43,8 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Dependence of $C_{P^*}$ on pitch parameters for hovering. Minimum shown as white dots.}}{8}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:cp}{{4}{8}{Dependence of $C_{P^*}$ on pitch parameters for hovering. Minimum shown as white dots}{figure.caption.6}{}}
 \newlabel{eq:beta}{{28}{9}{Force-Maximizing and Power-Minimizing Hover Kinematics}{equation.28}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Stroke-normal (lift) component $C_{F^*,n}$ (a) and in-stroke (drag) component $C_{F^*,s}$ (b) of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\vec  {s},\vec  {n})$ plane can be inferred from the signs.}}{9}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:cf_components}{{5}{9}{Stroke-normal (lift) component $C_{F^*,n}$ (a) and in-stroke (drag) component $C_{F^*,s}$ (b) of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\vec {s},\vec {n})$ plane can be inferred from the signs}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Stroke-plane-normal (lift) component $C_{F^*,n}$ (a) and in-plane (drag) component $C_{F^*,s}$ (b) of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\vec  {s},\vec  {n})$ plane can be inferred from the signs.}}{9}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:cf_components}{{5}{9}{Stroke-plane-normal (lift) component $C_{F^*,n}$ (a) and in-plane (drag) component $C_{F^*,s}$ (b) of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\vec {s},\vec {n})$ plane can be inferred from the signs}{figure.caption.7}{}}
 \newlabel{eq:beta_psi0}{{32}{9}{Force-Maximizing and Power-Minimizing Hover Kinematics}{equation.32}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Effect of $\psi _0$ on force direction and wing stroke efficiency.}}{10}{figure.caption.8}\protected@file@percent }
 \newlabel{fig:beta_vs_psi0}{{6}{10}{Effect of $\psi _0$ on force direction and wing stroke efficiency}{figure.caption.8}{}}
@@ -58,41 +58,38 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Rationale}{11}{subsubsection.3.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Wingbeat-averaged Aerodynamic Force}{11}{subsubsection.3.2.2}\protected@file@percent }
 \newlabel{sec:spn-force}{{3.2.2}{11}{Wingbeat-averaged Aerodynamic Force}{subsubsection.3.2.2}{}}
-\newlabel{eq:alpha_inflow}{{34}{12}{Wingbeat-averaged Aerodynamic Force}{equation.34}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}Power-Optimal Trim}{12}{subsubsection.3.2.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Axial inflow ($\chi = 0$), reference configuration. (a) Force coefficient $C_{F^*}(J)$ at the fixed hover-optimal pitch and at the re-optimized (lift-branch) pitch. (b) The force-maximizing amplitude $\psi _1^{\max }(J)$.}}{13}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:axial_cpsi}{{8}{13}{Axial inflow ($\chi = 0$), reference configuration. (a) Force coefficient $C_{F^*}(J)$ at the fixed hover-optimal pitch and at the re-optimized (lift-branch) pitch. (b) The force-maximizing amplitude $\psi _1^{\max }(J)$}{figure.caption.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Power-optimal straight-flight trim vs. body velocity, reference configuration. (a) Aerodynamic power $\langle P^* \rangle $ vs. advance ratio for forward and vertical flight; the dotted curve adds the climb work $V_z W$ to the vertical aerodynamic power to give the metabolic cost. (b) The forward-flight control schedule: $\psi _0$ steers (and saturates), $\psi _1$ re-tunes down, $\phi _1$ grows for magnitude, and the power-optimal $\gamma $ stays at zero.}}{13}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:man_trim}{{9}{13}{Power-optimal straight-flight trim vs. body velocity, reference configuration. (a) Aerodynamic power $\langle P^* \rangle $ vs. advance ratio for forward and vertical flight; the dotted curve adds the climb work $V_z W$ to the vertical aerodynamic power to give the metabolic cost. (b) The forward-flight control schedule: $\psi _0$ steers (and saturates), $\psi _1$ re-tunes down, $\phi _1$ grows for magnitude, and the power-optimal $\gamma $ stays at zero}{figure.caption.12}{}}
+\newlabel{eq:alpha_inflow}{{33}{11}{Wingbeat-averaged Aerodynamic Force}{equation.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Axial flow, reference configuration. (a) Force coefficient $C_{F^*}(J)$ at the fixed hover-optimal pitch and at the re-optimized (lift-branch) pitch. (b) The force-maximizing amplitude $\psi _1^{\max }(J)$.}}{12}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:axial_cpsi}{{8}{12}{Axial flow, reference configuration. (a) Force coefficient $C_{F^*}(J)$ at the fixed hover-optimal pitch and at the re-optimized (lift-branch) pitch. (b) The force-maximizing amplitude $\psi _1^{\max }(J)$}{figure.caption.11}{}}
 \citation{wakeling1997}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Controller Design}{14}{section.4}\protected@file@percent }
-\newlabel{sec:controller}{{4}{14}{Controller Design}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hover Controller}{14}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Design Principle}{14}{subsubsection.4.1.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Mean pitch for hover at various stroke plane angles for reference configuration}}{14}{table.caption.13}\protected@file@percent }
-\newlabel{tab:hover_psi0}{{3}{14}{Mean pitch for hover at various stroke plane angles for reference configuration}{table.caption.13}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Departure from Wingbeat-Averaged Picture}{14}{subsubsection.4.1.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Effect of $\sigma _0$ and $m_w^*$ on body oscillations during hover.}}{15}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:oscillations}{{10}{15}{Effect of $\sigma _0$ and $m_w^*$ on body oscillations during hover}{figure.caption.14}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Proposed Control Scheme}{15}{subsubsection.4.1.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Results}{16}{subsubsection.4.1.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Effect of $A^* / m^*$ on hover controller step response.}}{16}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:hover_step}{{11}{16}{Effect of $A^* / m^*$ on hover controller step response}{figure.caption.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Effect of $\gamma $ on hover controller step response.}}{17}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:hover_step_gamma}{{12}{17}{Effect of $\gamma $ on hover controller step response}{figure.caption.16}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Generalized Controller}{17}{subsection.4.2}\protected@file@percent }
-\newlabel{sec:general-controller}{{4.2}{17}{Generalized Controller}{subsection.4.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Design Principle}{17}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Controller Design}{13}{section.4}\protected@file@percent }
+\newlabel{sec:controller}{{4}{13}{Controller Design}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hover Controller}{13}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Design Principle}{13}{subsubsection.4.1.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Mean pitch for hover at various stroke plane angles for reference configuration}}{13}{table.caption.12}\protected@file@percent }
+\newlabel{tab:hover_psi0}{{3}{13}{Mean pitch for hover at various stroke plane angles for reference configuration}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Departure from Wingbeat-Averaged Picture}{13}{subsubsection.4.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Effect of $\sigma _0$ and $m_w^*$ on body oscillations during hover.}}{14}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:oscillations}{{9}{14}{Effect of $\sigma _0$ and $m_w^*$ on body oscillations during hover}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Proposed Control Scheme}{14}{subsubsection.4.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Results}{15}{subsubsection.4.1.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Effect of $A^* / m^*$ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own response, isolated from the cross-axis coupling.}}{15}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:hover_step}{{10}{15}{Effect of $A^* / m^*$ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own response, isolated from the cross-axis coupling}{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Effect of $\gamma $ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own passive damping, isolated from the cross-axis coupling. Gains are retuned per case to a common $\omega _n$, leaving the damping ratio as the only difference.}}{16}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:hover_step_gamma}{{11}{16}{Effect of $\gamma $ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own passive damping, isolated from the cross-axis coupling. Gains are retuned per case to a common $\omega _n$, leaving the damping ratio as the only difference}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Generalized Controller}{16}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:general-controller}{{4.2}{16}{Generalized Controller}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Design Principle}{16}{subsubsection.4.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Proposed Control Scheme}{17}{subsubsection.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Results}{18}{subsubsection.4.2.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Proposed controller, reference configuration; top row forward flight, bottom row vertical climb. (a,d) Direction controls $\gamma $ and $\psi _0$; (b,e) magnitude controls $\phi _1$ and $\psi _1$; (c,f) aerodynamic power $\langle P^* \rangle $ (solid) and force coefficient $C_{F^*}$ (dashed). Dotted lines mark the $\pm 90^\circ $ control bounds.}}{19}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:gen_compare}{{13}{19}{Proposed controller, reference configuration; top row forward flight, bottom row vertical climb. (a,d) Direction controls $\gamma $ and $\psi _0$; (b,e) magnitude controls $\phi _1$ and $\psi _1$; (c,f) aerodynamic power $\langle P^* \rangle $ (solid) and force coefficient $C_{F^*}$ (dashed). Dotted lines mark the $\pm 90^\circ $ control bounds}{figure.caption.17}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Closed-loop maneuvers under the proposed controller (unsteady simulation, control updated once per wingbeat). (a) Forward dash: commanded versus achieved forward velocity. (b) Pull-up: the sagittal-plane path, with body-velocity arrows rotating from horizontal to vertical.}}{19}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:gen_maneuver}{{14}{19}{Closed-loop maneuvers under the proposed controller (unsteady simulation, control updated once per wingbeat). (a) Forward dash: commanded versus achieved forward velocity. (b) Pull-up: the sagittal-plane path, with body-velocity arrows rotating from horizontal to vertical}{figure.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Closed-loop circular maneuver under the proposed controller (unsteady simulation). (a) Body velocity components $v_x^*$ and $v_z^*$, commanded (light) versus achieved; both reverse sign twice. (b) The sagittal-plane flight path with body-velocity arrows.}}{20}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:gen_loop}{{15}{20}{Closed-loop circular maneuver under the proposed controller (unsteady simulation). (a) Body velocity components $v_x^*$ and $v_z^*$, commanded (light) versus achieved; both reverse sign twice. (b) The sagittal-plane flight path with body-velocity arrows}{figure.caption.19}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Pure-pursuit prey capture under the proposed controller. (a) Sagittal-plane paths of the dragonfly (from rest at the origin) and the prey (moving horizontally), with line-of-sight rays; the star marks interception at range $0.5\,L$. (b) Range to the prey versus time.}}{20}{figure.caption.20}\protected@file@percent }
-\newlabel{fig:gen_pursuit}{{16}{20}{Pure-pursuit prey capture under the proposed controller. (a) Sagittal-plane paths of the dragonfly (from rest at the origin) and the prey (moving horizontally), with line-of-sight rays; the star marks interception at range $0.5\,L$. (b) Range to the prey versus time}{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Results}{17}{subsubsection.4.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Generalized controller, reference configuration. Top row forward flight, bottom row climb. (a,d) Direction controls $\gamma $ and $\psi _0$. (b,e) Magnitude controls $\phi _1$ and $\psi _1$. (c,f) Aerodynamic power $\langle P^* \rangle $ (solid) and force coefficient $C_{F^*}$ (dashed). Dotted lines mark the $\pm 90^\circ $ control bounds.}}{18}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:gen_compare}{{12}{18}{Generalized controller, reference configuration. Top row forward flight, bottom row climb. (a,d) Direction controls $\gamma $ and $\psi _0$. (b,e) Magnitude controls $\phi _1$ and $\psi _1$. (c,f) Aerodynamic power $\langle P^* \rangle $ (solid) and force coefficient $C_{F^*}$ (dashed). Dotted lines mark the $\pm 90^\circ $ control bounds}{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Closed-loop maneuvers under the generalized controller (unsteady simulation, control updated once per wingbeat). (a) Forward dash: commanded versus achieved forward velocity. (b) Pull-up: the sagittal plane path, with body velocity arrows rotating from horizontal to vertical.}}{18}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:gen_maneuver}{{13}{18}{Closed-loop maneuvers under the generalized controller (unsteady simulation, control updated once per wingbeat). (a) Forward dash: commanded versus achieved forward velocity. (b) Pull-up: the sagittal plane path, with body velocity arrows rotating from horizontal to vertical}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Closed-loop circular maneuver under the generalized controller (unsteady simulation). (a) Body velocity components $v_x^*$ and $v_z^*$, commanded (light) versus achieved. Both reverse sign twice. (b) The sagittal plane flight path with body velocity arrows.}}{19}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:gen_loop}{{14}{19}{Closed-loop circular maneuver under the generalized controller (unsteady simulation). (a) Body velocity components $v_x^*$ and $v_z^*$, commanded (light) versus achieved. Both reverse sign twice. (b) The sagittal plane flight path with body velocity arrows}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Pure-pursuit prey capture under the generalized controller. (a) Sagittal plane paths of the dragonfly (from rest at the origin) and the prey (moving horizontally), with line-of-sight rays. The star marks interception at range $0.5\,L$. (b) Range to the prey versus time.}}{19}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:gen_pursuit}{{15}{19}{Pure-pursuit prey capture under the generalized controller. (a) Sagittal plane paths of the dragonfly (from rest at the origin) and the prey (moving horizontally), with line-of-sight rays. The star marks interception at range $0.5\,L$. (b) Range to the prey versus time}{figure.caption.19}{}}
 \bibstyle{unsrtnat}
 \bibdata{references}
 \bibcite{wang2004}{{1}{2004}{{Wang}}{{}}}
@@ -102,4 +99,4 @@
 \bibcite{wetherbee2026}{{5}{2026}{{Wetherbee and Wang}}{{}}}
 \bibcite{azuma1985}{{6}{1997}{{Azuma et~al.}}{{Azuma, Azuma, Watanabe, and Furuta}}}
 \bibcite{berman2007}{{7}{2007}{{Berman and Wang}}{{}}}
-\gdef \@abspage@last{21}
+\gdef \@abspage@last{20}
