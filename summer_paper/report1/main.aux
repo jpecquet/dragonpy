@@ -2,101 +2,61 @@
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Summary}{2}{section.1}\protected@file@percent }
-\newlabel{sec:intro}{{1}{2}{Summary}{section.1}{}}
+\citation{azuma1985}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Model Description}{2}{section.2}\protected@file@percent }
 \newlabel{sec:model}{{2}{2}{Model Description}{section.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Summary}{2}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Aerodynamic Force Derivation}{2}{subsection.2.2}\protected@file@percent }
-\citation{wang2004,wang2008}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Wing stroke geometry}}{3}{figure.caption.2}\protected@file@percent }
+\newlabel{eq:cl}{{1}{2}{Model Description}{equation.1}{}}
+\newlabel{eq:cd}{{2}{2}{Model Description}{equation.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Controller Design}{2}{section.3}\protected@file@percent }
+\newlabel{sec:design}{{3}{2}{Controller Design}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Statement}{2}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:problem-statement}{{3.1}{2}{Problem Statement}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{2}{subsubsection.3.2.1}\protected@file@percent }
+\newlabel{eq:v_sq}{{8}{3}{Definitions and Assumptions}{equation.8}{}}
+\newlabel{eq:alpha}{{12}{3}{Definitions and Assumptions}{equation.12}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{3}{subsubsection.3.2.2}\protected@file@percent }
+\newlabel{eq:cl-hover}{{14}{4}{Hover Case $(J=0)$}{equation.14}{}}
+\newlabel{eq:cd-hover}{{15}{4}{Hover Case $(J=0)$}{equation.15}{}}
+\newlabel{eq:q}{{18}{4}{Hover Case $(J=0)$}{equation.18}{}}
+\newlabel{eq:cfn}{{19}{4}{Hover Case $(J=0)$}{equation.19}{}}
+\newlabel{eq:cfs}{{20}{4}{Hover Case $(J=0)$}{equation.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces (a) Stroke-plane-normal (lift) component $C_{F^*_n}$ and (b) in-plane (drag) component $C_{F^*_s}$ of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\hat  {s},\hat  {n})$ plane can be inferred from the signs.}}{5}{figure.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:kinematics1}{{1}{3}{Wing stroke geometry}{figure.caption.2}{}}
-\newlabel{eq:cl}{{5}{3}{Aerodynamic Force Derivation}{equation.5}{}}
-\newlabel{eq:cd}{{6}{3}{Aerodynamic Force Derivation}{equation.6}{}}
-\citation{wakeling1997}
-\citation{aracheloff2024}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Wing pitch geometry and angle of attack for (a) $\vec  {v}_w\cdot \vec  {s} > 0$ and (b) $\vec  {v}_w\cdot \vec  {s} < 0$}}{4}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:kinematics2}{{2}{4}{Wing pitch geometry and angle of attack for (a) $\vec {v}_w\cdot \vec {s} > 0$ and (b) $\vec {v}_w\cdot \vec {s} < 0$}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Nondimensionalization}{4}{subsection.2.3}\protected@file@percent }
-\citation{wetherbee2026}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Dimensionless parameters}}{5}{table.caption.4}\protected@file@percent }
-\newlabel{tab:nondim_params}{{1}{5}{Dimensionless parameters}{table.caption.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Two Analytical Cases}{5}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Stationary Flight}{5}{subsection.3.1}\protected@file@percent }
-\newlabel{sec:analytical-hover}{{3.1}{5}{Stationary Flight}{subsection.3.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Wingbeat-averaged Aerodynamic Force}{5}{subsubsection.3.1.1}\protected@file@percent }
-\newlabel{sec:hover-force}{{3.1.1}{5}{Wingbeat-averaged Aerodynamic Force}{subsubsection.3.1.1}{}}
-\citation{wetherbee2026}
-\citation{azuma1985}
-\citation{berman2007}
-\newlabel{eq:cfn}{{23}{6}{Wingbeat-averaged Aerodynamic Force}{equation.23}{}}
-\newlabel{eq:cfs}{{24}{6}{Wingbeat-averaged Aerodynamic Force}{equation.24}{}}
-\citation{wang2008}
-\citation{wang2004,wang2008}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}Power Efficiency}{7}{subsubsection.3.1.2}\protected@file@percent }
-\newlabel{sec:hover-power}{{3.1.2}{7}{Power Efficiency}{subsubsection.3.1.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.3}Force-Maximizing and Power-Minimizing Hover Kinematics}{7}{subsubsection.3.1.3}\protected@file@percent }
-\newlabel{sec:optimal-hover}{{3.1.3}{7}{Force-Maximizing and Power-Minimizing Hover Kinematics}{subsubsection.3.1.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots.}}{8}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:cf}{{3}{8}{Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots}{figure.caption.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Dependence of $C_{P^*}$ on pitch parameters for hovering. Minimum shown as white dots.}}{8}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:cp}{{4}{8}{Dependence of $C_{P^*}$ on pitch parameters for hovering. Minimum shown as white dots}{figure.caption.6}{}}
-\newlabel{eq:beta}{{28}{9}{Force-Maximizing and Power-Minimizing Hover Kinematics}{equation.28}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Stroke-plane-normal (lift) component $C_{F^*,n}$ (a) and in-plane (drag) component $C_{F^*,s}$ (b) of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\vec  {s},\vec  {n})$ plane can be inferred from the signs.}}{9}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:cf_components}{{5}{9}{Stroke-plane-normal (lift) component $C_{F^*,n}$ (a) and in-plane (drag) component $C_{F^*,s}$ (b) of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\vec {s},\vec {n})$ plane can be inferred from the signs}{figure.caption.7}{}}
-\newlabel{eq:beta_psi0}{{32}{9}{Force-Maximizing and Power-Minimizing Hover Kinematics}{equation.32}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Effect of $\psi _0$ on force direction and wing stroke efficiency.}}{10}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:beta_vs_psi0}{{6}{10}{Effect of $\psi _0$ on force direction and wing stroke efficiency}{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.4}Implications for Morphology and Wingbeat Frequency}{10}{subsubsection.3.1.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Approximate region of hover feasibility, with boundary surface.}}{10}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:criterion}{{7}{10}{Approximate region of hover feasibility, with boundary surface}{figure.caption.9}{}}
-\citation{azuma1985}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Reference configuration}}{11}{table.caption.10}\protected@file@percent }
-\newlabel{tab:ref_config}{{2}{11}{Reference configuration}{table.caption.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Stroke-Plane-Normal Flight}{11}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Rationale}{11}{subsubsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Wingbeat-averaged Aerodynamic Force}{11}{subsubsection.3.2.2}\protected@file@percent }
-\newlabel{sec:spn-force}{{3.2.2}{11}{Wingbeat-averaged Aerodynamic Force}{subsubsection.3.2.2}{}}
-\newlabel{eq:alpha_inflow}{{33}{11}{Wingbeat-averaged Aerodynamic Force}{equation.33}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Axial flow, reference configuration. (a) Force coefficient $C_{F^*}(J)$ at the fixed hover-optimal pitch and at the re-optimized (lift-branch) pitch. (b) The force-maximizing amplitude $\psi _1^{\max }(J)$.}}{12}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:axial_cpsi}{{8}{12}{Axial flow, reference configuration. (a) Force coefficient $C_{F^*}(J)$ at the fixed hover-optimal pitch and at the re-optimized (lift-branch) pitch. (b) The force-maximizing amplitude $\psi _1^{\max }(J)$}{figure.caption.11}{}}
-\citation{wakeling1997}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Controller Design}{13}{section.4}\protected@file@percent }
-\newlabel{sec:controller}{{4}{13}{Controller Design}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hover Controller}{13}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Design Principle}{13}{subsubsection.4.1.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Mean pitch for hover at various stroke plane angles for reference configuration}}{13}{table.caption.12}\protected@file@percent }
-\newlabel{tab:hover_psi0}{{3}{13}{Mean pitch for hover at various stroke plane angles for reference configuration}{table.caption.12}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Departure from Wingbeat-Averaged Picture}{13}{subsubsection.4.1.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Effect of $\sigma _0$ and $m_w^*$ on body oscillations during hover.}}{14}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:oscillations}{{9}{14}{Effect of $\sigma _0$ and $m_w^*$ on body oscillations during hover}{figure.caption.13}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Proposed Control Scheme}{14}{subsubsection.4.1.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Results}{15}{subsubsection.4.1.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Effect of $A^* / m^*$ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own response, isolated from the cross-axis coupling.}}{15}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:hover_step}{{10}{15}{Effect of $A^* / m^*$ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own response, isolated from the cross-axis coupling}{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Effect of $\gamma $ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own passive damping, isolated from the cross-axis coupling. Gains are retuned per case to a common $\omega _n$, leaving the damping ratio as the only difference.}}{16}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:hover_step_gamma}{{11}{16}{Effect of $\gamma $ on hover controller step response. Each panel is driven by an independent single-axis displacement (the $x^*$ panel by an $x$ offset, the $z^*$ panel by a $z$ offset) so that each curve reflects that axis's own passive damping, isolated from the cross-axis coupling. Gains are retuned per case to a common $\omega _n$, leaving the damping ratio as the only difference}{figure.caption.15}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Generalized Controller}{16}{subsection.4.2}\protected@file@percent }
-\newlabel{sec:general-controller}{{4.2}{16}{Generalized Controller}{subsection.4.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Design Principle}{16}{subsubsection.4.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Proposed Control Scheme}{17}{subsubsection.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Results}{17}{subsubsection.4.2.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Generalized controller, reference configuration. Top row forward flight, bottom row climb. (a,d) Direction controls $\gamma $ and $\psi _0$. (b,e) Magnitude controls $\phi _1$ and $\psi _1$. (c,f) Aerodynamic power $\langle P^* \rangle $ (solid) and force coefficient $C_{F^*}$ (dashed). Dotted lines mark the $\pm 90^\circ $ control bounds.}}{18}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:gen_compare}{{12}{18}{Generalized controller, reference configuration. Top row forward flight, bottom row climb. (a,d) Direction controls $\gamma $ and $\psi _0$. (b,e) Magnitude controls $\phi _1$ and $\psi _1$. (c,f) Aerodynamic power $\langle P^* \rangle $ (solid) and force coefficient $C_{F^*}$ (dashed). Dotted lines mark the $\pm 90^\circ $ control bounds}{figure.caption.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Closed-loop maneuvers under the generalized controller (unsteady simulation, control updated once per wingbeat). (a) Forward dash: commanded versus achieved forward velocity. (b) Pull-up: the sagittal plane path, with body velocity arrows rotating from horizontal to vertical.}}{18}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:gen_maneuver}{{13}{18}{Closed-loop maneuvers under the generalized controller (unsteady simulation, control updated once per wingbeat). (a) Forward dash: commanded versus achieved forward velocity. (b) Pull-up: the sagittal plane path, with body velocity arrows rotating from horizontal to vertical}{figure.caption.17}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Closed-loop circular maneuver under the generalized controller (unsteady simulation). (a) Body velocity components $v_x^*$ and $v_z^*$, commanded (light) versus achieved. Both reverse sign twice. (b) The sagittal plane flight path with body velocity arrows.}}{19}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:gen_loop}{{14}{19}{Closed-loop circular maneuver under the generalized controller (unsteady simulation). (a) Body velocity components $v_x^*$ and $v_z^*$, commanded (light) versus achieved. Both reverse sign twice. (b) The sagittal plane flight path with body velocity arrows}{figure.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Pure-pursuit prey capture under the generalized controller. (a) Sagittal plane paths of the dragonfly (from rest at the origin) and the prey (moving horizontally), with line-of-sight rays. The star marks interception at range $0.5\,L$. (b) Range to the prey versus time.}}{19}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:gen_pursuit}{{15}{19}{Pure-pursuit prey capture under the generalized controller. (a) Sagittal plane paths of the dragonfly (from rest at the origin) and the prey (moving horizontally), with line-of-sight rays. The star marks interception at range $0.5\,L$. (b) Range to the prey versus time}{figure.caption.19}{}}
+\newlabel{fig:cf_components}{{1}{5}{(a) Stroke-plane-normal (lift) component $C_{F^*_n}$ and (b) in-plane (drag) component $C_{F^*_s}$ of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\hat {s},\hat {n})$ plane can be inferred from the signs}{figure.caption.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots.}}{5}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:cf}{{2}{5}{Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots}{figure.caption.3}{}}
+\newlabel{eq:beta}{{23}{6}{Hover Case $(J=0)$}{equation.23}{}}
+\newlabel{eq:beta-hover}{{29}{6}{Hover Case $(J=0)$}{equation.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Effect of $\psi _0$ on force direction angle $\beta $ and force coefficient $C_{F^*}$.}}{7}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:beta_vs_psi0}{{3}{7}{Effect of $\psi _0$ on force direction angle $\beta $ and force coefficient $C_{F^*}$}{figure.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Wing kinematic parameters for hover}}{7}{table.caption.5}\protected@file@percent }
+\newlabel{tab:hover}{{1}{7}{Wing kinematic parameters for hover}{table.caption.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{7}{subsubsection.3.2.3}\protected@file@percent }
+\newlabel{eq:cfn-general}{{41}{8}{General Case $(J \geq 0)$}{equation.41}{}}
+\newlabel{eq:cfs-general}{{42}{8}{General Case $(J \geq 0)$}{equation.42}{}}
+\newlabel{eq:cfn-general-op}{{43}{8}{General Case $(J \geq 0)$}{equation.43}{}}
+\newlabel{eq:cfs-general-op}{{44}{8}{General Case $(J \geq 0)$}{equation.44}{}}
+\newlabel{eq:beta-general}{{48}{9}{General Case $(J \geq 0)$}{equation.48}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Control Strategy}{9}{subsection.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Force coefficient $C_{F^*}$ over the pitch plane $(\psi _0, \psi _1)$ at $\delta _0 = 90^\circ $, for increasing advance ratio $J$. White dots track the hover optimum as it moves with $J$. It remains on the $\psi _0 = 0^\circ $ axis by symmetry while $\psi _1$ decreases, and it turns from a local maximum into a saddle point. The global maximum sits at large $|\psi _0|$, where the force is dominated by drag from the normal inflow and points along $-\hat  {n}$. The dotted contour marks $C_{F^*_n} = 0$, the boundary between propulsive ($+\hat  {n}$) and braking ($-\hat  {n}$) mean force.}}{10}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:cf_J}{{4}{10}{Force coefficient $C_{F^*}$ over the pitch plane $(\psi _0, \psi _1)$ at $\delta _0 = 90^\circ $, for increasing advance ratio $J$. White dots track the hover optimum as it moves with $J$. It remains on the $\psi _0 = 0^\circ $ axis by symmetry while $\psi _1$ decreases, and it turns from a local maximum into a saddle point. The global maximum sits at large $|\psi _0|$, where the force is dominated by drag from the normal inflow and points along $-\hat {n}$. The dotted contour marks $C_{F^*_n} = 0$, the boundary between propulsive ($+\hat {n}$) and braking ($-\hat {n}$) mean force}{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Pitch amplitude $\psi _1$ and force coefficient $C_{F^*}$ of the continued hover optimum (the point tracked in \autoref {fig:cf_J}) as functions of advance ratio $J$. The point turns from a local maximum into a saddle at $J \approx 0.46$.}}{10}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:hover_opt_J}{{5}{10}{Pitch amplitude $\psi _1$ and force coefficient $C_{F^*}$ of the continued hover optimum (the point tracked in \autoref {fig:cf_J}) as functions of advance ratio $J$. The point turns from a local maximum into a saddle at $J \approx 0.46$}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Illustration of the $\psi $ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases.}}{11}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:psi1-decrease}{{6}{11}{Illustration of the $\psi $ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Effect of $\psi _0$ on the force direction angle $\beta $ for increasing advance ratio $J$, at $\delta _0 = 90^\circ $ and with $\psi _1$ set, for each $J$, to the continued-optimum value of \autoref {fig:hover_opt_J}. Unlike in the hover case, $\beta $ depends on $\psi _1$ when $J > 0$.}}{11}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:beta_vs_psi0_J}{{7}{11}{Effect of $\psi _0$ on the force direction angle $\beta $ for increasing advance ratio $J$, at $\delta _0 = 90^\circ $ and with $\psi _1$ set, for each $J$, to the continued-optimum value of \autoref {fig:hover_opt_J}. Unlike in the hover case, $\beta $ depends on $\psi _1$ when $J > 0$}{figure.caption.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Wing kinematic parameters (general case)}}{11}{table.caption.10}\protected@file@percent }
+\newlabel{tab:param-general}{{2}{11}{Wing kinematic parameters (general case)}{table.caption.10}{}}
 \bibstyle{unsrtnat}
 \bibdata{references}
-\bibcite{wang2004}{{1}{2004}{{Wang}}{{}}}
-\bibcite{wang2008}{{2}{2008}{{Wang}}{{}}}
-\bibcite{wakeling1997}{{3}{1997}{{Wakeling}}{{}}}
-\bibcite{aracheloff2024}{{4}{2024}{{Aracheloff et~al.}}{{Aracheloff, Garrouste, Nel, Godoy-Diana, and Thiria}}}
-\bibcite{wetherbee2026}{{5}{2026}{{Wetherbee and Wang}}{{}}}
-\bibcite{azuma1985}{{6}{1997}{{Azuma et~al.}}{{Azuma, Azuma, Watanabe, and Furuta}}}
-\bibcite{berman2007}{{7}{2007}{{Berman and Wang}}{{}}}
-\gdef \@abspage@last{20}
+\bibcite{azuma1985}{{1}{1997}{{Azuma et~al.}}{{Azuma, Azuma, Watanabe, and Furuta}}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{12}{section.4}\protected@file@percent }
+\newlabel{sec:results}{{4}{12}{Results}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hover}{12}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Prescribed Trajectory}{12}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Prey Pursuit}{12}{subsection.4.3}\protected@file@percent }
+\gdef \@abspage@last{12}

@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Flight Stability Map</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --text: #1f2330;
+    --muted: #6b7280;
+    --accent: #5b6cff;
+    --accent-soft: #e6e9ff;
+    --success: #1a8f4a;
+    --danger: #d94a4a;
+    --stable: #e0322a;
+    --border: #d6dae2;
+    --field: #f7f8fa;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #f0f2f5;
+    color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;   /* no rubber-band bounce at scroll top/bottom */
+  }
+  .wrap {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 28px;
+    padding: 28px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  /* The plot column sticks to the viewport and keeps the plot vertically
+     centered while the (taller) form panel scrolls past it. */
+  .plot-col {
+    position: sticky;
+    top: 28px;
+    align-self: start;
+    height: calc(100vh - 56px);   /* viewport minus top+bottom .wrap padding */
+    display: flex;
+    flex-direction: column;       /* column → justify-content centers vertically */
+    justify-content: center;      /* align-items defaults to stretch → full width */
+  }
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+    /* Single-column: drop sticky/centering, return to normal flow. */
+    .plot-col { position: static; height: auto; display: block; }
+  }
+
+  h1 {
+    font-size: 20px; font-weight: 600; margin: 0 0 18px;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-size: 11px; font-weight: 600;
+    margin: 18px 0 10px;
+    color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px;
+  }
+
+  .row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .row label { flex: 1; font-variant-numeric: tabular-nums; color: var(--text); }
+  .row .range { color: var(--muted); font-size: 11px; min-width: 92px; text-align: right; }
+  .row input[type="number"] {
+    width: 92px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--field);
+    font: inherit;
+    color: var(--text);
+    text-align: right;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .row input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+  /* Hide native spinners — keep typing experience clean. */
+  .row input[type=number]::-webkit-outer-spin-button,
+  .row input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .row input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+  .toggle {
+    display: flex; gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .toggle button {
+    flex: 1; padding: 9px 10px;
+    background: var(--field); border: 0;
+    border-right: 1px solid var(--border);
+    font: inherit; font-weight: 500;
+    cursor: pointer; color: var(--muted);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .toggle button:last-child { border-right: 0; }
+  .toggle button:hover { color: var(--text); }
+  .toggle button.active {
+    background: #fff;
+    color: var(--accent);
+  }
+
+  .readout {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: var(--field);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .readout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .readout .v { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-top: 2px; }
+  .readout .lbl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .readout .stable, .readout .unstable {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border);
+    background: #fff;
+  }
+  .readout .stable   { color: var(--success); }
+  .readout .unstable { color: var(--danger); }
+  .readout .stable::before, .readout .unstable::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: currentColor;
+  }
+
+  .plot-card { padding: 22px; }
+  /* Layout: a grid that reserves space for axis labels around the data area.
+     The .plot-area itself is exactly the data region — its corners are
+     (Fa*, tau*) = (0,-2), (0,2), (8,2), (8,-2). */
+  .plot-frame {
+    display: grid;
+    grid-template-columns: 22px 36px 1fr;   /* y-title | y-ticks | data */
+    grid-template-rows: 1fr 22px 28px;      /* data | x-ticks | x-title */
+    gap: 2px;
+  }
+  /* Background image covers Fa* ∈ [0.1, 8], τ* ∈ [-2, 2] at its native
+     pixel aspect ratio (2226:1680). The data area is slightly wider so it
+     spans Fa* ∈ [0, 8] — the image sits flush right, leaving the leftmost
+     1.25% of the data area empty (Fa* ∈ [0, 0.1]).
+     Data-area aspect = (8 / 7.9) × (2226 / 1680) ≈ 1.3418. */
+  .plot-area {
+    grid-column: 3; grid-row: 1;
+    position: relative;
+    width: 100%;
+    aspect-ratio: calc((8 / 7.9) * (2226 / 1680));
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .plot-area img.bg {
+    position: absolute;
+    /* Fa* = 0.1 -> left = 0.1/8 = 1.25% */
+    left: 1.25%;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 98.75%;
+    height: 100%;
+    object-fit: fill;  /* exact mapping; native aspect preserved by container */
+    user-select: none; -webkit-user-drag: none; pointer-events: none;
+  }
+  .stable-box {
+    position: absolute;
+    border: 3px solid var(--stable);
+    pointer-events: none;
+    /* x: 1.5..8 of 0..8  ->  left 18.75%, width 81.25% */
+    left: 18.75%;
+    width: 81.25%;
+    /* y: -2..0 of -2..2 (top is +2) -> top 50%, height 50% */
+    top: 50%;
+    height: 50%;
+  }
+  .dot {
+    position: absolute;
+    width: 24px; height: 24px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .dot::before, .dot::after {
+    content: ""; position: absolute;
+    background: #000;
+  }
+  .dot::before { left: 50%; top: 0; width: 6px; height: 100%; transform: translateX(-50%); }
+  .dot::after  { top: 50%; left: 0; height: 6px; width: 100%; transform: translateY(-50%); }
+  /* Off-frame indicator: a triangle (default points right, +x) rotated toward
+     the off-screen point. The wrapper holds the edge position; the inner
+     triangle is rotated so positioning and rotation don't fight. */
+  .arrow {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .arrow::before {
+    content: ""; display: block;
+    width: 0; height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 15px solid #000;
+    transform: rotate(var(--ang, 0deg));
+    transform-origin: center;
+  }
+
+  .axis-title {
+    color: var(--muted); font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1.4;
+  }
+  .axis-title sub {
+    font-size: 0.72em;
+    line-height: 0;
+    vertical-align: baseline;
+    position: relative;
+    bottom: -0.35em;
+  }
+  .x-title { grid-column: 3; grid-row: 3; }
+  .y-title { grid-column: 1; grid-row: 1; writing-mode: vertical-rl; transform: rotate(180deg); }
+
+  .x-ticks { grid-column: 3; grid-row: 2; position: relative; font-size: 11px; color: var(--muted); }
+  .y-ticks { grid-column: 2; grid-row: 1; position: relative; font-size: 11px; color: var(--muted); }
+  .x-ticks .tx { position: absolute; top: 2px; transform: translateX(-50%); }
+  .y-ticks .ty { position: absolute; right: 4px; transform: translateY(-50%); white-space: nowrap; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .citation {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    background: var(--field);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* --- Multi-point controls --- */
+  .pt-add-row { display: flex; gap: 8px; margin-top: 6px; align-items: center; }
+  .pt-add-row input[type="text"] {
+    flex: 1; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--field); font: inherit; color: var(--text); outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .pt-add-row input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
+  .btn {
+    padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px;
+    background: #fff; font: inherit; font-weight: 500; color: var(--text);
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #4a5bef; color: #fff; }
+  .btn.ghost { color: var(--muted); }
+  .btn.ghost:hover { color: var(--danger); border-color: var(--danger); }
+
+  .pt-list { margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
+  .muted-note { color: var(--muted); font-size: 12px; padding: 6px 2px; }
+  .pt-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+    background: #fff; cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .pt-row:hover { border-color: var(--accent); }
+  .pt-row.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .pt-row .sw { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 1px rgba(0,0,0,0.2); }
+  .pt-row .pt-name { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pt-row .pt-vals { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pt-row .pt-del {
+    border: 0; background: transparent; color: var(--muted);
+    cursor: pointer; font-size: 17px; line-height: 1; padding: 0 4px; border-radius: 4px;
+  }
+  .pt-row .pt-del:hover { color: var(--danger); background: #fdeaea; }
+
+  .pt-detail {
+    margin-top: 12px; padding: 14px 16px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--field); font-variant-numeric: tabular-nums;
+  }
+  .pt-detail .dh { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .pt-detail .dh .sw { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 1px rgba(0,0,0,0.2); }
+  .pt-detail .dh .nm { font-weight: 600; }
+  .pt-detail .kv { display: grid; grid-template-columns: 1fr auto; gap: 5px 14px; }
+  .pt-detail .kv .k { color: var(--muted); }
+  .pt-detail .kv .v2 { text-align: right; }
+  .pt-detail .sub { margin: 12px 0 6px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .pt-detail .pt-actions { margin-top: 14px; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px; border-radius: 4px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); background: #fff;
+  }
+  .tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .tag.ok { color: var(--success); }
+  .tag.bad { color: var(--danger); }
+
+  .pt-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+  /* Saved-point markers on the plot */
+  .points-layer { position: absolute; inset: 0; pointer-events: none; }
+  .points-layer .pt {
+    position: absolute; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--c, var(--accent));
+    border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+    transform: translate(-50%, -50%); cursor: pointer; pointer-events: auto;
+  }
+  .points-layer .pt.sel {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--c, var(--accent));
+    z-index: 2;
+  }
+  .points-layer .pt-arrow {
+    position: absolute; transform: translate(-50%, -50%);
+    cursor: pointer; pointer-events: auto;
+  }
+  .points-layer .pt-arrow::before {
+    content: ""; display: block; width: 0; height: 0;
+    border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+    border-left: 13px solid var(--c, var(--accent));
+    transform: rotate(var(--ang, 0deg)); transform-origin: center;
+  }
+  .points-layer .pt-arrow.sel::before { filter: drop-shadow(0 0 2px #fff); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <h1>Flight Stability Map</h1>
+
+    <div class="toggle" role="tablist">
+      <button id="mode-nd" class="active" type="button">Nondimensional</button>
+      <button id="mode-d"  type="button">Dimensional</button>
+    </div>
+
+    <div id="nd-inputs">
+      <h2>Parameters</h2>
+      <div class="row"><label>m<sub>w</sub>* (wing mass ratio)</label>
+        <input type="number" id="mw_s" step="0.001" value="0.064">
+        <span class="range" data-min="0.005" data-max="0.1">[0.005, 0.1]</span></div>
+      <div class="row"><label>h* (hinge position)</label>
+        <input type="number" id="h_s" step="0.01" value="0.1">
+        <span class="range" data-min="0.05" data-max="0.5">[0.05, 0.5]</span></div>
+      <div class="row"><label>s<sub>0</sub>* (motion amplitude)</label>
+        <input type="number" id="s0_s" step="0.05" value="1.07">
+        <span class="range" data-min="0.5" data-max="2">[0.5, 2]</span></div>
+      <div class="row"><label>ω* (beat frequency)</label>
+        <input type="number" id="om_s" step="0.5" value="10.8">
+        <span class="range" data-min="5" data-max="50">[5, 50]</span></div>
+      <div class="row"><label>A*/m<sub>b</sub>* (inv. wing loading)</label>
+        <input type="number" id="Am_s" step="0.001" value="0.069">
+        <span class="range" data-min="0.0075" data-max="0.075">[0.0075, 0.075]</span></div>
+    </div>
+
+    <div id="d-inputs" hidden>
+      <h2>Morphology</h2>
+      <div class="row"><label>m<sub>w</sub> (kg)</label><input type="number" id="mw" step="any" value="0.05"></div>
+      <div class="row"><label>m<sub>b</sub> (kg)</label><input type="number" id="mb" step="any" value="1.0"></div>
+      <div class="row"><label>h (m)</label><input type="number" id="h" step="any" value="0.05"></div>
+      <div class="row"><label>L (m)</label><input type="number" id="L" step="any" value="0.20"></div>
+      <div class="row"><label>s<sub>0</sub> (m)</label><input type="number" id="s0" step="any" value="0.24"></div>
+      <div class="row"><label>ω (rad/s)</label><input type="number" id="om" step="any" value="140"></div>
+      <div class="row"><label>A (m²)</label><input type="number" id="A" step="any" value="0.012"></div>
+      <h2>Environment</h2>
+      <div class="row"><label>ρ<sub>air</sub> (kg/m³)</label><input type="number" id="rho" step="any" value="1.225"></div>
+      <div class="row"><label>g (m/s²)</label><input type="number" id="g" step="any" value="9.81"></div>
+    </div>
+
+    <h2>Constants</h2>
+    <div class="row"><label>β</label><input type="number" id="beta" step="any" value="1.35"></div>
+    <div class="row"><label>c</label><input type="number" id="c" step="any" value="0.039"></div>
+    <div class="row"><label>C<sub>L,0</sub></label><input type="number" id="CL0" step="any" value="1.5"></div>
+
+    <div class="readout">
+      <div class="readout-grid">
+        <div>
+          <div class="lbl">F<sub>a</sub>*</div>
+          <div class="v" id="out-Fa">—</div>
+        </div>
+        <div>
+          <div class="lbl">τ*</div>
+          <div class="v" id="out-tau">—</div>
+        </div>
+      </div>
+      <div style="margin-top:12px" id="out-status"></div>
+    </div>
+
+    <h2>Points</h2>
+    <div class="pt-add-row">
+      <input type="text" id="pt-label" placeholder="Label (optional)" autocomplete="off">
+      <button class="btn primary" id="pt-add" type="button">Add point</button>
+    </div>
+    <div class="pt-list" id="pt-list"></div>
+    <div class="pt-detail" id="pt-detail" hidden></div>
+    <div class="pt-actions">
+      <button class="btn" id="pt-export" type="button">Export CSV</button>
+      <button class="btn" id="pt-import" type="button">Import CSV</button>
+      <button class="btn ghost" id="pt-clear" type="button">Clear all</button>
+      <input type="file" id="pt-file" accept=".csv,text/csv" hidden>
+    </div>
+
+    <p class="citation">
+      O. C. Wetherbee and Z. J. Wang, &ldquo;Stable flapping flight in morphological space: Model, simulation, and explicit stability criteria,&rdquo;
+      <i>Proc. Natl. Acad. Sci. U.S.A.</i>, vol. 123, no. 18, art. no. e2533138123, May 2026,
+      doi: <a href="https://doi.org/10.1073/pnas.2533138123" target="_blank" rel="noopener noreferrer">10.1073/pnas.2533138123</a>.
+    </p>
+  </div>
+
+  <div class="plot-col">
+  <div class="panel plot-card">
+    <div class="plot-frame">
+      <div class="axis-title y-title">τ*</div>
+      <div class="y-ticks" id="y-ticks"></div>
+      <div class="plot-area" id="plot">
+        <img src="background.png" alt="τ* vs F_a* sample distribution" class="bg">
+        <div class="dot" id="dot" style="left:50%; top:50%"></div>
+        <div class="arrow" id="arrow" style="display:none"></div>
+        <div class="points-layer" id="points-layer"></div>
+      </div>
+      <div class="x-ticks" id="x-ticks"></div>
+      <div class="axis-title x-title">F<sub>a</sub>*</div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  // Plot data ranges (must match background.png)
+  const FA_MIN = 0, FA_MAX = 8;
+  const TAU_MIN = -2, TAU_MAX = 2;
+
+  // --- Mode toggle ---
+  const ndBtn = $('mode-nd'), dBtn = $('mode-d');
+  const ndBox = $('nd-inputs'), dBox = $('d-inputs');
+  let mode = 'nd';
+  function setMode(m) {
+    mode = m;
+    ndBtn.classList.toggle('active', m === 'nd');
+    dBtn.classList.toggle('active',  m === 'd');
+    ndBox.hidden = m !== 'nd';
+    dBox.hidden  = m !== 'd';
+    update();
+  }
+  ndBtn.onclick = () => setMode('nd');
+  dBtn.onclick  = () => setMode('d');
+
+  // --- Read inputs ---
+  const num = id => parseFloat($(id).value);
+
+  function readDim() {
+    return {
+      mw: num('mw'), mb: num('mb'), h: num('h'), L: num('L'), s0: num('s0'),
+      om: num('om'), A: num('A'), rho: num('rho'), g: num('g'),
+    };
+  }
+  function dimToNd(d) {
+    return {
+      mw_s: d.mw / d.mb,
+      h_s:  d.h / d.L,
+      s0_s: d.s0 / d.L,
+      om_s: d.om * Math.sqrt(d.L / d.g),
+      Am_s: d.A * d.rho * d.L / d.mb,
+    };
+  }
+  function getConsts() {
+    return { beta: num('beta'), c: num('c'), CL0: num('CL0') };
+  }
+  function getNonDim() {
+    if (mode === 'nd') {
+      return {
+        mw_s: num('mw_s'), h_s: num('h_s'), s0_s: num('s0_s'),
+        om_s: num('om_s'), Am_s: num('Am_s')
+      };
+    }
+    return dimToNd(readDim());
+  }
+
+  // --- Compute Fa*, tau* ---
+  function compute() {
+    const { mw_s, h_s, s0_s, om_s, Am_s } = getNonDim();
+    const beta = num('beta'), c = num('c'), CL0 = num('CL0');
+    const Fa  = CL0 * Am_s * s0_s * s0_s * om_s * om_s / 4;
+    const tauI = (mw_s + c) * s0_s * om_s * om_s * h_s;
+    const tau  = tauI - beta * Fa * h_s - s0_s;
+    return { Fa, tau, tauI, mw_s, h_s, s0_s, om_s, Am_s };
+  }
+
+  // Pure version of `compute` — for stored and imported points.
+  function computeFaTau(nd, k) {
+    const Fa   = k.CL0 * nd.Am_s * nd.s0_s * nd.s0_s * nd.om_s * nd.om_s / 4;
+    const tauI = (nd.mw_s + k.c) * nd.s0_s * nd.om_s * nd.om_s * nd.h_s;
+    const tau  = tauI - k.beta * Fa * nd.h_s - nd.s0_s;
+    return { Fa, tau };
+  }
+
+  // --- Plot ---
+  const dot = $('dot'), arrow = $('arrow');
+  function plotPoint(Fa, tau) {
+    const xPct = ((Fa - FA_MIN) / (FA_MAX - FA_MIN)) * 100;
+    // y: tau=+2 -> top (0%), tau=-2 -> bottom (100%)
+    const yPct = ((TAU_MAX - tau) / (TAU_MAX - TAU_MIN)) * 100;
+    const out = !Number.isFinite(xPct) || !Number.isFinite(yPct)
+      || xPct < 0 || xPct > 100 || yPct < 0 || yPct > 100;
+
+    if (out) {
+      // Park an arrow at the nearest edge, pointing toward the true location.
+      dot.style.display = 'none';
+      arrow.style.display = '';
+      const ax = Math.max(5, Math.min(95, xPct || 50));
+      const ay = Math.max(5, Math.min(95, yPct || 50));
+      const ang = Math.atan2(yPct - ay, xPct - ax) * 180 / Math.PI;
+      arrow.style.left = ax + '%';
+      arrow.style.top  = ay + '%';
+      arrow.style.setProperty('--ang', ang + 'deg');
+    } else {
+      arrow.style.display = 'none';
+      dot.style.display = '';
+      dot.style.left = xPct + '%';
+      dot.style.top  = yPct + '%';
+    }
+    return out;
+  }
+
+  // --- Tick marks ---
+  function buildTicks() {
+    const xT = $('x-ticks'), yT = $('y-ticks');
+    xT.innerHTML = ''; yT.innerHTML = '';
+    for (let v = 0; v <= 8; v += 1) {
+      const e = document.createElement('div');
+      e.className = 'tx';
+      e.style.left = ((v - FA_MIN) / (FA_MAX - FA_MIN)) * 100 + '%';
+      e.textContent = v;
+      xT.appendChild(e);
+    }
+    for (let v = -2; v <= 2; v += 1) {
+      const e = document.createElement('div');
+      e.className = 'ty';
+      e.style.top = ((TAU_MAX - v) / (TAU_MAX - TAU_MIN)) * 100 + '%';
+      e.textContent = v;
+      yT.appendChild(e);
+    }
+  }
+  buildTicks();
+
+  // --- Update everything ---
+  function update() {
+    const r = compute();
+    const fmt = x => Number.isFinite(x) ? x.toFixed(4) : '—';
+    $('out-Fa').textContent  = fmt(r.Fa);
+    $('out-tau').textContent = fmt(r.tau);
+
+    const stable = r.Fa > 1.5 && r.tau < 0;
+    const status = $('out-status');
+    if (!Number.isFinite(r.Fa) || !Number.isFinite(r.tau)) {
+      status.innerHTML = '<span class="unstable">Invalid input</span>';
+    } else if (stable) {
+      status.innerHTML = '<span class="stable">Stable ✓</span>';
+    } else {
+      status.innerHTML = '<span class="unstable">Unstable</span>';
+    }
+    plotPoint(r.Fa, r.tau);
+  }
+
+  // ---- Multi-point overlay, selection, and CSV import/export ----
+  const PALETTE = ['#5b6cff','#e0322a','#1a8f4a','#e08a00','#9333ea','#0891b2','#db2777','#65a30d'];
+  let points = [], selectedId = null, nextId = 1, colorIdx = 0;
+
+  const escapeHtml = s => String(s).replace(/[&<>"']/g,
+    m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+  const fmtNum = x => Number.isFinite(x) ? parseFloat(x.toPrecision(6)).toString() : '—';
+
+  // Map (Fa*, tau*) to plot-area percentages, flagging off-frame points.
+  function project(Fa, tau) {
+    const xPct = ((Fa - FA_MIN) / (FA_MAX - FA_MIN)) * 100;
+    const yPct = ((TAU_MAX - tau) / (TAU_MAX - TAU_MIN)) * 100;
+    const inFrame = Number.isFinite(xPct) && Number.isFinite(yPct)
+      && xPct >= 0 && xPct <= 100 && yPct >= 0 && yPct <= 100;
+    return { xPct, yPct, inFrame };
+  }
+
+  function renderMarkers() {
+    const layer = $('points-layer');
+    layer.innerHTML = '';
+    points.forEach(p => {
+      const { xPct, yPct, inFrame } = project(p.Fa, p.tau);
+      const el = document.createElement('div');
+      const sel = p.id === selectedId ? ' sel' : '';
+      el.style.setProperty('--c', p.color);
+      if (inFrame) {
+        el.className = 'pt' + sel;
+        el.style.left = xPct + '%';
+        el.style.top  = yPct + '%';
+      } else {
+        // Park an arrow at the nearest edge, pointing toward the true location.
+        el.className = 'pt-arrow' + sel;
+        const ax = Math.max(3, Math.min(97, Number.isFinite(xPct) ? xPct : 50));
+        const ay = Math.max(3, Math.min(97, Number.isFinite(yPct) ? yPct : 50));
+        const ang = Math.atan2(yPct - ay, xPct - ax) * 180 / Math.PI;
+        el.style.left = ax + '%';
+        el.style.top  = ay + '%';
+        el.style.setProperty('--ang', ang + 'deg');
+      }
+      el.title = `${p.label} — Fa*=${fmtNum(p.Fa)}, τ*=${fmtNum(p.tau)}`;
+      el.onclick = e => { e.stopPropagation(); selectPoint(p.id); };
+      layer.appendChild(el);
+    });
+  }
+
+  function renderList() {
+    const list = $('pt-list');
+    list.innerHTML = '';
+    if (!points.length) {
+      list.innerHTML = '<div class="muted-note">No points yet. Set parameters and click “Add point”.</div>';
+      return;
+    }
+    points.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'pt-row' + (p.id === selectedId ? ' sel' : '');
+      row.innerHTML =
+        `<span class="sw" style="background:${p.color}"></span>` +
+        `<span class="pt-name">${escapeHtml(p.label)}</span>` +
+        `<span class="pt-vals">F<sub>a</sub>*=${fmtNum(p.Fa)} · τ*=${fmtNum(p.tau)}</span>` +
+        `<button class="pt-del" title="Delete point" type="button">×</button>`;
+      row.querySelector('.pt-del').onclick = e => { e.stopPropagation(); deletePoint(p.id); };
+      row.onclick = () => selectPoint(p.id);
+      list.appendChild(row);
+    });
+  }
+
+  function renderDetail() {
+    const box = $('pt-detail');
+    const p = points.find(x => x.id === selectedId);
+    if (!p) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    const stable = p.Fa > 1.5 && p.tau < 0;
+    const kv = rows => rows.map(([k, v]) =>
+      `<span class="k">${k}</span><span class="v2">${fmtNum(v)}</span>`).join('');
+    let html =
+      `<div class="dh"><span class="sw" style="background:${p.color}"></span>` +
+      `<span class="nm">${escapeHtml(p.label)}</span>` +
+      `<span class="tag ${stable ? 'ok' : 'bad'}" style="margin-left:auto">${stable ? 'Stable ✓' : 'Unstable'}</span></div>` +
+      `<div class="kv"><span class="k">F<sub>a</sub>*</span><span class="v2">${fmtNum(p.Fa)}</span>` +
+      `<span class="k">τ*</span><span class="v2">${fmtNum(p.tau)}</span></div>` +
+      `<div class="sub">Nondimensional</div><div class="kv">${kv([
+        ['m<sub>w</sub>*', p.nd.mw_s], ['h*', p.nd.h_s], ['s<sub>0</sub>*', p.nd.s0_s],
+        ['ω*', p.nd.om_s], ['A*/m<sub>b</sub>*', p.nd.Am_s]])}</div>` +
+      `<div class="sub">Constants</div><div class="kv">${kv([
+        ['β', p.consts.beta], ['c', p.consts.c], ['C<sub>L,0</sub>', p.consts.CL0]])}</div>`;
+    if (p.dim) {
+      html += `<div class="sub">Dimensional (as entered)</div><div class="kv">${kv([
+        ['m<sub>w</sub> (kg)', p.dim.mw], ['m<sub>b</sub> (kg)', p.dim.mb], ['h (m)', p.dim.h],
+        ['L (m)', p.dim.L], ['s<sub>0</sub> (m)', p.dim.s0], ['ω (rad/s)', p.dim.om],
+        ['A (m²)', p.dim.A], ['ρ (kg/m³)', p.dim.rho], ['g (m/s²)', p.dim.g]])}</div>`;
+    }
+    html += `<div class="pt-actions"><button class="btn" id="pt-load" type="button">Load into inputs</button></div>`;
+    box.innerHTML = html;
+    $('pt-load').onclick = () => loadIntoForm(p);
+  }
+
+  function renderAll() { renderMarkers(); renderList(); renderDetail(); }
+
+  function selectPoint(id) { selectedId = id; renderAll(); }
+
+  function deletePoint(id) {
+    points = points.filter(p => p.id !== id);
+    if (selectedId === id) selectedId = null;
+    renderAll();
+  }
+
+  function clearPoints() { points = []; selectedId = null; colorIdx = 0; renderAll(); }
+
+  function addPoint() {
+    const r = compute();
+    if (!Number.isFinite(r.Fa) || !Number.isFinite(r.tau)) {
+      alert('Current inputs don’t produce a valid point.');
+      return;
+    }
+    const labelEl = $('pt-label');
+    const p = {
+      id: nextId++,
+      label: labelEl.value.trim() || ('Point ' + (points.length + 1)),
+      mode,
+      nd: { mw_s: r.mw_s, h_s: r.h_s, s0_s: r.s0_s, om_s: r.om_s, Am_s: r.Am_s },
+      consts: getConsts(),
+      dim: mode === 'd' ? readDim() : null,
+      Fa: r.Fa, tau: r.tau,
+      color: PALETTE[colorIdx++ % PALETTE.length],
+    };
+    points.push(p);
+    labelEl.value = '';
+    selectedId = p.id;
+    renderAll();
+  }
+
+  const setVals = m => { for (const k in m) { const el = $(k); if (el) el.value = m[k]; } };
+  function loadIntoForm(p) {
+    setVals(p.consts);
+    if (p.dim) { setVals(p.dim); setMode('d'); }
+    else { setVals(p.nd); setMode('nd'); }
+  }
+
+  // ---- CSV import / export ----
+  const CSV_COLS = ['label','mode','mw_s','h_s','s0_s','om_s','Am_s',
+    'mw','mb','h','L','s0','om','A','rho','g','beta','c','CL0','Fa','tau'];
+
+  const csvCell = v => {
+    if (v === undefined || v === null || (typeof v === 'number' && !Number.isFinite(v))) return '';
+    const s = String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+
+  function exportCSV() {
+    if (!points.length) { alert('No points to export.'); return; }
+    const lines = [CSV_COLS.join(',')];
+    points.forEach(p => {
+      const row = { label: p.label, mode: p.mode, ...p.nd, ...p.consts,
+        Fa: p.Fa, tau: p.tau, ...(p.dim || {}) };
+      lines.push(CSV_COLS.map(c => csvCell(row[c])).join(','));
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'flight-stability-points.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  // Minimal RFC-4180-ish parser: handles quoted fields, escaped quotes, CRLF.
+  function parseCSV(text) {
+    const rows = []; let row = [], field = '', inQ = false;
+    const endF = () => { row.push(field); field = ''; };
+    const endR = () => { endF(); rows.push(row); row = []; };
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQ) {
+        if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (ch === '"') inQ = false;
+        else field += ch;
+      } else if (ch === '"') inQ = true;
+      else if (ch === ',') endF();
+      else if (ch === '\n') endR();
+      else if (ch !== '\r') field += ch;
+    }
+    if (field !== '' || row.length) endR();
+    return rows;
+  }
+
+  function importCSV(text) {
+    const rows = parseCSV(text).filter(r => r.some(c => c.trim() !== ''));
+    if (rows.length < 2) { alert('No data rows found in file.'); return; }
+    const idx = {};
+    rows[0].forEach((h, i) => idx[h.trim()] = i);
+    const N = (cells, k) => { const j = idx[k]; return j === undefined ? NaN : parseFloat(cells[j]); };
+    const dimKeys = ['mw','mb','h','L','s0','om','A','rho','g'];
+    const dflt = getConsts();
+    let added = 0;
+    for (let r = 1; r < rows.length; r++) {
+      const cells = rows[r];
+      const consts = { beta: N(cells, 'beta'), c: N(cells, 'c'), CL0: N(cells, 'CL0') };
+      if (!Number.isFinite(consts.beta)) consts.beta = dflt.beta;
+      if (!Number.isFinite(consts.c))    consts.c    = dflt.c;
+      if (!Number.isFinite(consts.CL0))  consts.CL0  = dflt.CL0;
+      const modeCell = idx['mode'] !== undefined ? (cells[idx['mode']] || '').trim() : '';
+      const hasDim = dimKeys.every(k => Number.isFinite(N(cells, k)));
+      const hasNd  = ['mw_s','h_s','s0_s','om_s','Am_s'].every(k => Number.isFinite(N(cells, k)));
+      let dim = null, nd;
+      if ((modeCell === 'd' || !hasNd) && hasDim) {
+        // Dimensional row (or only dimensional columns present) — derive nondimensional.
+        dim = {}; dimKeys.forEach(k => dim[k] = N(cells, k));
+        nd = dimToNd(dim);
+      } else if (hasNd) {
+        nd = { mw_s: N(cells,'mw_s'), h_s: N(cells,'h_s'), s0_s: N(cells,'s0_s'),
+               om_s: N(cells,'om_s'), Am_s: N(cells,'Am_s') };
+        if (hasDim) { dim = {}; dimKeys.forEach(k => dim[k] = N(cells, k)); }
+      } else continue;
+      const { Fa, tau } = computeFaTau(nd, consts);
+      if (!Number.isFinite(Fa) || !Number.isFinite(tau)) continue;
+      const label = idx['label'] !== undefined ? (cells[idx['label']] || '').trim() : '';
+      points.push({
+        id: nextId++, label: label || ('Point ' + (points.length + 1)),
+        mode: dim ? 'd' : 'nd', nd, consts, dim, Fa, tau,
+        color: PALETTE[colorIdx++ % PALETTE.length],
+      });
+      added++;
+    }
+    selectedId = null;
+    renderAll();
+    if (!added) alert('No valid points could be imported.');
+  }
+
+  // Wire up points controls
+  $('pt-add').onclick = addPoint;
+  $('pt-label').addEventListener('keydown', e => { if (e.key === 'Enter') addPoint(); });
+  $('pt-export').onclick = exportCSV;
+  $('pt-import').onclick = () => $('pt-file').click();
+  $('pt-file').onchange = e => {
+    const f = e.target.files[0];
+    if (f) { const fr = new FileReader(); fr.onload = () => importCSV(String(fr.result)); fr.readAsText(f); }
+    e.target.value = '';
+  };
+  $('pt-clear').onclick = () => { if (points.length && confirm('Remove all points?')) clearPoints(); };
+
+  // Wire up all inputs
+  document.querySelectorAll('input[type="number"]').forEach(i => {
+    i.addEventListener('input', update);
+  });
+
+  update();
+  renderAll();
+})();
+</script>
+</body>
+</html>

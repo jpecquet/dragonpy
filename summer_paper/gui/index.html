@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dragonfly Trajectory Control</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --text: #1f2330;
+    --muted: #6b7280;
+    --accent: #5b6cff;
+    --accent-soft: #e6e9ff;
+    --success: #1a8f4a;
+    --danger: #d94a4a;
+    --border: #d6dae2;
+    --field: #f7f8fa;
+    --ink: #1f2330;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #f0f2f5;
+    color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+  .wrap {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    padding: 28px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .plot-col {
+    position: sticky;
+    top: 28px;
+    align-self: start;
+    height: calc(100vh - 56px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+    .plot-col { position: static; height: auto; display: block; }
+  }
+
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 12px; margin: 0 0 18px; }
+  h2 {
+    font-size: 11px; font-weight: 600; margin: 20px 0 10px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  h2:first-of-type { margin-top: 6px; }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 22px; }
+
+  .row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .row label { flex: 1; font-variant-numeric: tabular-nums; color: var(--text); }
+  .row .range { color: var(--muted); font-size: 11px; min-width: 70px; text-align: right; }
+  .row input[type="number"] {
+    width: 86px; padding: 7px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--field); font: inherit; color: var(--text);
+    text-align: right; outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .row input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .row input[type=number]::-webkit-outer-spin-button,
+  .row input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .row input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+  .btns { display: flex; gap: 10px; margin-top: 18px; }
+  .btn {
+    flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--field); font: inherit; font-weight: 500; cursor: pointer;
+    color: var(--text); transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { background: #4a5ae6; color: #fff; }
+
+  .readout { margin-top: 20px; padding: 14px 16px; background: var(--field); border: 1px solid var(--border); border-radius: 6px; font-variant-numeric: tabular-nums; }
+  .readout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .readout .v { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin-top: 2px; }
+  .readout .lbl { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .readout .lbl.sym { text-transform: none; }   /* keep Greek symbols lowercase (γ, ψ, φ) */
+  .status { margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: #fff; }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .status.hover { color: var(--muted); }
+  .status.follow { color: var(--accent); }
+  .status.sat { color: var(--danger); }
+
+  .plot-card { padding: 18px; }
+  .plot-area { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #fff; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; }
+  .hint { position: absolute; left: 14px; bottom: 12px; color: var(--muted); font-size: 12px; pointer-events: none; background: rgba(255,255,255,0.7); padding: 2px 8px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- ------------------------------------------------------ control panel -->
+  <div class="panel">
+    <h1>Dragonfly Trajectory Control</h1>
+
+    <h2>Morphology</h2>
+    <div class="row"><label>Wing length L<sub>w</sub>*</label>
+      <input type="number" id="Lw" step="0.01" min="0.5" max="0.95"><span class="range">0.65–0.85</span></div>
+    <div class="row"><label>Inv. loading A*/m*</label>
+      <input type="number" id="A_over_m" step="0.05" min="0.15" max="1.2"><span class="range">0.2–1.0</span></div>
+    <div class="row"><label>Wingbeat ω*</label>
+      <input type="number" id="omega_star" step="0.5" min="6" max="22"><span class="range">8–20</span></div>
+
+    <h2>Trajectory</h2>
+    <div class="row"><label>Follow speed</label>
+      <input type="number" id="v_follow" step="0.05" min="0.05" max="3"><span class="range">L /√(L/g)</span></div>
+    <div class="row"><label>Vel. taper</label>
+      <input type="number" id="taper" step="0.05" min="0" max="2"><span class="range">accel dist (L)</span></div>
+    <div class="row"><label>Playback ×</label>
+      <input type="number" id="time_scale" step="0.1" min="0.1" max="3"><span class="range">sim/real</span></div>
+
+    <div class="btns">
+      <button class="btn" id="clear">Clear path</button>
+      <button class="btn primary" id="reset">Reset</button>
+    </div>
+
+    <div class="readout">
+      <div class="readout-grid">
+        <div><div class="lbl">position (x, z)</div><div class="v" id="r-pos">—</div></div>
+        <div><div class="lbl">speed |v|</div><div class="v" id="r-spd">—</div></div>
+        <div><div class="lbl">advance ratio J</div><div class="v" id="r-J">—</div></div>
+        <div><div class="lbl sym">γ &nbsp; ψ₀</div><div class="v" id="r-dir">—</div></div>
+        <div><div class="lbl sym">φ₁ &nbsp; ψ₁</div><div class="v" id="r-mag">—</div></div>
+      </div>
+      <div id="status" class="status hover">hover</div>
+    </div>
+  </div>
+
+  <!-- --------------------------------------------------------- plot column -->
+  <div class="plot-col">
+    <div class="panel plot-card">
+      <div class="plot-area">
+        <canvas id="cv"></canvas>
+        <div class="hint" id="hint">press &amp; drag to draw a path</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ----------------------------------------------------------------- state
+let state = null;                 // latest snapshot from the stream
+const cam = { x: 0, z: 0 };       // camera centre (world), smoothed toward body
+const SCALE = 100;                // pixels per body length
+let drawing = false;
+let drawPts = [];                 // raw freehand polyline (world coords)
+let activePath = null;            // smoothed path returned by the server (world)
+
+const PARAM_IDS = ["Lw","A_over_m","omega_star","v_follow","taper","time_scale"];
+
+// ----------------------------------------------------------------- params
+async function loadConfig() {
+  const c = await (await fetch("/config")).json();
+  for (const k of PARAM_IDS) if (k in c) $(k).value = +(+c[k]).toFixed(3);
+}
+let paramTimer = null;
+function pushParams() {
+  clearTimeout(paramTimer);
+  paramTimer = setTimeout(async () => {
+    const body = {};
+    for (const k of PARAM_IDS) { const v = parseFloat($(k).value); if (Number.isFinite(v)) body[k] = v; }
+    await fetch("/params", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  }, 120);
+}
+PARAM_IDS.forEach(k => $(k).addEventListener("input", pushParams));
+
+$("reset").addEventListener("click", async () => {
+  await fetch("/reset", { method: "POST" });
+  activePath = null; drawPts = [];
+});
+$("clear").addEventListener("click", async () => {
+  activePath = null; drawPts = [];
+  await fetch("/path", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ points: [] }) });
+});
+
+// ----------------------------------------------------------------- stream
+function connect() {
+  const es = new EventSource("/stream");
+  es.onmessage = e => { state = JSON.parse(e.data); };
+  es.onerror = () => { es.close(); setTimeout(connect, 1000); };
+}
+
+// ----------------------------------------------------------------- canvas
+const cv = $("cv"), ctx = cv.getContext("2d");
+function fitCanvas() {
+  const r = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(r.width * dpr);
+  cv.height = Math.round(r.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cv.cssW = r.width; cv.cssH = r.height;
+}
+window.addEventListener("resize", fitCanvas);
+
+// world <-> screen (z up). Camera centred; origin offset in pixels.
+function W2S(x, z) {
+  return [cv.cssW / 2 + (x - cam.x) * SCALE, cv.cssH / 2 - (z - cam.z) * SCALE];
+}
+function S2W(px, py) {
+  return [cam.x + (px - cv.cssW / 2) / SCALE, cam.z - (py - cv.cssH / 2) / SCALE];
+}
+function evtWorld(ev) {
+  const r = cv.getBoundingClientRect();
+  return S2W(ev.clientX - r.left, ev.clientY - r.top);
+}
+
+// ------------------------------------------------------------ drawing path
+cv.addEventListener("pointerdown", ev => {
+  drawing = true; cv.setPointerCapture(ev.pointerId);
+  drawPts = [evtWorld(ev)]; activePath = null;
+});
+cv.addEventListener("pointermove", ev => {
+  if (!drawing) return;
+  const w = evtWorld(ev), last = drawPts[drawPts.length - 1];
+  if (Math.hypot(w[0] - last[0], w[1] - last[1]) > 0.01) drawPts.push(w);
+});
+cv.addEventListener("pointerup", async ev => {
+  if (!drawing) return;
+  drawing = false;
+  if (drawPts.length >= 2) {
+    const res = await (await fetch("/path", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ points: drawPts })
+    })).json();
+    if (res.ok) activePath = res.path;
+  }
+  drawPts = [];
+});
+
+// ----------------------------------------------------------------- render
+function drawGrid() {
+  const w = cv.cssW, h = cv.cssH;
+  ctx.lineWidth = 1;
+  // 1-BL grid
+  ctx.strokeStyle = "#eef0f4";
+  const x0 = Math.floor(cam.x - w / 2 / SCALE), x1 = Math.ceil(cam.x + w / 2 / SCALE);
+  const z0 = Math.floor(cam.z - h / 2 / SCALE), z1 = Math.ceil(cam.z + h / 2 / SCALE);
+  ctx.beginPath();
+  for (let i = x0; i <= x1; i++) { const [sx] = W2S(i, 0); ctx.moveTo(sx, 0); ctx.lineTo(sx, h); }
+  for (let j = z0; j <= z1; j++) { const [, sy] = W2S(0, j); ctx.moveTo(0, sy); ctx.lineTo(w, sy); }
+  ctx.stroke();
+  // axes through origin
+  ctx.strokeStyle = "#d6dae2";
+  ctx.beginPath();
+  const [ox, oy] = W2S(0, 0);
+  ctx.moveTo(0, oy); ctx.lineTo(w, oy); ctx.moveTo(ox, 0); ctx.lineTo(ox, h);
+  ctx.stroke();
+}
+
+function drawPathPoly(pts, style, width, dash) {
+  if (!pts || pts.length < 2) return;
+  ctx.strokeStyle = style; ctx.lineWidth = width; ctx.setLineDash(dash || []);
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.beginPath();
+  for (let i = 0; i < pts.length; i++) { const [sx, sy] = W2S(pts[i][0], pts[i][1]); i ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy); }
+  ctx.stroke(); ctx.setLineDash([]);
+}
+
+const PHI1_VIS_MAX = Math.PI / 3;   // 60 deg -> full stroke-line extent
+const BODY_R = 0.113;               // body radius (BL); 2/3 of the previous 0.17
+
+function drawDragonfly(s) {
+  const [bx, by] = W2S(s.x, s.z);
+  const g = s.gamma;
+  // stroke-plane tangent t in screen pixels (z up -> flip sign on z)
+  const t = [Math.cos(g) * SCALE, -Math.sin(g) * SCALE];      // world (cosg, sing)
+  const strokeHalf = 0.62;                                    // BL, half stroke-line
+
+  // stroke-plane line (faint) -- drawn first, behind everything
+  ctx.strokeStyle = "#c7ccd6"; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(bx - t[0] * strokeHalf, by - t[1] * strokeHalf);
+  ctx.lineTo(bx + t[0] * strokeHalf, by + t[1] * strokeHalf);
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // body: hollow circle -- drawn BEFORE the wing so the wing sits on top
+  ctx.beginPath(); ctx.arc(bx, by, BODY_R * SCALE, 0, 2 * Math.PI);
+  ctx.fillStyle = "#fff"; ctx.fill();
+  ctx.strokeStyle = "#1f2330"; ctx.lineWidth = 2.5; ctx.stroke();
+
+  // wing: swept station along the stroke line, chord pitched by psi
+  const phi = s.phi1 * Math.sin(s.phase);                     // sweep angle
+  const psi = s.psi0 + s.psi1 * Math.sin(s.phase - s.delta0); // pitch from normal
+  const frac = phi / PHI1_VIS_MAX;
+  const wx = s.x + Math.cos(g) * strokeHalf * frac;
+  const wz = s.z + Math.sin(g) * strokeHalf * frac;
+  const [tx, ty] = W2S(wx, wz);
+  // spar from body to wing station
+  ctx.strokeStyle = "#9aa1ad"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke();
+  // chord c = (-sin(g+psi), cos(g+psi)) in world; flip z for screen.
+  // The +c end is the leading edge (verified against the wing model).
+  const a = g + psi, ch = 0.34 * SCALE;
+  const cdx = -Math.sin(a) * ch, cdz = Math.cos(a) * ch;
+  const lex = tx + cdx * 0.5, ley = ty - cdz * 0.5;           // leading edge
+  const tex = tx - cdx * 0.5, tey = ty + cdz * 0.5;           // trailing edge
+  ctx.strokeStyle = "#1f2330"; ctx.lineWidth = 3; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(tex, tey); ctx.lineTo(lex, ley); ctx.stroke();
+  // leading-edge marker: small open circle
+  ctx.beginPath(); ctx.arc(lex, ley, 0.05 * SCALE, 0, 2 * Math.PI);
+  ctx.fillStyle = "#fff"; ctx.fill();
+  ctx.strokeStyle = "#1f2330"; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function render() {
+  requestAnimationFrame(render);
+  if (!state) return;
+  // camera eases toward the body
+  cam.x += (state.x - cam.x) * 0.08;
+  cam.z += (state.z - cam.z) * 0.08;
+
+  ctx.clearRect(0, 0, cv.cssW, cv.cssH);
+  drawGrid();
+  drawPathPoly(activePath, "#5b6cff", 2, [6, 5]);            // committed path
+  if (drawing) drawPathPoly(drawPts, "#9aa1ad", 2, [2, 4]); // live freehand
+  // commanded target marker
+  if (activePath || state.following) {
+    const [cx, cy] = W2S(state.cx, state.cz);
+    ctx.fillStyle = "#5b6cff"; ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, 2 * Math.PI); ctx.fill();
+  }
+  drawDragonfly(state);
+  updateReadout(state);
+}
+
+// ----------------------------------------------------------------- readout
+const D = x => (x * 180 / Math.PI);
+function updateReadout(s) {
+  $("r-pos").textContent = `${s.x.toFixed(2)}, ${s.z.toFixed(2)}`;
+  const spd = Math.hypot(s.vx, s.vz);
+  $("r-spd").textContent = spd.toFixed(2);
+  $("r-J").textContent = s.J.toFixed(3);
+  $("r-dir").textContent = `${D(s.gamma).toFixed(0)}°  ${D(s.psi0).toFixed(0)}°`;
+  $("r-mag").textContent = `${D(s.phi1).toFixed(0)}°  ${D(s.psi1).toFixed(0)}°`;
+  const st = $("status");
+  if (!s.ok) { st.className = "status sat"; st.textContent = "saturated"; }
+  else if (s.following) { st.className = "status follow"; st.textContent = "following path"; }
+  else { st.className = "status hover"; st.textContent = "hover / hold"; }
+}
+
+// ----------------------------------------------------------------- boot
+fitCanvas();
+loadConfig();
+connect();
+render();
+</script>
+</body>
+</html>
