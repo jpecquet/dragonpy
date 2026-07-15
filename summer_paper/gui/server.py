@@ -43,7 +43,7 @@ HOST, PORT = "127.0.0.1", 8765
 # Morphology bounds (Table 1) the server clamps incoming params to.
 BOUNDS = {
     "Lw": (0.5, 0.95), "A_over_m": (0.15, 1.2), "omega_star": (6.0, 22.0),
-    "Kp": (0.1, 12.0), "Kd": (0.1, 12.0), "v_follow": (0.05, 3.0),
+    "Kd": (0.1, 12.0), "v_follow": (0.05, 3.0),
     "taper": (0.0, 2.0), "time_scale": (0.1, 3.0),
 }
 
@@ -152,7 +152,7 @@ class SimRunner:
     def config(self):
         c = self.sim.cfg
         return {"Lw": c.Lw, "A_over_m": c.A_over_m, "omega_star": c.omega_star,
-                "Kp": c.Kp, "Kd": c.Kd, "v_follow": c.v_follow,
+                "Kd": c.Kd, "v_follow": c.v_follow,
                 "taper": c.taper, "time_scale": c.time_scale}
 
 

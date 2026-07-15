@@ -115,6 +115,10 @@
     <div class="row"><label>Wingbeat ω*</label>
       <input type="number" id="omega_star" step="0.5" min="6" max="22"><span class="range">8–20</span></div>
 
+    <h2>Control</h2>
+    <div class="row"><label>Velocity gain K<sub>d</sub></label>
+      <input type="number" id="Kd" step="0.1" min="0.1" max="12"><span class="range">1/√(L/g)</span></div>
+
     <h2>Trajectory</h2>
     <div class="row"><label>Follow speed</label>
       <input type="number" id="v_follow" step="0.05" min="0.05" max="3"><span class="range">L /√(L/g)</span></div>
@@ -161,8 +165,12 @@ const SCALE = 100;                // pixels per body length
 let drawing = false;
 let drawPts = [];                 // raw freehand polyline (world coords)
 let activePath = null;            // smoothed path returned by the server (world)
+let tracePts = [];                // actual flown trajectory (world), orange trace
+let traceLastT = -Infinity;       // last sim time seen; a backward jump = reset
+const TRACE_MIN_SEG = 0.005;      // BL; skip sub-pixel points while hovering
+const TRACE_MAX = 20000;          // decimate 2:1 above this to bound memory
 
-const PARAM_IDS = ["Lw","A_over_m","omega_star","v_follow","taper","time_scale"];
+const PARAM_IDS = ["Lw","A_over_m","omega_star","Kd","v_follow","taper","time_scale"];
 
 // ----------------------------------------------------------------- params
 async function loadConfig() {
@@ -182,7 +190,7 @@ PARAM_IDS.forEach(k => $(k).addEventListener("input", pushParams));
 
 $("reset").addEventListener("click", async () => {
   await fetch("/reset", { method: "POST" });
-  activePath = null; drawPts = [];
+  activePath = null; drawPts = []; tracePts = []; traceLastT = -Infinity;
 });
 $("clear").addEventListener("click", async () => {
   activePath = null; drawPts = [];
@@ -190,9 +198,20 @@ $("clear").addEventListener("click", async () => {
 });
 
 // ----------------------------------------------------------------- stream
+// Trace persists across drawn paths; it clears only on reset. Server-side
+// resets (button, or the auto-reset on a non-finite state) rewind sim time,
+// which is how they are detected here.
+function recordTrace(s) {
+  if (s.t < traceLastT) tracePts = [];
+  traceLastT = s.t;
+  const last = tracePts[tracePts.length - 1];
+  if (!last || Math.hypot(s.x - last[0], s.z - last[1]) >= TRACE_MIN_SEG) tracePts.push([s.x, s.z]);
+  if (tracePts.length > TRACE_MAX) tracePts = tracePts.filter((_, i) => i % 2 === 0);
+}
+
 function connect() {
   const es = new EventSource("/stream");
-  es.onmessage = e => { state = JSON.parse(e.data); };
+  es.onmessage = e => { state = JSON.parse(e.data); recordTrace(state); };
   es.onerror = () => { es.close(); setTimeout(connect, 1000); };
 }
 
@@ -327,7 +346,8 @@ function render() {
 
   ctx.clearRect(0, 0, cv.cssW, cv.cssH);
   drawGrid();
-  drawPathPoly(activePath, "#5b6cff", 2, [6, 5]);            // committed path
+  drawPathPoly(tracePts, "#ff8c00", 2);                      // actual flown trajectory
+  drawPathPoly(activePath, "#5b6cff", 2, [6, 5]);            // committed path (on top)
   if (drawing) drawPathPoly(drawPts, "#9aa1ad", 2, [2, 4]); // live freehand
   // commanded target marker
   if (activePath || state.following) {

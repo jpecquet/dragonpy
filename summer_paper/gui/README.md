@@ -4,7 +4,7 @@ An interactive, browser-based front end for the maneuvering controller of
 `report1`. A dragonfly is spawned hovering at the origin in the sagittal
 \((x, z)\) plane; you **draw a path with the mouse** and it follows the path at a
 chosen speed, then hovers at the end until you draw the next one (which starts
-from the last commanded position).
+from the body's actual position at the moment you release the mouse).
 
 The physics and controller are the *same* validated code as the report
 (`summer_paper/scripts/feasibility.py` force model + the generalized controller
@@ -26,13 +26,15 @@ third-party packages.
 
 - **Draw**: press and drag anywhere on the canvas. On release the path is
   smoothed and the dragonfly tracks it, then holds at the end. The next path
-  continues from there.
+  starts from wherever the body actually is when you release.
+- **Orange trace**: the actual flown trajectory, drawn beneath the prescribed
+  (dashed blue) path for comparison. It persists across successive paths and
+  clears only on *Reset*.
 - **Left panel**:
   - *Morphology* — wing length \(L_w^*\), inverse wing loading \(A^*/m^*\),
     wingbeat frequency \(\omega^*\) (Table 1 ranges).
-  - *Controller gains* — outer-loop position gain \(K_p\) and velocity gain
-    \(K_d\) of the path tracker (\(K_p \approx \omega_n^2\),
-    \(K_d \approx 2\zeta\omega_n\)).
+  - *Control* — the single outer-loop velocity gain \(K_d\) of the report's
+    velocity tracker, \(\vec a^*_\text{des} = K_d(\vec u^*_r - \vec u^*)\).
   - *Trajectory* — follow speed (body lengths per \(\sqrt{L/g}\)), a velocity
     taper (the accel/decel distance over which the follow speed ramps linearly up
     at the path start and back down at the end), and a playback multiplier
@@ -57,16 +59,18 @@ body (point mass).
 | `server.py` | stdlib HTTP server: serves the page, streams render state over Server-Sent Events (`/stream`), accepts `/path`, `/params`, `/reset` POSTs; runs the sim on a background thread paced to the wall clock. |
 | `index.html` | single-file front end (canvas + control panel), styled after `reference.html`. |
 
-The controller's outer loop is extended from the report's pure velocity tracker
-to a **position + velocity** tracker so a finished path is *held* rather than
-drifting. The inner allocation is unchanged except for two GUI tweaks: the
+The controller's outer loop is the report's **pure velocity tracker**: a single
+velocity gain, no position feedback, no acceleration feedforward. A finished
+path ends with \(v_\text{ref} = 0\), so the body damps to a hover *near* the
+endpoint (within its tracking lag) rather than being position-held on it.
+The inner allocation is unchanged except for two GUI tweaks: the
 inclined-hover stroke-plane *sign* (which way the plane leans) follows the
 **commanded** heading rather than the actual velocity, so it does not flip on the
 small hover velocity oscillations (the alignment angle and inflow still track the
 actual velocity); and once **settled at a hold point** (holding, within
 `HOLD_PIN_RADIUS` of the target) γ and ψ₁ are pinned to their fixed hover values
-rather than scheduled, so they do not jitter -- while an off-track or recovering
-body keeps scheduling so it can fly back. The γ-schedule and ψ₁-slave use the
+rather than scheduled, so they do not jitter -- a body still moving keeps
+scheduling until it settles. The γ-schedule and ψ₁-slave use the
 fixed reference advance-ratio scale (`REF_S0 * REF_OMEGA_STAR`), exactly as in
 the report scripts, while the inner trim and the integrated dynamics use the live
 morphology.
@@ -84,9 +88,10 @@ Safe to leave running indefinitely:
   silently kill the thread: it logs to stderr and auto-resets. If the state goes
   non-finite (e.g. very aggressive gains drive an instability), it is detected
   and auto-reset to a clean hover.
-- No history is accumulated (fixed-size state, transient per-frame snapshots), so
-  memory stays flat; a long sleep/suspend is absorbed by a capped catch-up that
-  drops backlog rather than running away.
+- No history is accumulated server-side (fixed-size state, transient per-frame
+  snapshots), so memory stays flat; the browser's trajectory trace is capped and
+  decimated client-side. A long sleep/suspend is absorbed by a capped catch-up
+  that drops backlog rather than running away.
 
 Localhost only, no auth — don't expose the port publicly.
 
@@ -96,6 +101,7 @@ Localhost only, no auth — don't expose the port publicly.
   downward paths saturate \(\psi_0\) and the body sags off the path. The status
   chip turns red when the trim saturates.
 - A reloaded browser tab does not re-fetch an in-progress path (the committed
-  path line is client-side); the dragonfly keeps following it regardless.
+  path line is client-side); the dragonfly keeps following it regardless. The
+  orange trajectory trace is likewise client-side and lost on reload.
 - Targets to *pursue* (pure-pursuit prey) are not wired in yet — a natural next
   addition, reusing `simulate_pursuit` from `generalized_control.py`.

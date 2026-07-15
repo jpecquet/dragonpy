@@ -13,9 +13,11 @@ and follow speed on the fly:
     is slaved to the force-maximizing (lift-branch) value, and the two hover
     handles ``(phi1, psi0)`` are trimmed by a 2x2 damped-Newton step to the
     commanded cycle-averaged force;
-  * outer loop (GUI extension): a position+velocity tracker that follows a
-    drawn path at a chosen speed and *holds* the final point, instead of the
-    report's pure velocity tracker. The exposed gains ``Kp, Kd`` are this loop's.
+  * outer loop: the report's pure velocity tracker, a_des = Kd (v_ref - v) --
+    a single velocity gain, no position feedback, no acceleration feedforward.
+    The drawn path supplies v_ref; at the path end v_ref = 0, so the body damps
+    to a hover near (not pinned to) the final point. The exposed gain ``Kd`` is
+    this loop's.
 
 The schedule's advance-ratio scale and the ``psi1`` slave are evaluated against
 the fixed reference wing speed (``REF_S0 * REF_OMEGA_STAR``), exactly as in the
@@ -84,9 +86,8 @@ class Config:
     A_over_m: float = REF_A_OVER_M     # inverse wing loading [0.2, 1.0]
     omega_star: float = REF_OMEGA_STAR # wingbeat frequency   [8, 20]
 
-    # outer-loop (path tracker) gains
-    Kp: float = 2.25                   # position gain  (~omega_n^2, omega_n=1.5)
-    Kd: float = 2.7                    # velocity gain  (~2 zeta omega_n)
+    # outer-loop (velocity tracker) gain
+    Kd: float = 2.0                    # velocity gain (report KV; ~omega*/7)
 
     # follow speed: body lengths per sqrt(L/g) at which a drawn path is traced
     v_follow: float = 1.0
@@ -171,12 +172,13 @@ def slave_psi1(J):
 PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 
 # Pin gamma/psi1 to the hover values only once genuinely settled near the hold
-# point: position error (body lengths) below this radius. Farther out -- e.g.
-# recovering after a saturated maneuver -- keep scheduling so the controller can
-# adapt and fly back. Position error, not the wingbeat-oscillating velocity, is
-# the gate, because it is a stable (non-jittering) pin/unpin signal; and as the
-# body settles the scheduled gamma/psi1 already approach the hover values, so the
-# pin is continuous.
+# point: position error (body lengths) below this radius. With velocity-only
+# feedback the body damps to rest wherever it is rather than flying back, so a
+# body that settles farther out simply keeps scheduling -- which at J ~ 0
+# approaches the hover values anyway. Position error, not the
+# wingbeat-oscillating velocity, is the gate, because it is a stable
+# (non-jittering) pin/unpin signal; and as the body settles the scheduled
+# gamma/psi1 already approach the hover values, so the pin is continuous.
 HOLD_PIN_RADIUS = 0.3
 
 
@@ -246,8 +248,8 @@ def instant_force(cfg, u, phase, vel):
 def smooth_path(points, anchor, ds=0.04, sigma=3.0):
     """Resample a freehand polyline to uniform spacing and Gaussian-smooth it.
 
-    `points` is a list of world (x, z) vertices; `anchor` (the last commanded
-    position) is forced to be the exact start. Returns an (M, 2) array, or None
+    `points` is a list of world (x, z) vertices; `anchor` (the body position at
+    release) is forced to be the exact start. Returns an (M, 2) array, or None
     if the path is too short to follow."""
     pts = [anchor] + [p for p in points]
     P = np.asarray(pts, float)
@@ -287,9 +289,10 @@ class Reference:
     from rest over the taper distance `taper`, cruises at `speed`, then ramps
     linearly back to rest over `taper` at the end. There is no velocity step at
     the path ends (a step would demand an unbounded transient force and saturate
-    the trim). v_ref is the tangent times this speed; a_ref carries the tangential
-    (speed-change) and centripetal (curvature) feedforward. After the end it holds
-    (v=a=0)."""
+    the trim). v_ref is the tangent times this speed; a_ref is the reference
+    acceleration (tangential + centripetal), used only to sense the commanded
+    heading at a path start -- it is NOT fed forward to the force demand. After
+    the end it holds (v=a=0)."""
 
     def __init__(self, path, speed, taper, t0):
         self.t0 = t0
@@ -358,7 +361,7 @@ class Reference:
         dTds = np.array([np.interp(s, self.S, self.dTds[:, 0]),
                          np.interp(s, self.S, self.dTds[:, 1])])
         v = vmag * T
-        a = dvdt * T + vmag ** 2 * dTds   # tangential + centripetal feedforward
+        a = dvdt * T + vmag ** 2 * dTds   # tangential + centripetal reference accel
         return p, v, a, False
 
 
@@ -392,8 +395,15 @@ class Simulator:
         self._allocate()
 
     def set_path(self, points):
-        """Install a new smoothed path starting from the last commanded position."""
-        path = smooth_path(points, tuple(self.commanded))
+        """Install a new smoothed path starting from the ACTUAL body position.
+
+        Anchoring at the body's instantaneous position at mouse release -- not
+        at the last commanded point -- matters under the velocity-only tracker:
+        the body settles with a positional offset from the previous endpoint,
+        and a path anchored at the old commanded point would begin with a
+        spurious catch-up transient (called under the sim lock, so reading the
+        live state is safe)."""
+        path = smooth_path(points, (float(self.s[0]), float(self.s[2])))
         if path is None:
             return None
         self.ref = Reference(path, self.cfg.v_follow, self.cfg.taper, self.t)
@@ -414,11 +424,12 @@ class Simulator:
             if abs(vec[0]) > 1e-6:
                 self.sched_sign = 1.0 if vec[0] >= 0.0 else -1.0
                 break
-        # outer loop: position + velocity tracking with curvature feedforward
+        # outer loop: the report's pure velocity tracker -- a single gain, no
+        # position feedback, no acceleration feedforward. e_p is not fed back;
+        # it only gates the hover pin below.
         e_p = np.array([p_ref[0] - p[0], 0.0, p_ref[1] - p[2]])
         e_v = np.array([v_ref[0] - v[0], 0.0, v_ref[1] - v[2]])
-        a_ff = np.array([a_ref[0], 0.0, a_ref[1]])
-        a_des = a_ff + self.cfg.Kp * e_p + self.cfg.Kd * e_v
+        a_des = self.cfg.Kd * e_v
         F_des = a_des - GRAVITY
         # Pin gamma/psi1 to hover values only when holding AND settled near the
         # hold point; otherwise keep scheduling so an off-track body can recover.
