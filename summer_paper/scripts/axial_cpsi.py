@@ -39,7 +39,7 @@ def main():
 
     J = np.linspace(0.0, 0.9, 19)
     C_nom = np.array([C_of(j, 0.0, PSI1_HOVER) for j in J])
-    psi1_opt = np.array([slave_psi1(j, 0.0) for j in J])
+    psi1_opt = np.array([slave_psi1(j) for j in J])
     C_max = np.array([C_of(j, 0.0, p) for j, p in zip(J, psi1_opt)])
 
     fig, (axA, axB) = plt.subplots(1, 2, figsize=(6.5, 2.6), constrained_layout=True)

@@ -66,7 +66,8 @@ PSI1_LIM = np.radians((5.0, 90.0))
 # sweep amplitude that realizes REF_S0 at REF_LW.
 SCALE = REF_S0 * REF_OMEGA_STAR
 PHI1_REF = REF_S0 / (STUDY_SPAN_FRAC * REF_LW)
-GAMMA_H = np.radians(40.0)        # nominal inclined-hover stroke-plane angle
+GAMMA_H = np.radians(45.0)        # inclined-hover stroke-plane angle magnitude
+                                  # (|gamma_hover|, report reference config)
 JC = 0.35                         # gamma-blend half-scale in advance ratio
 
 N_PHASE_TRIM = 48                 # phase samples for the per-beat trim/slave
@@ -143,31 +144,17 @@ def trim_fast(cfg, gamma0, psi1, v_body, F_des, u0, n_phase=N_PHASE_TRIM, iters=
     return phi1, psi0, converged
 
 
-def stroke_frame(v_body, gamma0):
-    """Advance ratio J and inflow angle chi from the stroke-plane normal."""
-    v = np.asarray(v_body, float)
-    speed = np.hypot(v[0], v[2])
-    J = speed / SCALE
-    if speed < 1e-12:
-        return 0.0, 0.0
-    n = np.array([-np.sin(gamma0), np.cos(gamma0)])
-    t = np.array([np.cos(gamma0), np.sin(gamma0)])
-    vxz = np.array([v[0], v[2]])
-    chi = np.arctan2(np.dot(vxz, t), np.dot(vxz, n))
-    return J, chi
-
-
 _PSI1_GRID = np.radians(np.linspace(5.0, 90.0, N_PSI1_GRID))
 
 
-def slave_psi1(J, chi):
+def slave_psi1(J):
     """psi1 maximizing the stroke-normal (weight-supporting) force at psi0=0.
 
-    Lift branch / hover-connected C_F* peak, evaluated gamma0-invariantly in the
-    (J, chi) stroke frame (n = +z), reference morphology -- exactly
+    Lift branch / hover-connected C_F* peak at an ASSUMED AXIAL inflow (chi = 0),
+    a pure function of J, reference morphology -- exactly
     generalized_control.slave_psi1 but on a coarser grid for real-time use."""
     U = J * SCALE
-    vb = (U * np.sin(chi), 0.0, U * np.cos(chi))
+    vb = (0.0, 0.0, U)
     best_ps1, best_Fn = _PSI1_GRID[0], -np.inf
     cfg_ref = Config(Lw=REF_LW, A_over_m=REF_A_OVER_M, omega_star=REF_OMEGA_STAR)
     for ps1 in _PSI1_GRID:
@@ -181,7 +168,7 @@ def slave_psi1(J, chi):
 # Fixed hover pitch amplitude: the force-maximizing psi1 at zero advance ratio
 # (the hover-connected C_F* peak). Held in hover/hold mode so psi1 does not jitter
 # with the residual hover velocity.
-PSI1_HOVER = float(np.clip(slave_psi1(0.0, 0.0), *PSI1_LIM))
+PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 
 # Pin gamma/psi1 to the hover values only once genuinely settled near the hold
 # point: position error (body lengths) below this radius. Farther out -- e.g.
@@ -235,8 +222,8 @@ def allocate(cfg, v, F_des, sign_x, hold=False, warm=None):
         ps1 = PSI1_HOVER
     else:
         gamma = gamma_schedule(v, sign_x)
-        Js, chi = stroke_frame(v, gamma)
-        ps1 = float(np.clip(slave_psi1(Js, chi), *PSI1_LIM))
+        Js = float(np.hypot(v[0], v[2])) / SCALE
+        ps1 = float(np.clip(slave_psi1(Js), *PSI1_LIM))
     u0 = warm if warm is not None else (np.radians(20.0), 0.0)
     phi1, psi0, ok = trim_fast(cfg, gamma, ps1, tuple(v), F_des, u0)
     return phi1, psi0, gamma, ps1, ok

@@ -36,7 +36,7 @@
 
 \title{Controller Design for Flapping Flight}
 \author{Jean Pecquet}
-\date{\today}
+\date{July 2, 2026}
 
 \begin{document}
 \maketitle
@@ -50,21 +50,88 @@ We propose a control strategy for flapping flight.
 
 \section{Model Description}\label{sec:model}
 
-The lift and drag coefficients are defined as
+The flapping flight dynamics model consists of a
+point mass body, free to move in two dimensions,
+subjected to gravity and to the aerodynamic
+force from $N$ wing pairs. The two spatial directions
+are $\hat{x}$, which is parallel to the ground,
+and $\hat{z}$, which is parallel and opposed to the
+direction of gravity. The spatial coordinates $(x^*,z^*)$
+are nondimensionalized by the body length $L$. Time $t^*$
+is nondimensionalized by the gravitational time scale $\sqrt{L/g}$.
+Each wing pair is treated as massless, and
+has a dimensionless inverse wing loading $(A^*/m^*) / N$, where
+\begin{align}
+    \frac{A^*}{m^*} = \frac{\rho_\text{air} L A}{m} 
+\end{align}
+in which $m$ is the body mass and $A$ the total wing surface area.
+The dimensionless value of the weight $mg$ is 1.
+In our 2D approximation,
+both wings of each pair are lumped into a single
+surface element, free to translate along the stroke
+axis $\hat{s}$. The translational coordinate is $s^*$.
+The stroke basis $(\hat{s},\hat{n})$, consisting of
+the stroke axis $\hat{s}$ and the stroke-plane normal
+vector $\hat{n}$, is obtained by rotating the fixed
+frame basis $(\hat{x},\hat{z})$ by the stroke plane
+angle $\gamma$. The angular sign convention in the model
+is that a positive angle results in a counterclockwise rotation.
+The flapping motion of each wing pair element is
+prescribed by the kinematic law
+\begin{align}
+    s^*(t^*) = s_0^* \sin\omega^*t^* \implies s^*(\tau^*) = s_0^* \sin\tau^*
+\end{align}
+where $s_0^*$ and $\omega^*$ are the (dimensionless) amplitude
+and frequency parameters, respectively.
+We will use the shorthand $\tau^* = \omega^* t^*$,
+denoting the phase. A wingbeat cycle occurs between $\tau^* = 0$
+and $\tau^* = 2\pi$.
+
+Each wing pair element
+is oriented perpendicular to the $(\hat{x},\hat{z})$
+plane, and is free to rotate or \emph{pitch} about
+its aerodynamic center. The pitch angle $\psi$
+is defined relative to the stroke-plane normal $\hat{n}$.
+The pitch kinematics are prescribed by
+\begin{align}
+    \psi(\tau^*) = \psi_0 + \psi_1 \sin(\tau^* - \delta_0)
+\end{align}
+where $\psi_0$ is the mean pitch angle,
+$\psi_1$ is the pitch amplitude, and $\delta_0$
+is the phase offset relative to the flapping motion.
+The quantities relevant to the wing kinematics,
+namely $\gamma$, $s^*$, and $\psi$, are represented for
+a single wing pair element in \autoref{fig:model-definitions}.
+From these quantities and the body velocity vector,
+the angle of attack $\alpha$ can be determined, along
+with the lift and drag force directions. This is discussed
+in more detail in the following section.
+To finally obtain the aerodynamic force on
+each wing pair element, a lift and drag coefficient
+model is used, following~\cite{wang2004, wang2008},
+which gives
 \begin{align}
     C_L &= C_{L,0} \sin 2\alpha \label{eq:cl} \\
     C_D &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha \label{eq:cd}
 \end{align}
-We denote the nondimensional phase as $\tau^* = \omega^* t^*$.
-A wingbeat cycle occurs between $\tau^* = 0$
-and $\tau^* = 2\pi$. The flapping kinematics are
-\begin{align}
-    s^*(\tau^*) = s_0^* \sin\tau^*
-\end{align}
-The pitch kinematics are
-\begin{align}
-    \psi(\tau^*) = \psi_0 + \psi_1 \sin(\tau^* - \delta_0)
-\end{align}
+where $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, and $C_{D,\frac{\pi}{2}} = 2.0$.
+An important simplification of the model is
+that the aerodynamic moments on the body
+are neglected, and there are no attitude 
+dynamics.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/model-defs.png}
+    \caption{Definition of the wing kinematic quantities $\gamma$, $s^*$, and $\psi$. As represented, $\gamma < 0$, $s^* < 0$, and $\psi > 0$.}\label{fig:model-definitions}
+\end{figure}
+
+When $N = 2$, to model a dragonfly for example,
+there is an additional phase parameter $\sigma_0$
+representing the phase offset between the two wing
+pairs, which may then beat in sync, out of phase,
+or somewhere in between. The kinematics of the two
+wing pairs remain otherwise identical.
 
 \section{Controller Design}\label{sec:design}
 
@@ -95,11 +162,11 @@ otherwise hold for flapping flight in general, as we
 do not assume specific morphological characteristics
 like number of wing pairs, size, etc.
 
-\subsection{Mean Aerodynamic Force}
+\subsection{Mean Aerodynamic Force}\label{sec:maf}
 
 \subsubsection{Definitions and Assumptions}
 
-To affect its trajectory, the flapping flyer
+To affect its trajectory, the flying body
 must modulate and direct the aerodynamic force
 acting on its wings. Because the aerodynamic force
 on a flapping wing is by nature highly unsteady,
@@ -575,15 +642,333 @@ variables that would inform the choice of the values are still listed.
   \end{tabular}
 \end{table}
 
-\subsection{Control Strategy}
+\newpage
+
+\subsection{Control Strategy}\label{sec:strategy}
+
+From the above analysis, we propose a control strategy.
+It will be discussed qualitatively in this section,
+and formalized in the following section (\autoref{sec:control-law}).
+We begin by going over \emph{what to do} with each of the
+wing kinematic parameters.
+\begin{itemize}
+    \item \emph{Stroke plane angle $\gamma$:} when hovering,
+        $\gamma = \gamma^\text{hover}$. When moving, $\gamma$
+        should change to effectively obtain, or at least
+        approximate, the axial inflow we have assumed in the analysis.
+        There is the issue of the transition between these
+        two phases, which may be abrupt if the commanded
+        flight direction is not aligned with the stroke-plane normal
+        at hover. We propose that $\gamma$ be varied smoothly from
+        its hover value to its moving flight value based on $J$.
+    \item \emph{Stroke amplitude $s_0^*$:} primary control
+        for the mean force magnitude, should be varied so that
+        the force magnitude demand is met. In hovering or in general steady flight,
+        this means having the mean force magnitude equal the weight.
+    \item \emph{Mean pitch $\psi_0$:} primary control
+        for the mean force direction relative to the stroke-plane
+        normal, should be varied so that the force direction demand
+        is met. In hovering or in general steady flight,
+        this means having the mean force vector point toward $+\hat{z}$.
+    \item \emph{Pitch amplitude $\psi_1$:} should be varied with
+        $J$ to maximize the available force, as shown in \autoref{fig:hover_opt_J}.
+    \item \emph{Pitch phase $\delta_0$:} fixed to $90^\circ$, not a control variable.
+    \item \emph{Wingbeat frequency $\omega^*$:} constant parameter, not a control variable.
+\end{itemize}
+In summary, the two variables that directly act to
+modulate and direct the force are $s_0^*$ and $\psi_0$.
+The two remaining variables, $\gamma$ and $\psi_1$,
+adapt to the velocity vector to respectively
+approximate an axial inflow, and maximize the
+available force.
+
+A comment should be made here about the $\hat{x}$-wise
+asymmetry introduced by the nonzero $\gamma^\text{hover}$.
+At low speeds, when the stroke plane is still close to
+its hover orientation, this will result in different
+behaviors for motion toward $+\hat{x}$ and $-\hat{x}$.
+To restore symmetry, we propose to flip the sign
+of $\gamma^\text{hover}$ when the commanded flight
+direction changes.
+
+\subsection{Control Law}\label{sec:control-law}
+
+We now formalize the strategy of \autoref{sec:strategy}.
+Let $\vec{x}^*$ and $\vec{u}^*$ be the body position and
+velocity.
+In general, a prescribed trajectory is characterized
+at every point by a reference position $\vec{x}^*_r$,
+velocity $\vec{u}^*_r$, and acceleration $\vec{a}^*_r$
+(\emph{e.g.} centripetal acceleration for a circular
+trajectory). Depending on the exact requirement
+for the controller, only some of these inputs may
+be necessary for the control law. In the case of
+hovering for example, if the objective is to hold
+a specific position in space, $\vec{x}^*_r$ will
+be needed, but $\vec{u}^*_r$ is only needed to
+provide additional damping through derivative control.
+If the objective is simply to hover about an arbitrary
+point, then only $\vec{u}^*_r$ is needed.
+Similarly, in the case of prey pursuit, the
+input is the line-of-sight bearing to the prey,
+without range information, and the objective
+is to align the velocity vector with the line of sight
+as we close in on the prey. In this case,
+only $\vec{u}^*_r$ needs to be formulated,
+which prescribes both the pursuit direction
+(line of sight) and the desired closing speed.
+With this in mind, we start by forming
+the force demand in the most general case,
+using all the potential inputs. The result is
+a proportional-derivative tracking law
+with acceleration feedforward and compensation of
+the weight
+\begin{align}
+    \vec{a}^*_\text{des} &= \vec{a}^*_r
+    + K_p \left( \vec{x}^*_r - \vec{x}^* \right)
+    + K_d \left( \vec{u}^*_r - \vec{u}^* \right) \\
+    \langle \vec{F}^* \rangle^\text{des} &= \vec{a}^*_\text{des} + \hat{z} \label{eq:fdes}
+\end{align}
+In the hover and prey pursuit cases, $\vec{a}^*_r = \vec{0}$.
+In the prey pursuit case specifically, $K_p = 0$,
+while either $K_p$ or $K_d$ may be zero in the hover case.
+We will see that in practice, a simpler velocity-based
+expression ($\vec{a}^*_\text{des} &= K_d \left( \vec{u}^*_r - \vec{u}^* \right)$) is very satisfactory.
+With the force demand formulated, $\gamma$ and $\psi_1$ 
+must now adapt to the measured velocity.
+The advance ratio is evaluated as
+\begin{align}
+    J = \frac{|\vec{u}^*|}{\left(s_0^* \omega^*\right)^\text{ref}}
+\end{align}
+where $\left(s_0^* \omega^*\right)^\text{ref}$ is the
+wingbeat velocity of the reference configuration at the hover condition, held fixed so
+that $J$ does not depend on the control variable $s_0^*$.
+The stroke-plane angle blends from the inclined-hover value to
+the velocity-aligned value $\gamma_u$, defined such that
+$\hat{n}$ is aligned with $\vec{u}^*$:
+\begin{align}
+    \gamma = \left[ 1 - f(J) \right] \sigma_x \gamma^\text{hover}
+    + f(J)\, \gamma_u
+    \quad\quad\quad
+    f(J) = 1 - e^{-(J/J_c)^2} \label{eq:gamma-schedule}
+\end{align}
+with $J_c = 0.35$, and where $\sigma_x \in \{-1, +1\}$ is the
+sign of the commanded horizontal heading, latched at its most
+recent nonzero value so that the stroke plane does not flip on
+the residual hover velocity (see \autoref{sec:strategy}).
+The pitch amplitude is slaved to the force-maximizing value of
+\autoref{fig:hover_opt_J},
+\begin{align}
+    \psi_1 = \psi_1^\text{opt}(J)
+    \label{eq:psi1-slave}
+\end{align}
+under an assumed axial inflow. The actual inflow deviates from
+the stroke-plane normal during transients, but only appreciably
+at low advance ratio, where the optimum is insensitive to the
+inflow direction, so the deviation is neglected.
+With $(\gamma, \psi_1)$ now set, the remaining two variables
+$(s_0^*,\psi_0)$
+are trimmed to the force demand by solving
+\begin{align}
+    \langle \vec{F}^* \rangle \left( s_0^*, \psi_0;\,
+    \gamma, \psi_1, J \right)
+    = \langle \vec{F}^* \rangle^\text{des} \label{eq:trim}
+\end{align}
+for $(s_0^*, \psi_0)$, using the expressions for
+$\langle \vec{F}^* \rangle$ derived in \autoref{sec:maf}.
+Finally, once the reference trajectory is exhausted and the
+position error falls within a small radius (0.3 body lengths),
+$\gamma$ and $\psi_1$ are pinned to their hover values
+$\sigma_x \gamma^\text{hover}$ and $\psi_1^\text{opt}(0)$,
+avoiding jitter from the residual hover velocity, while
+\autoref{eq:trim} continues to hold hover equilibrium.
 
 \section{Results}\label{sec:results}
 
+\subsection{Reference Configuration}
+
+To ground our results, we introduce a
+reference configuration based on morphological
+and wingbeat frequency data for \emph{Anisoptera}
+from~\cite{wakeling1997} and~\cite{aracheloff2024},
+respectively. Nondimensionalized, the data range
+is [0.2, 1.0] for $A^* / m^*$, and [8, 20] for $\omega^*$.
+For the reference configuration, we select the intermediate values
+\begin{align}
+    \frac{A^*}{m^*} = 0.6 \quad\quad\quad\quad\quad \omega^* = 14
+\end{align}
+In addition, we choose the hovering stroke plane angle to be
+\begin{align}
+    \gamma^\text{hover} = -45^\circ
+\end{align}
+defined with a negative sign (clockwise) so that it corresponds to
+a horizontal dragonfly pointing towards $+\hat{x}$.
+When settling from lateral motion towards $-\hat{x}$,
+the hovering stroke plane angle would be $-\gamma^\text{hover} = +45^\circ$,
+as explained in \autoref{sec:strategy}.
+
+Since dragonflies have two wing pairs, we set $N=2$,
+and the wing pair phase shift parameter is set to $\sigma_0 = 180^\circ$
+so as to reduce body oscillations.
+
 \subsection{Hover}
+
+The hover regime of the control law is exercised by initializing
+the body at the reference position, $\vec{x}^*(0) = \vec{x}^*_r =
+(0, 0)$, with a velocity perturbation $\vec{u}^*(0) = (0.2, 0.2)$
+and $\vec{u}^*_r = 0$. Position feedback only ($K_d = 0$),
+velocity feedback only ($K_p = 0$), and the full tracking law are
+compared in \autoref{fig:hover-kp}, \autoref{fig:hover-kd}, and
+\autoref{fig:hover-kpkd}, with $K_p = 2.25$ and $K_d = 2.7$.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/hover_gains_kp.light.png}
+    \caption{Hover hold with position feedback only ($K_d = 0$).
+    The oscillation about $\vec{x}^*_r$ is not damped, and the
+    phase lag of the once-per-wingbeat control update makes it
+    grow. Once the position error exceeds the hover pin radius,
+    $\gamma$ and $\psi_1$ resume scheduling and the trim
+    saturates.}\label{fig:hover-kp}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/hover_gains_kd.light.png}
+    \caption{Hover hold with velocity feedback only ($K_p = 0$).
+    The velocity perturbation is eliminated within about one time
+    unit, but the position offset accumulated meanwhile (about
+    $0.05$ body lengths) is never corrected. With that
+said, the resulting error is very small, and while there is some
+residual drift over time, the result is quite satisfactory.}\label{fig:hover-kd}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/hover_gains_kpkd.light.png}
+    \caption{Hover hold with the full tracking law. The body
+    returns to $\vec{x}^*_r$ (peak excursion $0.06$ body lengths,
+    residual position error below $2 \times 10^{-3}$).}\label{fig:hover-kpkd}
+\end{figure}
 
 \subsection{Prescribed Trajectory}
 
+We choose an upward bend as the reference trajectory: a horizontal run of
+$1.5$ body lengths, a circular arc of radius $2$ bending up by
+$45^\circ$, and a straight climb of $1.5$ body lengths, traversed
+with a trapezoidal speed schedule (linear ramps from and to rest
+over a distance of $0.3$, cruise speed $0.7$). The reference
+acceleration $\vec{a}^*_r$ carries the tangential (ramp) and
+centripetal (arc) demand. Starting from rest on the path,
+four configurations are compared: position feedback
+only (\autoref{fig:traj-kp}), velocity feedback only
+(\autoref{fig:traj-kd}), both (\autoref{fig:traj-kpkd}), and
+both with acceleration feedforward---the full law of
+\autoref{eq:fdes} (\autoref{fig:traj-ff})---again with
+$K_p = 2.25$ and $K_d = 2.7$.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/trajectory_gains_kp.light.png}
+    \caption{Prescribed trajectory with position feedback only
+    ($K_d = 0$): as in hover, the undamped error dynamics under
+    the once-per-wingbeat update are unstable, and the body
+    departs from the path.}\label{fig:traj-kp}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/trajectory_gains_kd.light.png}
+    \caption{Prescribed trajectory with velocity feedback only
+    ($K_p = 0$): the body follows the commanded velocity with a
+    first-order lag, trailing the reference by $|\vec{u}^*_r| /
+    K_d \approx 0.26$ body lengths throughout. The deceleration
+    ramp lets it catch up near the end, but nothing corrects
+    position drift. With that said, the resulting
+trajectory appears very satisfactory.}\label{fig:traj-kd}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/trajectory_gains_kpkd.light.png}
+    \caption{Prescribed trajectory with position and velocity
+    feedback ($K_p + K_d$, no feedforward). Tracking error peaks
+    at $0.25$ body lengths, dominated by the speed-ramp lag
+    and by the ``cutting'' inside the
+    arc, since the required acceleration must be generated by a
+    standing error.}\label{fig:traj-kpkd}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/trajectory_gains_ff.light.png}
+    \caption{Prescribed trajectory with the full law of
+    \autoref{eq:fdes}, including the acceleration feedforward
+    $\vec{a}^*_r$. The maneuver demand is supplied directly
+    rather than through the error terms, and the peak tracking
+    error drops significantly.}\label{fig:traj-ff}
+\end{figure}
+
 \subsection{Prey Pursuit}
+
+Prey pursuit closes the guidance loop through the control law
+using only the velocity term of \autoref{eq:fdes}. The reference
+velocity is defined as the desired closing speed along the line
+of sight to the prey,
+\begin{align}
+    \vec{u}^*_r = u^*_\text{cmd}\, \hat{r}
+    \quad\quad\quad
+    \hat{r} = \frac{\vec{x}^*_\text{prey} - \vec{x}^*}{|\vec{x}^*_\text{prey} - \vec{x}^*|}
+\end{align}
+with no position reference or acceleration feedforward, so that
+$\langle \vec{F}^* \rangle^\text{des} = K_d (\vec{u}^*_r -
+\vec{u}^*) + \hat{z}$. The prey starts at $(2.5, 2.0)$ and moves
+at the constant velocity $(0.35, 0)$; the body starts at rest at
+the origin, with $u^*_\text{cmd} = 0.7$ and $K_d = 2.7$.
+Interception is declared at a range of $0.5$ body lengths. The
+resulting pursuit is shown in \autoref{fig:pursuit}.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/pursuit_traces.light.png}
+    \caption{Prey pursuit. (a) The line-of-sight command produces
+    the classical pure-pursuit tail chase, with capture at
+    $t^* \approx 7.5$ (star). (b) The body accelerates to the
+    commanded closing speed ($J \approx 0.2$). $\gamma$ leans
+    from $\gamma^\text{hover}$ toward alignment with the flight
+    direction, $\psi_1$ follows its slaved schedule
+    (\autoref{eq:psi1-slave}), and $(s_0^*, \psi_0)$ trim the
+    force demand.}\label{fig:pursuit}
+\end{figure}
+
+\section{Conclusion}
+
+The proposed control scheme is capable of
+achieving hover and prey pursuit, and of
+following arbitrary trajectories to
+a reasonable degree of accuracy.
+Some caveats are worth mentioning:
+\begin{itemize}
+    \item \emph{Not strictly proportional control}. While
+    all control tasks can be achieved with a single
+    proportional gain $K_d$ in the force demand formulation,
+    the control variables vary nonlinearly with
+    the force demand, since we are solving the inverse
+    problem of which variable values satisfy the force demand.
+    Following the hover controller presented in
+    the previous report, we may be able to resolve this
+    by linearizing the force, using the expressions
+    we derived in \autoref{sec:maf}.
+\item \emph{Issue with descent}. When descending (towards $-\hat{z}$)
+    at a fast rate, the stroke-plane normal will point downwards.
+    However, to achieve a steady descent velocity, the force vector must
+    point up, opposed to gravity. The force vector, then,
+    must point toward $-\hat{n}$. This can be achieved
+    as we saw in \autoref{sec:maf} with large enough $|\psi_0|$,
+    but at high $J$ it results in large force magnitudes
+    which lead to instability in the unsteady dynamics,
+    and prevent clean descent trajectories.
+    This could potentially be addressed with an
+    alternate control mode using gliding instead of
+    flapping to achieve steady descent.
+    Note that descent is not as problematic if the commanded
+    trajectory has a sustained downward acceleration
+    larger than that due to gravity,
+    since the requirement that the force oppose gravity
+    does not hold.
+\end{itemize}
 
 \FloatBarrier
 \bibliographystyle{unsrtnat}

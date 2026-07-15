@@ -7,7 +7,7 @@ THE PROPOSAL (Jean's, report1 sec:general-controller):
   - psi1 slaved to advance ratio J, always giving MAXIMUM C_F* (not power-optimal)
   - gamma scheduled to align the stroke-plane normal n with the flight direction:
         gamma(J) = f(J) gamma_f + (1 - f(J)) gamma_h
-    with gamma_h = 40 deg (hover value) at J = 0, and gamma_f the tilt that puts
+    with gamma_h = 45 deg (hover value) at J = 0, and gamma_f the tilt that puts
     n along the body velocity (axial inflow, chi = 0) in the high-J limit;
     f monotone, f(0) = 0, f(inf) = 1. Sign of gamma_h flips with flight
     direction to remove the +x / -x asymmetry.
@@ -49,7 +49,8 @@ sys.path.insert(0, str(REPO_ROOT))
 OUT_DIR = HERE.parent / "figures"
 N_PHASE = 128
 SCALE = REF_S0 * REF_OMEGA_STAR              # wing-speed velocity scale s0* omega*
-GAMMA_H = np.radians(40.0)                    # hover stroke-plane angle (fixed param)
+GAMMA_H = np.radians(45.0)                    # hover stroke-plane angle magnitude
+                                              # (|gamma_hover|, report reference config)
 JC = 0.35                                     # blend half-scale in advance ratio
 
 
@@ -71,16 +72,20 @@ PHI1_REF = REF_S0 / (STUDY_SPAN_FRAC * REF_LW)        # reference sweep amplitud
 PSI1_GRID = np.radians(np.arange(4.0, 90.1, 2.0))     # psi1 search, Table-1 range
 
 
-def slave_psi1(J, chi):
+def slave_psi1(J):
     """psi1 that maximizes the stroke-NORMAL (weight-supporting) force at psi0=0.
 
     This is the lift branch / hover-connected C_F* peak. Maximizing raw |F|
     instead would, in fast axial inflow, select the psi1 ~ 90 deg DRAG branch,
     whose cycle-mean force points backward along the inflow (NEGATIVE normal
-    force) and cannot support weight. Evaluated gamma0-invariantly in the
-    (J, chi) stroke frame (n = +z there), so it depends only on the inflow."""
+    force) and cannot support weight. Evaluated at an ASSUMED AXIAL inflow
+    (chi = 0), a pure function of J: an ablation over the four closed-loop test
+    trajectories showed the chi-aware schedule changes psi1 by 1.4 deg mean
+    (10 deg max) and every tracking metric by < 1% -- large chi only occurs at
+    low J, where the optimum barely depends on it, and the (phi1, psi0) trim
+    absorbs the second-order force loss of the flat optimum."""
     U = J * SCALE
-    vb = (U * np.sin(chi), 0.0, U * np.cos(chi))
+    vb = (0.0, 0.0, U)
     best = (PSI1_GRID[0], -np.inf)
     for ps1 in PSI1_GRID:
         p = Params(A_over_m=REF_A_OVER_M, omega_star=REF_OMEGA_STAR, phi1=PHI1_REF,
@@ -97,7 +102,7 @@ def blend(J, Jc=JC):
     return 1.0 - np.exp(-(J / Jc) ** 2)
 
 
-def gamma_schedule(v_body, gamma_h=GAMMA_H, Jc=JC):
+def gamma_schedule(v_body, gamma_h=GAMMA_H, Jc=JC, sx=None):
     """Scheduled stroke-plane angle aligning n with the velocity as J grows.
 
     n(gamma) = (-sin gamma, cos gamma) in (x, z); aligning n with the unit
@@ -108,14 +113,18 @@ def gamma_schedule(v_body, gamma_h=GAMMA_H, Jc=JC):
     +/-90 deg) flips it back up to oppose gravity.
 
     The inclined hover plane leans toward +x by default (gamma_h_signed
-    = -gamma_h = -40 deg, i.e. n leaning +x); only a commanded -x heading flips
-    it to +40 deg. Hover, climb, descent and +x forward flight therefore all
-    start from gamma = -40 deg at J = 0. Returns (gamma, gamma_f, J)."""
+    = -gamma_h = -45 deg, i.e. n leaning +x); only a commanded -x heading flips
+    it to +45 deg. Hover, climb, descent and +x forward flight therefore all
+    start from gamma = -45 deg at J = 0. Returns (gamma, gamma_f, J).
+
+    `sx` overrides the lean sign (the LATCHED commanded heading of
+    sec:control-law); left None, it is derived from the actual velocity."""
     v = np.asarray(v_body, float)
     speed = np.hypot(v[0], v[2])
     J = speed / SCALE
-    sx = 1.0 if v[0] >= -1e-12 else -1.0       # commanded fore/aft; +x default
-    gh = -gamma_h * sx                          # +x -> -40 deg, -x -> +40 deg
+    if sx is None:
+        sx = 1.0 if v[0] >= -1e-12 else -1.0   # fore/aft from actual velocity
+    gh = -gamma_h * sx                          # +x -> -45 deg, -x -> +45 deg
     if speed < 1e-9:
         return gh, gh, 0.0
     vhat = np.array([v[0], v[2]]) / speed
@@ -130,8 +139,8 @@ def proposed_trim(v_body, warm=None, Jc=JC):
     gamma from the schedule, psi1 slaved to max C_F* at the operating (J, chi),
     (phi1, psi0) trimmed to (0,0,1). Returns an info dict."""
     gamma, gamma_f, J = gamma_schedule(v_body, Jc=Jc)
-    Js, chi = stroke_frame(v_body, gamma)             # inflow seen at this gamma
-    ps1 = float(np.clip(slave_psi1(Js, chi), *PSI1_LIM))
+    Js, chi = stroke_frame(v_body, gamma)             # chi kept for reporting
+    ps1 = float(np.clip(slave_psi1(Js), *PSI1_LIM))
     u0 = warm if warm is not None else (np.radians(25.0), np.radians(20.0))
     phi1, psi0, ok = trim_fast(gamma, ps1, v_body, WEIGHT_UP, u0, N_PHASE)
     p = make_p(phi1, psi0, gamma, ps1, v_body)
@@ -345,9 +354,8 @@ def proposed_allocate(v, F_des, v_ref, a_ref, warm=None):
     d = _flight_dir(v, v_ref, a_ref)
     speed = max(np.hypot(v[0], v[2]), 1e-3 * SCALE)   # keep heading defined near rest
     v_sched = (speed * d[0], 0.0, speed * d[1])
-    gamma, _, _ = gamma_schedule(v_sched)
-    Js, chi = stroke_frame(v_sched, gamma)
-    ps1 = float(np.clip(slave_psi1(Js, chi), *PSI1_LIM))
+    gamma, _, Js = gamma_schedule(v_sched)
+    ps1 = float(np.clip(slave_psi1(Js), *PSI1_LIM))
     u0 = warm if warm is not None else (np.radians(20.0), np.radians(0.0))
     phi1, psi0, _ = trim_fast(gamma, ps1, tuple(v), F_des, u0, N_PHASE)
     return (phi1, psi0, gamma, ps1)

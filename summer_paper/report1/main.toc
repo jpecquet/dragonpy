@@ -1,13 +1,16 @@
 \contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
 \contentsline {section}{\numberline {2}Model Description}{2}{section.2}%
-\contentsline {section}{\numberline {3}Controller Design}{2}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Problem Statement}{2}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{2}{subsection.3.2}%
-\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{2}{subsubsection.3.2.1}%
-\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{3}{subsubsection.3.2.2}%
-\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{7}{subsubsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.3}Control Strategy}{9}{subsection.3.3}%
-\contentsline {section}{\numberline {4}Results}{12}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Hover}{12}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Prescribed Trajectory}{12}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Prey Pursuit}{12}{subsection.4.3}%
+\contentsline {section}{\numberline {3}Controller Design}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Problem Statement}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{3}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{3}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{4}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{8}{subsubsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.3}Control Strategy}{12}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Control Law}{13}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Results}{14}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Reference Configuration}{14}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Hover}{14}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Prescribed Trajectory}{14}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{15}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Conclusion}{23}{section.5}%
