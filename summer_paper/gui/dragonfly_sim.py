@@ -18,6 +18,10 @@ and follow speed on the fly:
     The drawn path supplies v_ref; at the path end v_ref = 0, so the body damps
     to a hover near (not pinned to) the final point. The exposed gain ``Kd`` is
     this loop's.
+  * pursuit (the report's prey-pursuit case): a click-placed target moving at
+    constant velocity replaces the path; v_ref is the follow speed along the
+    line of sight (bearing only, no range information), and the target is
+    captured -- removed, hold in place -- at range ``R_CAP``.
 
 The schedule's advance-ratio scale and the ``psi1`` slave are evaluated against
 the fixed reference wing speed (``REF_S0 * REF_OMEGA_STAR``), exactly as in the
@@ -180,6 +184,10 @@ PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 # (non-jittering) pin/unpin signal; and as the body settles the scheduled
 # gamma/psi1 already approach the hover values, so the pin is continuous.
 HOLD_PIN_RADIUS = 0.3
+
+# Pursuit capture radius (body lengths), as in the report's prey-pursuit runs
+# (generalized_control.simulate_pursuit).
+R_CAP = 0.5
 
 
 def blend(J, Jc=JC):
@@ -392,6 +400,8 @@ class Simulator:
         self.commanded = np.zeros(2)            # last commanded (x, z)
         self.sched_sign = 1.0                   # held commanded heading sign (+x)
         self.ref = Reference(None, self.cfg.v_follow, self.cfg.taper, 0.0)
+        self.target = None                      # active pursuit target (or None)
+        self.captured_t = -1e9                  # time of the last capture
         self._allocate()
 
     def set_path(self, points):
@@ -406,15 +416,51 @@ class Simulator:
         path = smooth_path(points, (float(self.s[0]), float(self.s[2])))
         if path is None:
             return None
+        self.target = None                      # a drawn path replaces a pursuit
         self.ref = Reference(path, self.cfg.v_follow, self.cfg.taper, self.t)
         return path
 
+    def set_target(self, x, z, vx, vz):
+        """Install a moving point target: pure pursuit at the follow speed.
+
+        The target starts at (x, z) and moves at constant velocity (vx, vz).
+        It replaces any active path; capture (range < R_CAP) removes it and
+        holds at the capture position."""
+        self.target = dict(p0=np.array([float(x), float(z)]),
+                           v=np.array([float(vx), float(vz)]), t0=self.t)
+
+    def clear_target(self):
+        """Cancel an active pursuit and hold at the current body position."""
+        if self.target is not None:
+            self.target = None
+            self._hold_here()
+
     # -- internals -----------------------------------------------------------
+
+    def _target_pos(self, t):
+        tg = self.target
+        return tg["p0"] + tg["v"] * (t - tg["t0"])
+
+    def _hold_here(self):
+        """Replace the reference with a hold at the current body position."""
+        pos = (float(self.s[0]), float(self.s[2]))
+        self.ref = Reference([pos], self.cfg.v_follow, self.cfg.taper, self.t)
+        self.commanded = np.array(pos)
 
     def _allocate(self):
         v = self.s[3:6]
         p = self.s[0:3]
-        p_ref, v_ref, a_ref, done = self.ref.sample(self.t)
+        if self.target is not None:
+            # pure pursuit (report prey-pursuit case): command the follow speed
+            # along the line of sight to the moving target -- bearing only, no
+            # range information enters the law.
+            pt = self._target_pos(self.t)
+            r = np.array([pt[0] - p[0], pt[1] - p[2]])
+            rng = float(np.hypot(r[0], r[1]))
+            los = r / rng if rng > 1e-9 else np.array([1.0, 0.0])
+            p_ref, v_ref, a_ref, done = pt, self.cfg.v_follow * los, np.zeros(2), False
+        else:
+            p_ref, v_ref, a_ref, done = self.ref.sample(self.t)
         self.commanded = p_ref.copy()
         # Stroke-plane lean sign from the COMMANDED heading (commanded velocity,
         # then commanded accel at a path start), held through hover at the last
@@ -463,12 +509,25 @@ class Simulator:
         self.s[1] = 0.0
         self.s[4] = 0.0                  # keep strictly planar
         self.t += dt
+        if self.target is not None:      # capture check, every integration step
+            pt = self._target_pos(self.t)
+            if np.hypot(pt[0] - self.s[0], pt[1] - self.s[2]) < R_CAP:
+                self.captured_t = self.t
+                self.target = None
+                self._hold_here()
 
     def snapshot(self):
         """Current render state (called under lock)."""
         following = (not self.ref.hold) and (self.t - self.ref.t0) < self.ref.duration()
         speed = float(np.hypot(self.s[3], self.s[5]))
+        tg = self.target
+        pt = self._target_pos(self.t) if tg is not None else (0.0, 0.0)
         return {
+            "pursuing": tg is not None,
+            "tx": float(pt[0]), "tz": float(pt[1]),
+            "tvx": float(tg["v"][0]) if tg is not None else 0.0,
+            "tvz": float(tg["v"][1]) if tg is not None else 0.0,
+            "captured": bool(self.t - self.captured_t < 1.5),
             "t": self.t,
             "x": float(self.s[0]), "z": float(self.s[2]),
             "vx": float(self.s[3]), "vz": float(self.s[5]),

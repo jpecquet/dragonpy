@@ -9,6 +9,7 @@ A dependency-free (stdlib only) HTTP server that:
   * streams render state to the browser at ~60 Hz over Server-Sent Events
     (``GET /stream``);
   * accepts commands as JSON POSTs: ``/path`` (a freehand polyline to follow),
+    ``/target`` (a moving target to pursue, or ``{"clear": true}``),
     ``/params`` (live morphology / gains / follow speed) and ``/reset``.
 
 Why SSE + POST rather than websockets: it needs no third-party package, works on
@@ -46,6 +47,9 @@ BOUNDS = {
     "Kd": (0.1, 12.0), "v_follow": (0.05, 3.0),
     "taper": (0.0, 2.0), "time_scale": (0.1, 3.0),
 }
+
+# Pursuit-target speed cap (BL per sqrt(L/g)); absurd aim drags are clamped.
+TARGET_VMAX = 5.0
 
 
 class SimRunner:
@@ -134,6 +138,25 @@ class SimRunner:
         with self.lock:
             path = self.sim.set_path(points)
         return None if path is None else path.tolist()
+
+    def set_target(self, d):
+        try:
+            x, z = float(d["x"]), float(d["z"])
+            vx, vz = float(d.get("vx", 0.0)), float(d.get("vz", 0.0))
+        except (KeyError, TypeError, ValueError):
+            return False
+        if not all(np.isfinite(val) for val in (x, z, vx, vz)):
+            return False
+        spd = float(np.hypot(vx, vz))
+        if spd > TARGET_VMAX:
+            vx, vz = vx * TARGET_VMAX / spd, vz * TARGET_VMAX / spd
+        with self.lock:
+            self.sim.set_target(x, z, vx, vz)
+        return True
+
+    def clear_target(self):
+        with self.lock:
+            self.sim.clear_target()
 
     def set_params(self, d):
         with self.lock:
@@ -231,6 +254,13 @@ class Handler(BaseHTTPRequestHandler):
             pts = [(float(p[0]), float(p[1])) for p in d.get("points", [])]
             path = RUNNER.set_path(pts)
             self._send_json({"ok": path is not None, "path": path})
+        elif self.path == "/target":
+            d = self._read_json()
+            if d.get("clear"):
+                RUNNER.clear_target()
+                self._send_json({"ok": True})
+            else:
+                self._send_json({"ok": RUNNER.set_target(d)})
         elif self.path == "/params":
             self._send_json(RUNNER.set_params(self._read_json()))
         elif self.path == "/reset":

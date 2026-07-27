@@ -24,9 +24,17 @@ third-party packages.
 
 ## Use
 
-- **Draw**: press and drag anywhere on the canvas. On release the path is
-  smoothed and the dragonfly tracks it, then holds at the end. The next path
-  starts from wherever the body actually is when you release.
+- **Draw** (*Draw path* mode): press and drag anywhere on the canvas. On
+  release the path is smoothed and the dragonfly tracks it, then holds at the
+  end. The next path starts from wherever the body actually is when you
+  release.
+- **Target** (*Place target* mode): click once to place a target, then move the
+  mouse and click again to set its velocity — direction and magnitude are the
+  angle and distance of the cursor from the target (1 BL of distance = 1 unit
+  of speed; click on the target itself for a stationary one). The dragonfly
+  pure-pursues it at the follow speed along the line of sight (the report's
+  prey-pursuit law, bearing only), and captures it at 0.5 BL — the dashed ring
+  around the target. *Clear* cancels the pursuit.
 - **Orange trace**: the actual flown trajectory, drawn beneath the prescribed
   (dashed blue) path for comparison. It persists across successive paths and
   clears only on *Reset*.
@@ -56,7 +64,7 @@ body (point mass).
 | file | role |
 |------|------|
 | `dragonfly_sim.py` | `Config`, the morphology-parametrized controller (γ-schedule, ψ₁-slave, φ₁/ψ₀ trim), path smoothing, and the real-time RK4 `Simulator`. |
-| `server.py` | stdlib HTTP server: serves the page, streams render state over Server-Sent Events (`/stream`), accepts `/path`, `/params`, `/reset` POSTs; runs the sim on a background thread paced to the wall clock. |
+| `server.py` | stdlib HTTP server: serves the page, streams render state over Server-Sent Events (`/stream`), accepts `/path`, `/target`, `/params`, `/reset` POSTs; runs the sim on a background thread paced to the wall clock. |
 | `index.html` | single-file front end (canvas + control panel), styled after `reference.html`. |
 
 The controller's outer loop is the report's **pure velocity tracker**: a single
@@ -102,6 +110,7 @@ Localhost only, no auth — don't expose the port publicly.
   chip turns red when the trim saturates.
 - A reloaded browser tab does not re-fetch an in-progress path (the committed
   path line is client-side); the dragonfly keeps following it regardless. The
-  orange trajectory trace is likewise client-side and lost on reload.
-- Targets to *pursue* (pure-pursuit prey) are not wired in yet — a natural next
-  addition, reusing `simulate_pursuit` from `generalized_control.py`.
+  orange trajectory trace is likewise client-side and lost on reload. An
+  in-progress *pursuit* survives reload (the target streams with the state).
+- A target faster than the follow speed is never caught — the pursuit just
+  continues until *Clear* or *Reset*.

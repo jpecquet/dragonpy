@@ -7,85 +7,99 @@
 \newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Model Description}{2}{section.2}\protected@file@percent }
 \newlabel{sec:model}{{2}{2}{Model Description}{section.2}{}}
-\newlabel{eq:cl}{{4}{2}{Model Description}{equation.4}{}}
-\newlabel{eq:cd}{{5}{2}{Model Description}{equation.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Overview}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Aerodynamic Force}{2}{subsection.2.2}\protected@file@percent }
+\newlabel{eq:cl}{{1}{2}{Aerodynamic Force}{equation.1}{}}
+\newlabel{eq:cd}{{2}{2}{Aerodynamic Force}{equation.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Wing Kinematics}{3}{subsection.2.3}\protected@file@percent }
 \citation{azuma1985}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Definition of the wing kinematic quantities $\gamma $, $s^*$, and $\psi $. As represented, $\gamma < 0$, $s^* < 0$, and $\psi > 0$.}}{3}{figure.caption.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Equation of Motion}{4}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Controller Design}{4}{section.3}\protected@file@percent }
+\newlabel{sec:design}{{3}{4}{Controller Design}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Statement}{4}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:problem-statement}{{3.1}{4}{Problem Statement}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:maf}{{3.2}{4}{Mean Aerodynamic Force}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{4}{subsubsection.3.2.1}\protected@file@percent }
+\newlabel{eq:v_sq}{{24}{5}{Definitions and Assumptions}{equation.24}{}}
+\newlabel{eq:alpha}{{28}{5}{Definitions and Assumptions}{equation.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Verification of the hover ($J=0$) angle-of-attack expression (\autoref {eq:alpha-hover}) for the four sign combinations of $(\cos \tau ^*, \psi )$.}}{6}{figure.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:model-definitions}{{1}{3}{Definition of the wing kinematic quantities $\gamma $, $s^*$, and $\psi $. As represented, $\gamma < 0$, $s^* < 0$, and $\psi > 0$}{figure.caption.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Controller Design}{3}{section.3}\protected@file@percent }
-\newlabel{sec:design}{{3}{3}{Controller Design}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Statement}{3}{subsection.3.1}\protected@file@percent }
-\newlabel{sec:problem-statement}{{3.1}{3}{Problem Statement}{subsection.3.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{3}{subsection.3.2}\protected@file@percent }
-\newlabel{sec:maf}{{3.2}{3}{Mean Aerodynamic Force}{subsection.3.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{3}{subsubsection.3.2.1}\protected@file@percent }
-\newlabel{eq:v_sq}{{9}{4}{Definitions and Assumptions}{equation.9}{}}
-\newlabel{eq:alpha}{{13}{4}{Definitions and Assumptions}{equation.13}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{4}{subsubsection.3.2.2}\protected@file@percent }
-\newlabel{eq:cl-hover}{{15}{4}{Hover Case $(J=0)$}{equation.15}{}}
-\newlabel{eq:cd-hover}{{16}{4}{Hover Case $(J=0)$}{equation.16}{}}
-\newlabel{eq:q}{{19}{5}{Hover Case $(J=0)$}{equation.19}{}}
-\newlabel{eq:cfn}{{20}{5}{Hover Case $(J=0)$}{equation.20}{}}
-\newlabel{eq:cfs}{{21}{5}{Hover Case $(J=0)$}{equation.21}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces (a) Stroke-plane-normal (lift) component $C_{F^*_n}$ and (b) in-plane (drag) component $C_{F^*_s}$ of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\hat  {s},\hat  {n})$ plane can be inferred from the signs.}}{6}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:cf_components}{{2}{6}{(a) Stroke-plane-normal (lift) component $C_{F^*_n}$ and (b) in-plane (drag) component $C_{F^*_s}$ of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\hat {s},\hat {n})$ plane can be inferred from the signs}{figure.caption.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots.}}{6}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:cf}{{3}{6}{Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots}{figure.caption.4}{}}
-\newlabel{eq:beta}{{24}{7}{Hover Case $(J=0)$}{equation.24}{}}
-\newlabel{eq:beta-hover}{{30}{7}{Hover Case $(J=0)$}{equation.30}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Effect of $\psi _0$ on force direction angle $\beta $ and force coefficient $C_{F^*}$.}}{8}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:beta_vs_psi0}{{4}{8}{Effect of $\psi _0$ on force direction angle $\beta $ and force coefficient $C_{F^*}$}{figure.caption.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Wing kinematic parameters for hover}}{8}{table.caption.6}\protected@file@percent }
-\newlabel{tab:hover}{{1}{8}{Wing kinematic parameters for hover}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{8}{subsubsection.3.2.3}\protected@file@percent }
-\newlabel{eq:cfn-general}{{42}{9}{General Case $(J \geq 0)$}{equation.42}{}}
-\newlabel{eq:cfs-general}{{43}{9}{General Case $(J \geq 0)$}{equation.43}{}}
-\newlabel{eq:cfn-general-op}{{44}{9}{General Case $(J \geq 0)$}{equation.44}{}}
-\newlabel{eq:cfs-general-op}{{45}{9}{General Case $(J \geq 0)$}{equation.45}{}}
-\newlabel{eq:beta-general}{{49}{10}{General Case $(J \geq 0)$}{equation.49}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Wing kinematic parameters (general case)}}{10}{table.caption.11}\protected@file@percent }
-\newlabel{tab:param-general}{{2}{10}{Wing kinematic parameters (general case)}{table.caption.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Force coefficient $C_{F^*}$ over the pitch plane $(\psi _0, \psi _1)$ at $\delta _0 = 90^\circ $, for increasing advance ratio $J$. White dots track the hover optimum as it moves with $J$. It remains on the $\psi _0 = 0^\circ $ axis by symmetry while $\psi _1$ decreases, and it turns from a local maximum into a saddle point. The global maximum sits at large $|\psi _0|$, where the force is dominated by drag from the normal inflow and points along $-\hat  {n}$. The dotted contour marks $C_{F^*_n} = 0$, the boundary between propulsive ($+\hat  {n}$) and braking ($-\hat  {n}$) mean force.}}{11}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:cf_J}{{5}{11}{Force coefficient $C_{F^*}$ over the pitch plane $(\psi _0, \psi _1)$ at $\delta _0 = 90^\circ $, for increasing advance ratio $J$. White dots track the hover optimum as it moves with $J$. It remains on the $\psi _0 = 0^\circ $ axis by symmetry while $\psi _1$ decreases, and it turns from a local maximum into a saddle point. The global maximum sits at large $|\psi _0|$, where the force is dominated by drag from the normal inflow and points along $-\hat {n}$. The dotted contour marks $C_{F^*_n} = 0$, the boundary between propulsive ($+\hat {n}$) and braking ($-\hat {n}$) mean force}{figure.caption.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Pitch amplitude $\psi _1$ and force coefficient $C_{F^*}$ of the continued hover optimum (the point tracked in \autoref {fig:cf_J}) as functions of advance ratio $J$. The point turns from a local maximum into a saddle at $J \approx 0.46$.}}{11}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:hover_opt_J}{{6}{11}{Pitch amplitude $\psi _1$ and force coefficient $C_{F^*}$ of the continued hover optimum (the point tracked in \autoref {fig:cf_J}) as functions of advance ratio $J$. The point turns from a local maximum into a saddle at $J \approx 0.46$}{figure.caption.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Illustration of the $\psi $ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases.}}{12}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:psi1-decrease}{{7}{12}{Illustration of the $\psi $ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases}{figure.caption.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Effect of $\psi _0$ on the force direction angle $\beta $ for increasing advance ratio $J$, at $\delta _0 = 90^\circ $ and with $\psi _1$ set, for each $J$, to the continued-optimum value of \autoref {fig:hover_opt_J}. Unlike in the hover case, $\beta $ depends on $\psi _1$ when $J > 0$.}}{12}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:beta_vs_psi0_J}{{8}{12}{Effect of $\psi _0$ on the force direction angle $\beta $ for increasing advance ratio $J$, at $\delta _0 = 90^\circ $ and with $\psi _1$ set, for each $J$, to the continued-optimum value of \autoref {fig:hover_opt_J}. Unlike in the hover case, $\beta $ depends on $\psi _1$ when $J > 0$}{figure.caption.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Control Strategy}{12}{subsection.3.3}\protected@file@percent }
-\newlabel{sec:strategy}{{3.3}{12}{Control Strategy}{subsection.3.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Control Law}{13}{subsection.3.4}\protected@file@percent }
-\newlabel{sec:control-law}{{3.4}{13}{Control Law}{subsection.3.4}{}}
-\newlabel{eq:fdes}{{52}{13}{Control Law}{equation.52}{}}
-\newlabel{eq:gamma-schedule}{{54}{13}{Control Law}{equation.54}{}}
+\newlabel{fig:alpha-quadrants}{{1}{6}{Verification of the hover ($J=0$) angle-of-attack expression (\autoref {eq:alpha-hover}) for the four sign combinations of $(\cos \tau ^*, \psi )$}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{6}{subsubsection.3.2.2}\protected@file@percent }
+\newlabel{eq:alpha-hover}{{29}{6}{Hover Case $(J=0)$}{equation.29}{}}
+\newlabel{eq:cl-hover}{{30}{6}{Hover Case $(J=0)$}{equation.30}{}}
+\newlabel{eq:cd-hover}{{31}{6}{Hover Case $(J=0)$}{equation.31}{}}
+\newlabel{eq:q}{{34}{6}{Hover Case $(J=0)$}{equation.34}{}}
+\newlabel{eq:cfn}{{35}{7}{Hover Case $(J=0)$}{equation.35}{}}
+\newlabel{eq:cfs}{{36}{7}{Hover Case $(J=0)$}{equation.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces (a) Stroke-plane-normal (lift) component $C_{F^*_n}$ and (b) in-plane (drag) component $C_{F^*_s}$ of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\hat  {s},\hat  {n})$ plane can be inferred from the signs.}}{7}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:cf_components}{{2}{7}{(a) Stroke-plane-normal (lift) component $C_{F^*_n}$ and (b) in-plane (drag) component $C_{F^*_s}$ of the force coefficient over the pitch plane at $\delta _0 = 90^\circ $. The force direction quadrant in the $(\hat {s},\hat {n})$ plane can be inferred from the signs}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots.}}{8}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:cf}{{3}{8}{Dependence of $C_{F^*}$ on pitch parameters at zero body velocity. Maximum shown as white dots}{figure.caption.4}{}}
+\newlabel{eq:beta}{{39}{8}{Hover Case $(J=0)$}{equation.39}{}}
+\newlabel{eq:beta-hover}{{45}{9}{Hover Case $(J=0)$}{equation.45}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Effect of $\psi _0$ on force direction angle $\beta $ and force coefficient $C_{F^*}$.}}{9}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:beta_vs_psi0}{{4}{9}{Effect of $\psi _0$ on force direction angle $\beta $ and force coefficient $C_{F^*}$}{figure.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Wing kinematic parameters for hover}}{10}{table.caption.6}\protected@file@percent }
+\newlabel{tab:hover}{{1}{10}{Wing kinematic parameters for hover}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{10}{subsubsection.3.2.3}\protected@file@percent }
+\newlabel{eq:cfn-general}{{57}{11}{General Case $(J \geq 0)$}{equation.57}{}}
+\newlabel{eq:cfs-general}{{58}{11}{General Case $(J \geq 0)$}{equation.58}{}}
+\newlabel{eq:cfn-general-op}{{59}{11}{General Case $(J \geq 0)$}{equation.59}{}}
+\newlabel{eq:cfs-general-op}{{60}{11}{General Case $(J \geq 0)$}{equation.60}{}}
+\newlabel{eq:beta-general}{{64}{11}{General Case $(J \geq 0)$}{equation.64}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Force coefficient $C_{F^*}$ over the pitch plane $(\psi _0, \psi _1)$ at $\delta _0 = 90^\circ $, for increasing advance ratio $J$. White dots track the hover optimum as it moves with $J$. It remains on the $\psi _0 = 0^\circ $ axis by symmetry while $\psi _1$ decreases, and it turns from a local maximum into a saddle point. The global maximum sits at large $|\psi _0|$, where the force is dominated by drag from the normal inflow and points along $-\hat  {n}$. The dotted contour marks $C_{F^*_n} = 0$, the boundary between propulsive ($+\hat  {n}$) and braking ($-\hat  {n}$) mean force.}}{12}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:cf_J}{{5}{12}{Force coefficient $C_{F^*}$ over the pitch plane $(\psi _0, \psi _1)$ at $\delta _0 = 90^\circ $, for increasing advance ratio $J$. White dots track the hover optimum as it moves with $J$. It remains on the $\psi _0 = 0^\circ $ axis by symmetry while $\psi _1$ decreases, and it turns from a local maximum into a saddle point. The global maximum sits at large $|\psi _0|$, where the force is dominated by drag from the normal inflow and points along $-\hat {n}$. The dotted contour marks $C_{F^*_n} = 0$, the boundary between propulsive ($+\hat {n}$) and braking ($-\hat {n}$) mean force}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Pitch amplitude $\psi _1$ and force coefficient $C_{F^*}$ of the continued hover optimum (the point tracked in \autoref {fig:cf_J}) as functions of advance ratio $J$. The point turns from a local maximum into a saddle at $J \approx 0.46$.}}{13}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:hover_opt_J}{{6}{13}{Pitch amplitude $\psi _1$ and force coefficient $C_{F^*}$ of the continued hover optimum (the point tracked in \autoref {fig:cf_J}) as functions of advance ratio $J$. The point turns from a local maximum into a saddle at $J \approx 0.46$}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Illustration of the $\psi $ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases.}}{13}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:psi1-decrease}{{7}{13}{Illustration of the $\psi $ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases}{figure.caption.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Wing kinematic parameters (general case)}}{13}{table.caption.11}\protected@file@percent }
+\newlabel{tab:param-general}{{2}{13}{Wing kinematic parameters (general case)}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}Square-Wave Pitch Simplification}{13}{subsubsection.3.2.4}\protected@file@percent }
+\newlabel{sec:square-wave}{{3.2.4}{13}{Square-Wave Pitch Simplification}{subsubsection.3.2.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Effect of $\psi _0$ on the force direction angle $\beta $ for increasing advance ratio $J$, at $\delta _0 = 90^\circ $ and with $\psi _1$ set, for each $J$, to the continued-optimum value of \autoref {fig:hover_opt_J}. Unlike in the hover case, $\beta $ depends on $\psi _1$ when $J > 0$.}}{14}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:beta_vs_psi0_J}{{8}{14}{Effect of $\psi _0$ on the force direction angle $\beta $ for increasing advance ratio $J$, at $\delta _0 = 90^\circ $ and with $\psi _1$ set, for each $J$, to the continued-optimum value of \autoref {fig:hover_opt_J}. Unlike in the hover case, $\beta $ depends on $\psi _1$ when $J > 0$}{figure.caption.10}{}}
+\newlabel{eq:psi-square}{{66}{14}{Square-Wave Pitch Simplification}{equation.66}{}}
+\newlabel{eq:square-subs}{{69}{14}{Square-Wave Pitch Simplification}{equation.69}{}}
+\newlabel{eq:cf-hover-square}{{70}{14}{Square-Wave Pitch Simplification}{equation.70}{}}
+\newlabel{eq:In-Is-square}{{73}{15}{Square-Wave Pitch Simplification}{equation.73}{}}
+\newlabel{eq:psi1-opt-square}{{80}{16}{Square-Wave Pitch Simplification}{equation.80}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Continued hover optimum at $\psi _0 = 0^\circ $: square-wave closed form (\autoref {eq:psi1-opt-square}) versus the sinusoidal schedule evaluated numerically (\autoref {fig:hover_opt_J}).}}{16}{table.caption.12}\protected@file@percent }
+\newlabel{tab:square-wave}{{3}{16}{Continued hover optimum at $\psi _0 = 0^\circ $: square-wave closed form (\autoref {eq:psi1-opt-square}) versus the sinusoidal schedule evaluated numerically (\autoref {fig:hover_opt_J})}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Control Strategy}{17}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:strategy}{{3.3}{17}{Control Strategy}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Control Law}{17}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:control-law}{{3.4}{17}{Control Law}{subsection.3.4}{}}
+\newlabel{eq:fdes}{{82}{17}{Control Law}{equation.82}{}}
 \citation{wakeling1997}
 \citation{aracheloff2024}
-\newlabel{eq:psi1-slave}{{55}{14}{Control Law}{equation.55}{}}
-\newlabel{eq:trim}{{56}{14}{Control Law}{equation.56}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{14}{section.4}\protected@file@percent }
-\newlabel{sec:results}{{4}{14}{Results}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Reference Configuration}{14}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Hover}{14}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Prescribed Trajectory}{14}{subsection.4.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Hover hold with position feedback only ($K_d = 0$). The oscillation about $\vec  {x}^*_r$ is not damped, and the phase lag of the once-per-wingbeat control update makes it grow. Once the position error exceeds the hover pin radius, $\gamma $ and $\psi _1$ resume scheduling and the trim saturates.}}{15}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:hover-kp}{{9}{15}{Hover hold with position feedback only ($K_d = 0$). The oscillation about $\vec {x}^*_r$ is not damped, and the phase lag of the once-per-wingbeat control update makes it grow. Once the position error exceeds the hover pin radius, $\gamma $ and $\psi _1$ resume scheduling and the trim saturates}{figure.caption.12}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{15}{subsection.4.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Hover hold with velocity feedback only ($K_p = 0$). The velocity perturbation is eliminated within about one time unit, but the position offset accumulated meanwhile (about $0.05$ body lengths) is never corrected. With that said, the resulting error is very small, and while there is some residual drift over time, the result is quite satisfactory.}}{16}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:hover-kd}{{10}{16}{Hover hold with velocity feedback only ($K_p = 0$). The velocity perturbation is eliminated within about one time unit, but the position offset accumulated meanwhile (about $0.05$ body lengths) is never corrected. With that said, the resulting error is very small, and while there is some residual drift over time, the result is quite satisfactory}{figure.caption.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Hover hold with the full tracking law. The body returns to $\vec  {x}^*_r$ (peak excursion $0.06$ body lengths, residual position error below $2 \times 10^{-3}$).}}{17}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:hover-kpkd}{{11}{17}{Hover hold with the full tracking law. The body returns to $\vec {x}^*_r$ (peak excursion $0.06$ body lengths, residual position error below $2 \times 10^{-3}$)}{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Prescribed trajectory with position feedback only ($K_d = 0$): as in hover, the undamped error dynamics under the once-per-wingbeat update are unstable, and the body departs from the path.}}{18}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:traj-kp}{{12}{18}{Prescribed trajectory with position feedback only ($K_d = 0$): as in hover, the undamped error dynamics under the once-per-wingbeat update are unstable, and the body departs from the path}{figure.caption.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Prescribed trajectory with velocity feedback only ($K_p = 0$): the body follows the commanded velocity with a first-order lag, trailing the reference by $|\vec  {u}^*_r| / K_d \approx 0.26$ body lengths throughout. The deceleration ramp lets it catch up near the end, but nothing corrects position drift. With that said, the resulting trajectory appears very satisfactory.}}{19}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:traj-kd}{{13}{19}{Prescribed trajectory with velocity feedback only ($K_p = 0$): the body follows the commanded velocity with a first-order lag, trailing the reference by $|\vec {u}^*_r| / K_d \approx 0.26$ body lengths throughout. The deceleration ramp lets it catch up near the end, but nothing corrects position drift. With that said, the resulting trajectory appears very satisfactory}{figure.caption.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Prescribed trajectory with position and velocity feedback ($K_p + K_d$, no feedforward). Tracking error peaks at $0.25$ body lengths, dominated by the speed-ramp lag and by the ``cutting'' inside the arc, since the required acceleration must be generated by a standing error.}}{20}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:traj-kpkd}{{14}{20}{Prescribed trajectory with position and velocity feedback ($K_p + K_d$, no feedforward). Tracking error peaks at $0.25$ body lengths, dominated by the speed-ramp lag and by the ``cutting'' inside the arc, since the required acceleration must be generated by a standing error}{figure.caption.17}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Prescribed trajectory with the full law of \autoref {eq:fdes}, including the acceleration feedforward $\vec  {a}^*_r$. The maneuver demand is supplied directly rather than through the error terms, and the peak tracking error drops significantly.}}{21}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:traj-ff}{{15}{21}{Prescribed trajectory with the full law of \autoref {eq:fdes}, including the acceleration feedforward $\vec {a}^*_r$. The maneuver demand is supplied directly rather than through the error terms, and the peak tracking error drops significantly}{figure.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Prey pursuit. (a) The line-of-sight command produces the classical pure-pursuit tail chase, with capture at $t^* \approx 7.5$ (star). (b) The body accelerates to the commanded closing speed ($J \approx 0.2$). $\gamma $ leans from $\gamma ^\text  {hover}$ toward alignment with the flight direction, $\psi _1$ follows its slaved schedule (\autoref {eq:psi1-slave}), and $(s_0^*, \psi _0)$ trim the force demand.}}{22}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:pursuit}{{16}{22}{Prey pursuit. (a) The line-of-sight command produces the classical pure-pursuit tail chase, with capture at $t^* \approx 7.5$ (star). (b) The body accelerates to the commanded closing speed ($J \approx 0.2$). $\gamma $ leans from $\gamma ^\text {hover}$ toward alignment with the flight direction, $\psi _1$ follows its slaved schedule (\autoref {eq:psi1-slave}), and $(s_0^*, \psi _0)$ trim the force demand}{figure.caption.19}{}}
+\newlabel{eq:gamma-schedule}{{84}{18}{Control Law}{equation.84}{}}
+\newlabel{eq:psi1-slave}{{85}{18}{Control Law}{equation.85}{}}
+\newlabel{eq:trim}{{86}{18}{Control Law}{equation.86}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{18}{section.4}\protected@file@percent }
+\newlabel{sec:results}{{4}{18}{Results}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Reference Configuration}{18}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Hover}{19}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Hover hold with position feedback only ($K_d = 0$). The oscillation about $\vec  {x}^*_r$ is not damped, and the phase lag of the once-per-wingbeat control update makes it grow. Once the position error exceeds the hover pin radius, $\gamma $ and $\psi _1$ resume scheduling and the trim saturates.}}{19}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:hover-kp}{{9}{19}{Hover hold with position feedback only ($K_d = 0$). The oscillation about $\vec {x}^*_r$ is not damped, and the phase lag of the once-per-wingbeat control update makes it grow. Once the position error exceeds the hover pin radius, $\gamma $ and $\psi _1$ resume scheduling and the trim saturates}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Prescribed Trajectory}{19}{subsection.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Hover hold with velocity feedback only ($K_p = 0$). The velocity perturbation is eliminated within about one time unit, but the position offset accumulated meanwhile (about $0.05$ body lengths) is never corrected. With that said, the resulting error is very small, and while there is some residual drift over time, the result is quite satisfactory.}}{20}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:hover-kd}{{10}{20}{Hover hold with velocity feedback only ($K_p = 0$). The velocity perturbation is eliminated within about one time unit, but the position offset accumulated meanwhile (about $0.05$ body lengths) is never corrected. With that said, the resulting error is very small, and while there is some residual drift over time, the result is quite satisfactory}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{20}{subsection.4.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Hover hold with the full tracking law. The body returns to $\vec  {x}^*_r$ (peak excursion $0.06$ body lengths, residual position error below $2 \times 10^{-3}$).}}{21}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:hover-kpkd}{{11}{21}{Hover hold with the full tracking law. The body returns to $\vec {x}^*_r$ (peak excursion $0.06$ body lengths, residual position error below $2 \times 10^{-3}$)}{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Prescribed trajectory with position feedback only ($K_d = 0$): as in hover, the undamped error dynamics under the once-per-wingbeat update are unstable, and the body departs from the path.}}{22}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:traj-kp}{{12}{22}{Prescribed trajectory with position feedback only ($K_d = 0$): as in hover, the undamped error dynamics under the once-per-wingbeat update are unstable, and the body departs from the path}{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Prescribed trajectory with velocity feedback only ($K_p = 0$): the body follows the commanded velocity with a first-order lag, trailing the reference by $|\vec  {u}^*_r| / K_d \approx 0.26$ body lengths throughout. The deceleration ramp lets it catch up near the end, but nothing corrects position drift. With that said, the resulting trajectory appears very satisfactory.}}{23}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:traj-kd}{{13}{23}{Prescribed trajectory with velocity feedback only ($K_p = 0$): the body follows the commanded velocity with a first-order lag, trailing the reference by $|\vec {u}^*_r| / K_d \approx 0.26$ body lengths throughout. The deceleration ramp lets it catch up near the end, but nothing corrects position drift. With that said, the resulting trajectory appears very satisfactory}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Prescribed trajectory with position and velocity feedback ($K_p + K_d$, no feedforward). Tracking error peaks at $0.25$ body lengths, dominated by the speed-ramp lag and by the ``cutting'' inside the arc, since the required acceleration must be generated by a standing error.}}{24}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:traj-kpkd}{{14}{24}{Prescribed trajectory with position and velocity feedback ($K_p + K_d$, no feedforward). Tracking error peaks at $0.25$ body lengths, dominated by the speed-ramp lag and by the ``cutting'' inside the arc, since the required acceleration must be generated by a standing error}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Prescribed trajectory with the full law of \autoref {eq:fdes}, including the acceleration feedforward $\vec  {a}^*_r$. The maneuver demand is supplied directly rather than through the error terms, and the peak tracking error drops significantly.}}{25}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:traj-ff}{{15}{25}{Prescribed trajectory with the full law of \autoref {eq:fdes}, including the acceleration feedforward $\vec {a}^*_r$. The maneuver demand is supplied directly rather than through the error terms, and the peak tracking error drops significantly}{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Prey pursuit. (a) The line-of-sight command produces the classical pure-pursuit tail chase, with capture at $t^* \approx 7.5$ (star). (b) The body accelerates to the commanded closing speed ($J \approx 0.2$). $\gamma $ leans from $\gamma ^\text  {hover}$ toward alignment with the flight direction, $\psi _1$ follows its slaved schedule (\autoref {eq:psi1-slave}), and $(s_0^*, \psi _0)$ trim the force demand.}}{26}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:pursuit}{{16}{26}{Prey pursuit. (a) The line-of-sight command produces the classical pure-pursuit tail chase, with capture at $t^* \approx 7.5$ (star). (b) The body accelerates to the commanded closing speed ($J \approx 0.2$). $\gamma $ leans from $\gamma ^\text {hover}$ toward alignment with the flight direction, $\psi _1$ follows its slaved schedule (\autoref {eq:psi1-slave}), and $(s_0^*, \psi _0)$ trim the force demand}{figure.caption.20}{}}
 \bibstyle{unsrtnat}
 \bibdata{references}
 \bibcite{wang2004}{{1}{2004}{{Wang}}{{}}}
@@ -93,5 +107,5 @@
 \bibcite{azuma1985}{{3}{1997}{{Azuma et~al.}}{{Azuma, Azuma, Watanabe, and Furuta}}}
 \bibcite{wakeling1997}{{4}{1997}{{Wakeling}}{{}}}
 \bibcite{aracheloff2024}{{5}{2024}{{Aracheloff et~al.}}{{Aracheloff, Garrouste, Nel, Godoy-Diana, and Thiria}}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{23}{section.5}\protected@file@percent }
-\gdef \@abspage@last{23}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{27}{section.5}\protected@file@percent }
+\gdef \@abspage@last{27}

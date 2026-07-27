@@ -83,6 +83,7 @@
   .btn:hover { border-color: var(--accent); color: var(--accent); }
   .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn.primary:hover { background: #4a5ae6; color: #fff; }
+  .btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 
   .readout { margin-top: 20px; padding: 14px 16px; background: var(--field); border: 1px solid var(--border); border-radius: 6px; font-variant-numeric: tabular-nums; }
   .readout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
@@ -94,6 +95,8 @@
   .status.hover { color: var(--muted); }
   .status.follow { color: var(--accent); }
   .status.sat { color: var(--danger); }
+  .status.pursue { color: #e0245e; }
+  .status.cap { color: var(--success); }
 
   .plot-card { padding: 18px; }
   .plot-area { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #fff; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
@@ -127,8 +130,14 @@
     <div class="row"><label>Playback ×</label>
       <input type="number" id="time_scale" step="0.1" min="0.1" max="3"><span class="range">sim/real</span></div>
 
+    <h2>Mode</h2>
+    <div class="btns" style="margin-top: 0;">
+      <button class="btn active" id="mode-path">Draw path</button>
+      <button class="btn" id="mode-target">Place target</button>
+    </div>
+
     <div class="btns">
-      <button class="btn" id="clear">Clear path</button>
+      <button class="btn" id="clear">Clear</button>
       <button class="btn primary" id="reset">Reset</button>
     </div>
 
@@ -169,6 +178,11 @@ let tracePts = [];                // actual flown trajectory (world), orange tra
 let traceLastT = -Infinity;       // last sim time seen; a backward jump = reset
 const TRACE_MIN_SEG = 0.005;      // BL; skip sub-pixel points while hovering
 const TRACE_MAX = 20000;          // decimate 2:1 above this to bound memory
+let mode = "path";                // canvas interaction: "path" | "target"
+let targetPending = null;         // placed target awaiting its velocity click (world)
+let mouseWorld = null;            // live cursor (world) for the aim preview
+const TARGET_COLOR = "#e0245e";
+const R_CAP = 0.5;                // capture radius (BL), mirrors the backend
 
 const PARAM_IDS = ["Lw","A_over_m","omega_star","Kd","v_follow","taper","time_scale"];
 
@@ -190,12 +204,29 @@ PARAM_IDS.forEach(k => $(k).addEventListener("input", pushParams));
 
 $("reset").addEventListener("click", async () => {
   await fetch("/reset", { method: "POST" });
-  activePath = null; drawPts = []; tracePts = []; traceLastT = -Infinity;
+  activePath = null; drawPts = []; targetPending = null;
+  tracePts = []; traceLastT = -Infinity;
 });
 $("clear").addEventListener("click", async () => {
-  activePath = null; drawPts = [];
+  activePath = null; drawPts = []; targetPending = null;
   await fetch("/path", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ points: [] }) });
+  await fetch("/target", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clear: true }) });
 });
+
+// ------------------------------------------------------------------- mode
+const HINTS = {
+  path: "press & drag to draw a path",
+  target: "click to place a target",
+  aim: "click again to set the target velocity (distance = speed)",
+};
+function setMode(m) {
+  mode = m; targetPending = null;
+  $("mode-path").classList.toggle("active", m === "path");
+  $("mode-target").classList.toggle("active", m === "target");
+  $("hint").textContent = HINTS[m];
+}
+$("mode-path").addEventListener("click", () => setMode("path"));
+$("mode-target").addEventListener("click", () => setMode("target"));
 
 // ----------------------------------------------------------------- stream
 // Trace persists across drawn paths; it clears only on reset. Server-side
@@ -239,14 +270,31 @@ function evtWorld(ev) {
   return S2W(ev.clientX - r.left, ev.clientY - r.top);
 }
 
-// ------------------------------------------------------------ drawing path
+// ------------------------------------------- drawing path / placing target
 cv.addEventListener("pointerdown", ev => {
+  if (mode === "target") {
+    if (!targetPending) {                       // first click: place the target
+      targetPending = evtWorld(ev);
+      $("hint").textContent = HINTS.aim;
+    } else {                                    // second click: aim = velocity
+      const w = evtWorld(ev);
+      fetch("/target", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ x: targetPending[0], z: targetPending[1],
+                               vx: w[0] - targetPending[0], vz: w[1] - targetPending[1] })
+      });
+      targetPending = null; activePath = null;
+      $("hint").textContent = HINTS.target;
+    }
+    return;
+  }
   drawing = true; cv.setPointerCapture(ev.pointerId);
   drawPts = [evtWorld(ev)]; activePath = null;
 });
 cv.addEventListener("pointermove", ev => {
+  mouseWorld = evtWorld(ev);
   if (!drawing) return;
-  const w = evtWorld(ev), last = drawPts[drawPts.length - 1];
+  const w = mouseWorld, last = drawPts[drawPts.length - 1];
   if (Math.hypot(w[0] - last[0], w[1] - last[1]) > 0.01) drawPts.push(w);
 });
 cv.addEventListener("pointerup", async ev => {
@@ -289,6 +337,31 @@ function drawPathPoly(pts, style, width, dash) {
   ctx.beginPath();
   for (let i = 0; i < pts.length; i++) { const [sx, sy] = W2S(pts[i][0], pts[i][1]); i ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy); }
   ctx.stroke(); ctx.setLineDash([]);
+}
+
+function drawArrow(a, b, style) {
+  const [x0, y0] = W2S(a[0], a[1]), [x1, y1] = W2S(b[0], b[1]);
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (L < 2) return;
+  ctx.strokeStyle = style; ctx.fillStyle = style; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  const ux = dx / L, uy = dy / L, hw = 4, hl = 8;   // arrowhead
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x1 - hl * ux + hw * uy, y1 - hl * uy - hw * ux);
+  ctx.lineTo(x1 - hl * ux - hw * uy, y1 - hl * uy + hw * ux);
+  ctx.closePath(); ctx.fill();
+}
+
+function drawTargetMarker(x, z, pending) {
+  const [sx, sy] = W2S(x, z);
+  ctx.globalAlpha = pending ? 0.55 : 1.0;
+  ctx.fillStyle = TARGET_COLOR;
+  ctx.beginPath(); ctx.arc(sx, sy, 4.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.globalAlpha = 0.35;                      // faint capture-radius ring
+  ctx.strokeStyle = TARGET_COLOR; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+  ctx.beginPath(); ctx.arc(sx, sy, R_CAP * SCALE, 0, 2 * Math.PI); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 1.0;
 }
 
 const PHI1_VIS_MAX = Math.PI / 3;   // 60 deg -> full stroke-line extent
@@ -350,9 +423,26 @@ function render() {
   drawPathPoly(activePath, "#5b6cff", 2, [6, 5]);            // committed path (on top)
   if (drawing) drawPathPoly(drawPts, "#9aa1ad", 2, [2, 4]); // live freehand
   // commanded target marker
-  if (activePath || state.following) {
+  if ((activePath || state.following) && !state.pursuing) {
     const [cx, cy] = W2S(state.cx, state.cz);
     ctx.fillStyle = "#5b6cff"; ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, 2 * Math.PI); ctx.fill();
+  }
+  // pursuit target: live (streamed from the sim) with its velocity arrow
+  if (state.pursuing) {
+    drawTargetMarker(state.tx, state.tz, false);
+    if (Math.hypot(state.tvx, state.tvz) > 1e-3)
+      drawArrow([state.tx, state.tz], [state.tx + state.tvx, state.tz + state.tvz], TARGET_COLOR);
+  }
+  // pending target being aimed: marker + velocity preview toward the cursor
+  if (targetPending) {
+    drawTargetMarker(targetPending[0], targetPending[1], true);
+    if (mouseWorld) {
+      drawArrow(targetPending, mouseWorld, TARGET_COLOR);
+      const spd = Math.hypot(mouseWorld[0] - targetPending[0], mouseWorld[1] - targetPending[1]);
+      const [mx, my] = W2S(mouseWorld[0], mouseWorld[1]);
+      ctx.fillStyle = TARGET_COLOR; ctx.font = "12px sans-serif";
+      ctx.fillText(`v = ${spd.toFixed(2)}`, mx + 10, my - 8);
+    }
   }
   drawDragonfly(state);
   updateReadout(state);
@@ -369,6 +459,8 @@ function updateReadout(s) {
   $("r-mag").textContent = `${D(s.phi1).toFixed(0)}°  ${D(s.psi1).toFixed(0)}°`;
   const st = $("status");
   if (!s.ok) { st.className = "status sat"; st.textContent = "saturated"; }
+  else if (s.pursuing) { st.className = "status pursue"; st.textContent = "pursuing target"; }
+  else if (s.captured) { st.className = "status cap"; st.textContent = "captured"; }
   else if (s.following) { st.className = "status follow"; st.textContent = "following path"; }
   else { st.className = "status hover"; st.textContent = "hover / hold"; }
 }

@@ -50,88 +50,162 @@ We propose a control strategy for flapping flight.
 
 \section{Model Description}\label{sec:model}
 
-The flapping flight dynamics model consists of a
-point mass body, free to move in two dimensions,
-subjected to gravity and to the aerodynamic
-force from $N$ wing pairs. The two spatial directions
-are $\hat{x}$, which is parallel to the ground,
-and $\hat{z}$, which is parallel and opposed to the
-direction of gravity. The spatial coordinates $(x^*,z^*)$
-are nondimensionalized by the body length $L$. Time $t^*$
-is nondimensionalized by the gravitational time scale $\sqrt{L/g}$.
-Each wing pair is treated as massless, and
-has a dimensionless inverse wing loading $(A^*/m^*) / N$, where
-\begin{align}
-    \frac{A^*}{m^*} = \frac{\rho_\text{air} L A}{m} 
-\end{align}
-in which $m$ is the body mass and $A$ the total wing surface area.
-The dimensionless value of the weight $mg$ is 1.
-In our 2D approximation,
-both wings of each pair are lumped into a single
-surface element, free to translate along the stroke
-axis $\hat{s}$. The translational coordinate is $s^*$.
-The stroke basis $(\hat{s},\hat{n})$, consisting of
-the stroke axis $\hat{s}$ and the stroke-plane normal
-vector $\hat{n}$, is obtained by rotating the fixed
-frame basis $(\hat{x},\hat{z})$ by the stroke plane
-angle $\gamma$. The angular sign convention in the model
-is that a positive angle results in a counterclockwise rotation.
-The flapping motion of each wing pair element is
-prescribed by the kinematic law
-\begin{align}
-    s^*(t^*) = s_0^* \sin\omega^*t^* \implies s^*(\tau^*) = s_0^* \sin\tau^*
-\end{align}
-where $s_0^*$ and $\omega^*$ are the (dimensionless) amplitude
-and frequency parameters, respectively.
-We will use the shorthand $\tau^* = \omega^* t^*$,
-denoting the phase. A wingbeat cycle occurs between $\tau^* = 0$
-and $\tau^* = 2\pi$.
+\subsection{Overview}
 
-Each wing pair element
-is oriented perpendicular to the $(\hat{x},\hat{z})$
-plane, and is free to rotate or \emph{pitch} about
-its aerodynamic center. The pitch angle $\psi$
-is defined relative to the stroke-plane normal $\hat{n}$.
-The pitch kinematics are prescribed by
-\begin{align}
-    \psi(\tau^*) = \psi_0 + \psi_1 \sin(\tau^* - \delta_0)
-\end{align}
-where $\psi_0$ is the mean pitch angle,
-$\psi_1$ is the pitch amplitude, and $\delta_0$
-is the phase offset relative to the flapping motion.
-The quantities relevant to the wing kinematics,
-namely $\gamma$, $s^*$, and $\psi$, are represented for
-a single wing pair element in \autoref{fig:model-definitions}.
-From these quantities and the body velocity vector,
-the angle of attack $\alpha$ can be determined, along
-with the lift and drag force directions. This is discussed
-in more detail in the following section.
-To finally obtain the aerodynamic force on
-each wing pair element, a lift and drag coefficient
-model is used, following~\cite{wang2004, wang2008},
-which gives
-\begin{align}
-    C_L &= C_{L,0} \sin 2\alpha \label{eq:cl} \\
-    C_D &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha \label{eq:cd}
-\end{align}
-where $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, and $C_{D,\frac{\pi}{2}} = 2.0$.
-An important simplification of the model is
-that the aerodynamic moments on the body
-are neglected, and there are no attitude 
-dynamics.
+The flapping flight dynamics model consists in a
+point mass subjected to its own weight $m\vec{g}$
+and to the aerodynamic force $\vec{F}$ from $N$ wing pairs.
+The point mass is free to move in the $(x,z)$ plane,
+with the spatial direction $\hat{z}$ such that
+$\vec{g} = -g \hat{z}$, and $\hat{x}$ such that
+$\left(\hat{x},\hat{z}\right)$ forms a direct orthonormal basis.
+The body position is $\vec{x} = x \hat{x} + z \hat{z}$ and
+the body velocity is $\vec{u} = \dot{x} \hat{x} + \dot{z} \hat{z}$.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/model-defs.png}
-    \caption{Definition of the wing kinematic quantities $\gamma$, $s^*$, and $\psi$. As represented, $\gamma < 0$, $s^* < 0$, and $\psi > 0$.}\label{fig:model-definitions}
-\end{figure}
+\subsection{Aerodynamic Force}
 
-When $N = 2$, to model a dragonfly for example,
-there is an additional phase parameter $\sigma_0$
-representing the phase offset between the two wing
-pairs, which may then beat in sync, out of phase,
-or somewhere in between. The kinematics of the two
-wing pairs remain otherwise identical.
+The total wing area is $A$, and both wings of each pair
+are lumped into a single, massless surface element with area $A / N$.
+We will refer to these surface elements as \emph{wing elements},
+keeping in mind they each represent \emph{both} wings of a
+left-right pair. The aerodynamic properties of a wing element
+are represented by the quasi-steady model of~\cite{wang2004, wang2008}:
+\begin{align}
+    C_L(\alpha) &= C_{L,0} \sin 2\alpha \label{eq:cl} \\
+    C_D(\alpha) &= C_{D,0} \cos^2 \alpha + C_{D,\frac{\pi}{2}} \sin^2 \alpha \label{eq:cd}
+\end{align}
+where $\alpha$ is the angle of attack, and the parameter values
+are $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, and $C_{D,\frac{\pi}{2}} = 2.0$.
+To express the wing element kinematics and aerodynamic force $\vec{F}$,
+it is convenient to introduce the stroke basis $(\hat{s},\hat{n})$,
+obtained by rotating the fixed frame basis $(\hat{x},\hat{z})$
+by the \emph{stroke plane angle} $\gamma$. That is
+\begin{align}
+    \hat{s} &= \cos\gamma\hat{x} + \sin\gamma\hat{z} \\
+    \hat{n} &= -\sin\gamma\hat{x} + \cos\gamma\hat{z}
+\end{align}
+Each wing element translates about the stroke axis $\hat{s}$,
+and $\hat{n}$ represents the stroke plane normal.
+The wing element position relative to the point mass body is
+$\vec{s} = s(t) \hat{s}$, where $s(t)$ is the prescribed
+flapping amplitude. Because the wing
+is instantaneously at a distance $s(t)$ from the body,
+the aerodynamic force acts on the body via a moment arm $s(t)$.
+However, in the present point mass model, there is no
+rotational degree of freedom, and the force is effectively
+considered to act through the center of mass.
+
+Supposing $\gamma$ stays constant during the wing
+stroke, the wing velocity relative to the body is
+$\vec{\dot{s}} = \dot{s}(t) \hat{s}$.
+With the body velocity in the fixed frame (relative to still air) $\vec{u}$,
+the wing velocity relative to the air is $\vec{v} = \vec{\dot{s}} + \vec{u}$.
+The aerodynamic force for wing pair $i$ is given below (note the
+subscript $i$ is omitted from quantities on the right hand side for tidiness)
+\begin{align}
+    \vec{F_i} = \frac12 \rho \frac{A}{N} |\vec{v}|^2 \left[ C_L(\alpha) \hat{\ell} + C_D(\alpha) \hat{d} \right]
+\end{align}
+where the drag direction vector $\hat{d}$ is defined as
+\begin{align}
+    \hat{d} = -\hat{v} = -\frac{\vec{v}}{|\vec{v}|}
+\end{align}
+and the lift direction vector $\hat{\ell}$ is
+\begin{align}
+    \hat{\ell} = -\hat{d}^\perp
+\end{align}
+obtained by \emph{clockwise} rotation of the drag direction vector by $\pi / 2$,
+such that $(\hat{\ell},\hat{d})$ forms a direct orthonormal basis.
+To express the angle of attack $\alpha$, it is convenient to
+define the chord direction vector $\hat{c}$, pointing from the
+trailing edge to the leading edge. Let $\psi(t)$ be the wing pitch angle,
+relative to the stroke plane normal $\hat{n}$. The chord direction vector is
+\begin{align}
+    \hat{c} = - \sin\psi\hat{s} + \cos\psi\hat{n} 
+\end{align}
+The angle of attack $\alpha$ is defined as the
+signed angle from the velocity vector $\hat{v}$
+to the chord direction vector $\hat{c}$. It follows that
+\begin{align}
+    \cos{\alpha} &= \hat{v} \cdot \hat{c} \\
+    \sin{\alpha} &= \hat{v} \times \hat{c}
+\end{align}
+where $\hat{v} = \vec{v} / |\vec{v}|$ and $\times$
+denotes the 2D cross product. $C_L(\alpha)$
+can be rewritten as a function of $\cos \alpha$ and $\sin \alpha$
+only, indeed
+\begin{align}
+    C_L(\alpha) &= C_{L,0} \sin 2\alpha \nonumber \\
+                &= 2 C_{L,0} \sin \alpha \cos \alpha
+\end{align}
+$C_L$ and $C_D$ can then be expressed with simple vector math as follows
+\begin{align}
+    C_L &= 2 C_{L,0} (\hat{v} \cdot \hat{c}) (\hat{v} \times \hat{c}) \\
+    C_D &= C_{D,0} (\hat{v} \cdot \hat{c})^2 + C_{D,\frac{\pi}{2}} (\hat{v} \times \hat{c})^2
+\end{align}
+The lift and drag directions resulting from the above expressions
+for $C_L$, $C_D$, $\hat{\ell}$, and $\hat{d}$ are checked for
+correctness in all four wing attitude quadrants in [FIG:ALPHA-QUADRANTS].
+
+\subsection{Wing Kinematics}
+
+Wing motion is prescribed by the flapping coordinate $s(t)$
+and the pitch angle $\psi(t)$. Flapping motion for each wing
+element is taken to be sinusoidal:
+\begin{align}
+    s(t) &= s_0 \cos(\omega_0 t - \sigma)
+\end{align}
+where $s_0$ and $\omega_0$ are set parameters for all wing pairs,
+and $\sigma$ is a phase parameter specific to a given wing pair.
+For pitch, we consider two different kinematics. The first is
+sinusoidal:
+\begin{align}
+    \psi(t) &= \psi_0 + \psi_1 \cos(\omega_0 t - \sigma - \delta_0)
+\end{align}
+where $\psi_0$ (mean pitch), $\psi_1$ (pitch amplitude),
+and $\delta_0$ (flapping/pitching phase offset) are set parameters
+for all wing pairs. The second kinematics law is simpler: through each
+half of the wing stroke, the wing pitch remains constant. 
+The first half of the stroke, when the wing moves along $+\hat{s}$,
+corresponds to $\omega_0 t - \sigma \in [0,\,\pi]\pmod{2\pi}$.
+The second half, when the wing moves along $-\hat{s}$,
+corresponds to $\omega_0 t - \sigma \in [\pi,\,2\pi]\pmod{2\pi}$.
+The simplified pitch kinematics are, then,
+\begin{align}
+    \psi(t) = 
+    \begin{cases}
+        \psi_0 - \psi_1 & \text{if } \omega_0 t - \sigma \in [0,\,\pi[\pmod{2\pi} \\
+        \psi_0 + \psi_1 & \text{if } \omega_0 t - \sigma \in [\pi,\,2\pi[\pmod{2\pi}
+   \end{cases}
+\end{align}
+The can be considered an approximation of
+the sinusoidal law with $\delta_0 = \frac{\pi}{2}$.
+
+\subsection{Equation of Motion}
+
+The equation of motion is
+\begin{align}
+m \frac{d^2 \vec{x}}{d t^2} &= m \vec{g} + \frac12 \rho A \sum_i^N \frac1N |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+\end{align}
+The equation can be nondimensionalized using
+the body length $L$ as the length scale, and the
+gravitational time scale $\sqrt{L/g}$,
+giving an 'acceleration scale' $g$.
+Introducing the $*$ superscript to denote nondimensionalized
+quantities, the equation of motion can be divided by $mg$
+and becomes
+\begin{align}
+    \ddot{x}^* \hat{x} + \ddot{z}^* \hat{z} &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_i^N \frac{1}{gL} |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right] \nonumber \\
+                                            &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_i^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+\end{align}
+We introduce the dimensionless inverse wing loading $A^*/m^*$
+defined as
+\begin{align}
+    \frac{A^*}{m^*} = \frac{\rho A L}{m} 
+\end{align}
+giving the final form of the dimensionless equation of motion
+\begin{align}
+    \ddot{x}^* \hat{x} + (\ddot{z}^* + 1) \hat{z} &= \frac12 \frac{A^*}{m^*} \frac1N \sum_i^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+\end{align}
 
 \section{Controller Design}\label{sec:design}
 
@@ -243,8 +317,16 @@ corresponds to $J = 0$.
 
 For $J=0$, the angle of attack simplifies to
 \begin{align}
-    \alpha = \frac{\cos\tau^*}{|\cos\tau^*|} \psi + \frac{\pi}{2}
+    \alpha = \frac{\cos\tau^*}{|\cos\tau^*|} \psi + \frac{\pi}{2}\label{eq:alpha-hover}
 \end{align}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/alpha_quadrants.light.png}
+    \caption{Verification of the hover ($J=0$) angle-of-attack expression
+    (\autoref{eq:alpha-hover}) for the four sign combinations of
+    $(\cos\tau^*, \psi)$.}\label{fig:alpha-quadrants}
+\end{figure}
+See \autoref{fig:alpha-quadrants}.
 Using the appropriate trigonometric identities, the
 aerodynamic coefficients (defined in \autoref{eq:cl} and \autoref{eq:cd})
 are
@@ -620,9 +702,8 @@ need to adapt based on the current $J$.
     on $\psi_1$ when $J > 0$.}\label{fig:beta_vs_psi0_J}
 \end{figure}
 
-We conclude this analytical section by
-summarizing the kinematic parameters for the general case,
-in \autoref{tab:param-general}. Since there is no requirement
+We summarize the kinematic parameters
+for the general case in \autoref{tab:param-general}. Since there is no requirement
 for steady flight like in hover, no specific values for the control
 variables $s_0^*$ and $\psi_0$ are prescribed, however the relevant
 variables that would inform the choice of the values are still listed.
@@ -641,6 +722,202 @@ variables that would inform the choice of the values are still listed.
     \bottomrule
   \end{tabular}
 \end{table}
+
+\subsubsection{Square-Wave Pitch Simplification}\label{sec:square-wave}
+
+The general-case results above are exact but not closed-form:
+$\psi_1$ remains inside the cycle averages through the
+$\cos\left(2\psi_1\cos\tau^*\right)$ and
+$\sin\left(2\psi_1\cos\tau^*\right)$ factors, so quantities
+such as $\psi_1^\text{opt}(J)$ and the maps of
+\autoref{fig:cf_J} must be evaluated numerically. Closed
+forms can be obtained obtained by replacing the sinusoidal pitch
+schedule with its square-wave idealization,
+\begin{align}
+    \psi(\tau^*) = \psi_0 - \sigma\, \psi_1 \label{eq:psi-square}
+\end{align}
+which holds the pitch constant at $\psi_0 - \psi_1$ during the
+forward half-stroke ($\sigma = +1$) and at $\psi_0 + \psi_1$
+during the backward half-stroke ($\sigma = -1$). The pitch flip
+occurs at stroke reversal, since we impose $\delta_0 = 90^\circ$.
+
+reaches at mid-stroke. 
+This implies instantaneous rotation of the wing, which is not
+achievable by a real wing but is mostly harmless in the quasi-steady
+model because the in-plane wing velocity vanishes at reversal.
+The flip produces at most a bounded force discontinuity due to the
+normal inflow, when $J > 0$.
+The simulations in the remainder of this report retain
+the sinusoidal schedule, the square wave serves purely as an
+analytical surrogate.
+
+Since $\sigma^2 = 1$, the pitch trigonometric factors are
+piecewise constant over each half-stroke:
+\begin{align}
+    \sin 2\psi &= \sin 2\psi_0 \cos 2\psi_1 - \sigma \cos 2\psi_0 \sin 2\psi_1 \\
+    \cos 2\psi &= \cos 2\psi_0 \cos 2\psi_1 + \sigma \sin 2\psi_0 \sin 2\psi_1
+\end{align}
+Comparing with the expansions used in the hover case, the square
+wave simply amounts to the substitutions
+\begin{align}
+    \cos\left(2\psi_1 \cos\tau^*\right) \to \cos 2\psi_1
+    \quad\quad\quad
+    \sin\left(2\psi_1 \cos\tau^*\right) \to \sigma \sin 2\psi_1 \label{eq:square-subs}
+\end{align}
+Since $\sigma$ changes sign under the half-period shift
+$\tau^* \to \tau^* + \pi$, exactly like the
+$\sin\left(2\psi_1\cos\tau^*\right)$ factor it replaces, every
+vanishing average identified previously still vanishes, and the
+pitch dependence now factors entirely out of the remaining
+averages.
+
+In the hover case, applying the substitutions to \autoref{eq:cfn}
+and \autoref{eq:cfs}, and using
+$\langle \sigma \cos\tau^* |\cos\tau^*| \rangle = \langle \cos^2\tau^* \rangle = \frac12$,
+gives
+\begin{align}
+    C_{F^*_n} = C_{L,0} \sin 2\psi_1 \cos 2\psi_0
+    \quad\quad\quad
+    C_{F^*_s} = -\frac{\Delta C_D}{2} \sin 2\psi_1 \sin 2\psi_0 \label{eq:cf-hover-square}
+\end{align}
+and therefore
+\begin{align}
+    C_{F^*} = \sin 2\psi_1 \sqrt{C_{L,0}^2 \cos^2 2\psi_0 + \frac{\Delta C_D^2}{4} \sin^2 2\psi_0}
+\end{align}
+The structure observed numerically in \autoref{fig:cf_components}
+and \autoref{fig:cf} is now explicit. The component ratio
+$C_{F^*_s} / C_{F^*_n} = -\left( \Delta C_D / 2 C_{L,0} \right) \tan 2\psi_0$
+reproduces \autoref{eq:beta-hover} identically---as it must,
+since that relation was derived independently of the $\psi_1$
+schedule. The pitch amplitude enters only through the
+$\sin 2\psi_1$ prefactor, so the optimum is exact and independent
+of $\psi_0$:
+\begin{align}
+    \psi_1^\text{opt} = 45^\circ
+    \quad\quad\quad
+    C_{F^*}^\text{max} = C_{L,0}
+\end{align}
+the latter attained at the reference $\psi_0 = 0^\circ$ (since
+$C_{L,0} > \Delta C_D / 2$). The maximum has a transparent
+interpretation: with $\psi_1 = 45^\circ$ and $\psi_0 = 0^\circ$,
+the angle of attack is $\alpha = \sigma \psi + \frac\pi2 = 45^\circ$
+on both half-strokes---the square wave holds the wing at the
+lift-maximizing angle of attack for the entire cycle, so the
+force coefficient equals $C_{L,0}$ exactly. The sinusoidal
+schedule only passes through this ideal angle twice per
+half-stroke, which is why its optimum is displaced
+($\psi_1^\text{opt} \approx 51^\circ$) and slightly weaker
+($C_{F^*}^\text{max} \approx 1.43$ versus $C_{L,0} = 1.5$, a
+$5\%$ overestimate by the square wave).
+
+In the general case, the same substitutions pull $\psi_1$ out of
+$I_n$ and $I_s$:
+\begin{align}
+    I_n = A_n \cos 2\psi_1 + B_n \sin 2\psi_1
+    \quad\quad\quad
+    I_s = A_s \cos 2\psi_1 + B_s \sin 2\psi_1 \label{eq:In-Is-square}
+\end{align}
+where $A_n$, $B_n$, $A_s$, and $B_s$ are functions of $J$ only.
+Introducing the family of averages
+\begin{align}
+    W_k(J) = \left\langle \frac{|\cos\tau^*|^k}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle
+    \quad\quad\quad
+    k \in \{0, 1, 2, 3\}
+\end{align}
+they read
+\begin{align}
+    A_n &= J \left[ \left( 2 C_{L,0} - \frac{\Delta C_D}{2} \right) W_2 + \frac{\Delta C_D}{2} J^2 W_0 \right]
+    &
+    A_s &= J \left[ C_{L,0} J^2 W_0 - \left( C_{L,0} - \Delta C_D \right) W_2 \right] \\
+    B_n &= C_{L,0} W_3 - \left( C_{L,0} - \Delta C_D \right) J^2 W_1
+    &
+    B_s &= \frac{\Delta C_D}{2} W_3 + \left( 2 C_{L,0} - \frac{\Delta C_D}{2} \right) J^2 W_1
+\end{align}
+The odd-$k$ members are elementary,
+\begin{align}
+    W_1 = \frac{2}{\pi} \tan^{-1} \frac{1}{J}
+    \quad\quad\quad
+    W_3 = \frac{1}{\pi} \left[ \left( 1 - J^2 \right) \tan^{-1} \frac{1}{J} + J \right]
+\end{align}
+while the even-$k$ members, together with $I_0$, are complete
+elliptic integrals: with $\mu = 1 / \left( 1 + J^2 \right)$,
+\begin{align}
+    W_0 = \frac{2}{\pi} \sqrt{\mu}\, K(\mu)
+    \quad\quad\quad
+    W_2 = I_0 - J^2 W_0
+    \quad\quad\quad
+    I_0 = \frac{2}{\pi} \frac{E(\mu)}{\sqrt{\mu}}
+\end{align}
+where $K(\mu) = \int_0^{\pi/2} \left( 1 - \mu \sin^2\theta \right)^{-1/2} d\theta$
+and $E(\mu) = \int_0^{\pi/2} \left( 1 - \mu \sin^2\theta \right)^{1/2} d\theta$.
+\autoref{eq:cfn-general-op}, \autoref{eq:cfs-general-op}, and
+\autoref{eq:beta-general} then hold unchanged with these $I_n$
+and $I_s$, so the mean aerodynamic force is closed-form in all
+of the kinematic parameters. Setting $J = 0$ gives
+$A_n = A_s = 0$, $B_n = C_{L,0}/2$, and $B_s = \Delta C_D / 4$,
+recovering \autoref{eq:cf-hover-square}.
+
+Along the reference axis $\psi_0 = 0^\circ$,
+\autoref{eq:cfn-general-op} becomes a pure harmonic in $2\psi_1$,
+\begin{align}
+    C_{F^*_n} = 2 \left( A_n \cos 2\psi_1 + B_n \sin 2\psi_1 \right) - 2 J \bar{C}_D\, I_0
+\end{align}
+so the continued hover optimum tracked numerically in
+\autoref{fig:hover_opt_J} becomes exact:
+\begin{align}
+    \psi_1^\text{opt}(J) = \frac12 \tan^{-1} \frac{B_n}{A_n}
+    \quad\quad\quad
+    \left( C_{F^*_n} \right)^\text{max} = 2 \sqrt{A_n^2 + B_n^2} - 2 J \bar{C}_D\, I_0 \label{eq:psi1-opt-square}
+\end{align}
+At $J = 0$, $A_n = 0$ and $\psi_1^\text{opt} = 45^\circ$; as $J$
+grows, $A_n$ increases from zero (both $A_n$ and $B_n$ are
+positive here), so $\psi_1^\text{opt}$ decreases monotonically.
+The closed form thus reproduces, and explains, the trend of
+\autoref{fig:hover_opt_J}: the growing $A_n \cos 2\psi_1$ term,
+which carries the normal-inflow contributions and peaks at
+$\psi_1 = 0^\circ$, pulls the optimum toward smaller pitch
+amplitudes---exactly the mechanism illustrated in
+\autoref{fig:psi1-decrease}. \autoref{tab:square-wave} compares
+the square-wave predictions with the sinusoidal schedule:
+$\psi_1^\text{opt}$ is offset low by $5$--$6^\circ$, and the
+available force is captured to within $5\%$ across $J \in [0,1]$
+(an overestimate at hover, a slight underestimate at speed).
+\begin{table}[htbp]
+  \centering
+  \caption{Continued hover optimum at $\psi_0 = 0^\circ$:
+  square-wave closed form (\autoref{eq:psi1-opt-square}) versus
+  the sinusoidal schedule evaluated numerically
+  (\autoref{fig:hover_opt_J}).}
+  \label{tab:square-wave}
+  \begin{tabular}{lcccc}
+    \toprule
+    & \multicolumn{2}{c}{$\psi_1^\text{opt}$} & \multicolumn{2}{c}{$\left( C_{F^*_n} \right)^\text{max}$} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+    $J$ & Square & Sinusoidal & Square & Sinusoidal \\
+    \midrule
+    $0$    & $45.0^\circ$ & $50.8^\circ$ & $1.500$ & $1.431$ \\
+    $0.25$ & $32.9^\circ$ & $38.5^\circ$ & $1.241$ & $1.247$ \\
+    $0.5$  & $23.0^\circ$ & $28.5^\circ$ & $1.084$ & $1.124$ \\
+    $0.75$ & $16.1^\circ$ & $21.1^\circ$ & $0.975$ & $1.024$ \\
+    $1$    & $11.6^\circ$ & $16.0^\circ$ & $0.875$ & $0.921$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Beyond its transparency, this limit has practical value for
+control. The trim of the two control variables
+$\left( s_0^*, \psi_0 \right)$ to a demanded mean
+force---performed numerically in
+\autoref{sec:control-law}---becomes analytically invertible: for
+a demanded force direction, \autoref{eq:beta-general} reduces to
+a harmonic equation of the form
+$a \sin 2\psi_0 + b \cos 2\psi_0 = c$ with known coefficients,
+yielding $\psi_0$ explicitly, after which $s_0^*$ follows from
+the demanded force magnitude through $q^*$ (\autoref{eq:q}). The
+square-wave expressions could therefore serve as an analytical
+initialization---or replacement---for the numerical trim solver,
+at the cost of the few-percent model error quantified in
+\autoref{tab:square-wave}.
 
 \newpage
 
@@ -733,7 +1010,7 @@ In the hover and prey pursuit cases, $\vec{a}^*_r = \vec{0}$.
 In the prey pursuit case specifically, $K_p = 0$,
 while either $K_p$ or $K_d$ may be zero in the hover case.
 We will see that in practice, a simpler velocity-based
-expression ($\vec{a}^*_\text{des} &= K_d \left( \vec{u}^*_r - \vec{u}^* \right)$) is very satisfactory.
+expression ($\vec{a}^*_\text{des} = K_d \left( \vec{u}^*_r - \vec{u}^* \right)$) is very satisfactory.
 With the force demand formulated, $\gamma$ and $\psi_1$ 
 must now adapt to the measured velocity.
 The advance ratio is evaluated as
