@@ -4,6 +4,27 @@ Working notes for the feasibility envelope: the set of parameters whose
 cycle-averaged aerodynamic force reaches the body weight. Outside it, hover and
 any maneuvering anchored on hover are impossible.
 
+## Phase convention: paper vs code
+
+The report and the code use wing phases offset by a quarter period.
+
+- **Report (section 2):** flapping `s = s0 cos(omega t + phi)`, wing phase
+  `tau* = omega t`. Stroke velocity is `-s0* omega* sin(tau* + phi)`; the +s
+  half-stroke is `sin tau* < 0` (phi dropped in section 3); stroke-direction
+  sign `sigma = -sign(sin tau*)`.
+- **Code (`feasibility.py` / dragonpy kinematics, and the scripts here):**
+  internal phase `theta` with stroke velocity ~ `+cos theta` (position
+  ~ `sin theta`) and pitch `psi = psi0 + psi1 sin(theta - delta0)`.
+
+Mapping: `theta = tau* + pi/2`, so `cos theta = -sin tau*`. Under this shift
+the two conventions agree with the **same parameter values** — `delta0`,
+`psi0`, `psi1`, and pair-to-pair phase differences all carry over unchanged;
+only the phase origin moves. Practical consequences: report formulas in
+`sin tau*` correspond to code quantities in `cos theta` (this is how
+`alpha_quadrants.py` verifies the report's hover alpha expression against the
+blade-element code), and any waveform plotted against the code's phase is
+shifted a quarter period relative to the paper's `tau*`.
+
 ## Method
 
 The cycle-averaged force is a **1-D quadrature, not a dynamics simulation**. At

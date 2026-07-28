@@ -52,7 +52,7 @@ We propose a control strategy for flapping flight.
 
 \subsection{Overview}
 
-The flapping flight dynamics model consists in a
+The flapping flight dynamics model consists of a
 point mass subjected to its own weight $m\vec{g}$
 and to the aerodynamic force $\vec{F}$ from $N$ wing pairs.
 The point mass is free to move in the $(x,z)$ plane,
@@ -76,6 +76,7 @@ are represented by the quasi-steady model of~\cite{wang2004, wang2008}:
 \end{align}
 where $\alpha$ is the angle of attack, and the parameter values
 are $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, and $C_{D,\frac{\pi}{2}} = 2.0$.
+The model neglects any aerodynamic interaction between wing elements.
 To express the wing element kinematics and aerodynamic force $\vec{F}$,
 it is convenient to introduce the stroke basis $(\hat{s},\hat{n})$,
 obtained by rotating the fixed frame basis $(\hat{x},\hat{z})$
@@ -84,11 +85,11 @@ by the \emph{stroke plane angle} $\gamma$. That is
     \hat{s} &= \cos\gamma\hat{x} + \sin\gamma\hat{z} \\
     \hat{n} &= -\sin\gamma\hat{x} + \cos\gamma\hat{z}
 \end{align}
-Each wing element translates about the stroke axis $\hat{s}$,
+Each wing element translates along the stroke axis $\hat{s}$,
 and $\hat{n}$ represents the stroke plane normal.
 The wing element position relative to the point mass body is
 $\vec{s} = s(t) \hat{s}$, where $s(t)$ is the prescribed
-flapping amplitude. Because the wing
+flapping coordinate. Because the wing
 is instantaneously at a distance $s(t)$ from the body,
 the aerodynamic force acts on the body via a moment arm $s(t)$.
 However, in the present point mass model, there is no
@@ -103,36 +104,51 @@ the wing velocity relative to the air is $\vec{v} = \vec{\dot{s}} + \vec{u}$.
 The aerodynamic force for wing pair $i$ is given below (note the
 subscript $i$ is omitted from quantities on the right hand side for tidiness)
 \begin{align}
-    \vec{F_i} = \frac12 \rho \frac{A}{N} |\vec{v}|^2 \left[ C_L(\alpha) \hat{\ell} + C_D(\alpha) \hat{d} \right]
+    \vec{F}_i = \frac12 \rho \frac{A}{N} |\vec{v}|^2 \left[ C_L(\alpha) \hat{\ell} + C_D(\alpha) \hat{d} \right]
 \end{align}
-where the drag direction vector $\hat{d}$ is defined as
+where $\rho$ is the air density and the drag direction vector $\hat{d}$
+is defined as
 \begin{align}
     \hat{d} = -\hat{v} = -\frac{\vec{v}}{|\vec{v}|}
 \end{align}
-and the lift direction vector $\hat{\ell}$ is
+and the lift direction vector $\hat{\ell}$ is defined as
 \begin{align}
     \hat{\ell} = -\hat{d}^\perp
 \end{align}
-obtained by \emph{clockwise} rotation of the drag direction vector by $\pi / 2$,
-such that $(\hat{\ell},\hat{d})$ forms a direct orthonormal basis.
+where $\cdot^\perp$ denotes counterclockwise rotation by $\pi/2$.
+As a result, $(\hat{\ell},\hat{d})$ forms a direct orthonormal basis.
 To express the angle of attack $\alpha$, it is convenient to
 define the chord direction vector $\hat{c}$, pointing from the
 trailing edge to the leading edge. Let $\psi(t)$ be the wing pitch angle,
 relative to the stroke plane normal $\hat{n}$. The chord direction vector is
 \begin{align}
-    \hat{c} = - \sin\psi\hat{s} + \cos\psi\hat{n} 
+    \hat{c} = - \sin\psi\hat{s} + \cos\psi\hat{n}
 \end{align}
-The angle of attack $\alpha$ is defined as the
-signed angle from the velocity vector $\hat{v}$
-to the chord direction vector $\hat{c}$. It follows that
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/model_geometry.light.png}
+    \caption{Model geometry. The stroke basis $(\hat{s},\hat{n})$ is obtained
+    by rotating the fixed frame basis $(\hat{x},\hat{z})$ by the stroke plane
+    angle $\gamma$. The wing element sits at position $s(t)\,\hat{s}$ relative
+    to the point mass body, with chord direction $\hat{c}$ at pitch angle
+    $\psi$ from the stroke plane normal $\hat{n}$. For simplicity, only one wing element
+    is drawn.}\label{fig:model-geometry}
+\end{figure}
+The geometry introduced so far is illustrated in \autoref{fig:model-geometry}.
+The angle of attack $\alpha$ can be defined here as the
+signed angle from the velocity direction vector $\hat{v}$
+to the chord direction vector $\hat{c}$. We show
+below that this definition is consistent
+with the definition of the lift direction vector $\hat{\ell}$,
+giving the correct sign for lift. With this definition,
 \begin{align}
     \cos{\alpha} &= \hat{v} \cdot \hat{c} \\
     \sin{\alpha} &= \hat{v} \times \hat{c}
 \end{align}
 where $\hat{v} = \vec{v} / |\vec{v}|$ and $\times$
-denotes the 2D cross product. $C_L(\alpha)$
-can be rewritten as a function of $\cos \alpha$ and $\sin \alpha$
-only, indeed
+denotes the 2D cross product, defined as $\vec{a}\times\vec{b} = a_1 b_2 - a_2 b_1$.
+$C_L(\alpha)$ can be rewritten as a function of
+$\cos \alpha$ and $\sin \alpha$ only, indeed
 \begin{align}
     C_L(\alpha) &= C_{L,0} \sin 2\alpha \nonumber \\
                 &= 2 C_{L,0} \sin \alpha \cos \alpha
@@ -144,7 +160,28 @@ $C_L$ and $C_D$ can then be expressed with simple vector math as follows
 \end{align}
 The lift and drag directions resulting from the above expressions
 for $C_L$, $C_D$, $\hat{\ell}$, and $\hat{d}$ are checked for
-correctness in all four wing attitude quadrants in [FIG:ALPHA-QUADRANTS].
+correctness in all four quadrants of the angle of attack in
+\autoref{fig:liftdrag-quadrants}, generated directly from the expressions.
+Because $\hat{\ell}$ and $\hat{d}$ are constructed from
+$\hat{v}$ alone, the wing attitude enters only through the scalar
+coefficients, so it suffices to check the coefficient signs
+quadrant by quadrant. Naturally, drag is positive along $\hat{d}$ for every
+$\alpha$. The sign of $C_L$ is that of
+$(\hat{v} \cdot \hat{c})(\hat{v} \times \hat{c}) =
+\cos\alpha \sin\alpha$: positive in quadrants I and III, negative
+in II and IV, as drawn.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/liftdrag_quadrants.light.png}
+    \caption{Lift and drag directions in the four quadrants of the angle of
+    attack $\alpha$, measured from the wing velocity direction $\hat{v}$ to
+    the chord direction $\hat{c}$. Panels are labeled by quadrant
+    (I--IV). Drag ($C_D > 0$) always opposes the wing
+    velocity along $\hat{d}$, while the sign of $C_L$
+    orients lift along $\pm\hat{\ell}$. The hollow circle marks the
+    wing leading edge (the $\hat{c}$ end of the
+    chord).}\label{fig:liftdrag-quadrants}
+\end{figure}
 
 \subsection{Wing Kinematics}
 
@@ -152,50 +189,76 @@ Wing motion is prescribed by the flapping coordinate $s(t)$
 and the pitch angle $\psi(t)$. Flapping motion for each wing
 element is taken to be sinusoidal:
 \begin{align}
-    s(t) &= s_0 \cos(\omega_0 t - \sigma)
+    s(t) &= s_0 \cos(\omega t + \phi)
 \end{align}
-where $s_0$ and $\omega_0$ are set parameters for all wing pairs,
-and $\sigma$ is a phase parameter specific to a given wing pair.
+where $s_0$ and $\omega$ are set parameters for all wing pairs,
+and $\phi$ is a phase parameter specific to a given wing pair,
+allowing for out of phase flapping of two wing pairs.
 For pitch, we consider two different kinematics. The first is
 sinusoidal:
 \begin{align}
-    \psi(t) &= \psi_0 + \psi_1 \cos(\omega_0 t - \sigma - \delta_0)
+    \psi(t) &= \psi_0 + \psi_1 \cos(\omega t + \phi - \delta_0)
 \end{align}
 where $\psi_0$ (mean pitch), $\psi_1$ (pitch amplitude),
-and $\delta_0$ (flapping/pitching phase offset) are set parameters
+and $\delta_0$ (pitch phase lead) are set parameters
 for all wing pairs. The second kinematics law is simpler: through each
-half of the wing stroke, the wing pitch remains constant. 
-The first half of the stroke, when the wing moves along $+\hat{s}$,
-corresponds to $\omega_0 t - \sigma \in [0,\,\pi]\pmod{2\pi}$.
-The second half, when the wing moves along $-\hat{s}$,
-corresponds to $\omega_0 t - \sigma \in [\pi,\,2\pi]\pmod{2\pi}$.
+half of the wing stroke, the wing pitch remains constant.
+The first half of the stroke, when the wing moves along $-\hat{s}$,
+corresponds to $\omega t + \phi \in [0,\,\pi[\pmod{2\pi}$.
+The second half, when the wing moves along $+\hat{s}$,
+corresponds to $\omega t + \phi \in [\pi,\,2\pi[\pmod{2\pi}$.
 The simplified pitch kinematics are, then,
 \begin{align}
-    \psi(t) = 
+    \psi(t) =
     \begin{cases}
-        \psi_0 - \psi_1 & \text{if } \omega_0 t - \sigma \in [0,\,\pi[\pmod{2\pi} \\
-        \psi_0 + \psi_1 & \text{if } \omega_0 t - \sigma \in [\pi,\,2\pi[\pmod{2\pi}
+        \psi_0 + \psi_1 & \text{if } \omega t + \phi \in [0,\,\pi[\pmod{2\pi} \\
+        \psi_0 - \psi_1 & \text{if } \omega t + \phi \in [\pi,\,2\pi[\pmod{2\pi}
    \end{cases}
 \end{align}
-The can be considered an approximation of
+This can be considered an approximation of
 the sinusoidal law with $\delta_0 = \frac{\pi}{2}$.
+Both pitch kinematics laws are illustrated in
+\autoref{fig:pitch-kinematics}. As the figure makes apparent,
+$\delta_0 = \frac{\pi}{2}$ keeps the leading edge oriented into
+the wing motion throughout the cycle, with pitch extremes at
+mid-stroke and $\psi = \psi_0$ at stroke reversal.
+$\delta_0 = -\frac{\pi}{2}$ produces the opposite, adverse
+orientation, while $\delta_0 = 0$ and $\pi$ place the pitch
+extremes at the reversals.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/pitch_kinematics.light.png}
+    \caption{Wing motion through the two halves of the flapping cycle, for the
+    sinusoidal pitch kinematics with
+    $\delta_0 \in \{0, \frac{\pi}{2}, -\frac{\pi}{2}, \pi\}$ and for
+    the constant pitch simplification. Across all panels, $\psi_0 = 0$ and $\psi_1 = 45^\circ$.
+    The top row shows the first half-stroke (wing
+    moving along $-\hat{s}$, with $\hat{s}$ pointing right) and the bottom row
+    the second half-stroke, along $+\hat{s}$. Arrows indicate the direction
+    of motion, the hollow circle marks the wing leading edge, and snapshots
+    are taken at equal time increments, crowding near the stroke reversals
+    where the flapping motion slows. The constant pitch kinematics match 
+    the $\delta_0 = \pi/2$ kinematics well, except near stroke reversal.}\label{fig:pitch-kinematics}
+\end{figure}
 
-\subsection{Equation of Motion}
+\subsection{Equation of Motion and Nondimensionalization}
 
-The equation of motion is
+The point mass is subjected to its own weight under gravity,
+and to the aerodynamic force from each wing pair, so the equation of motion is
 \begin{align}
-m \frac{d^2 \vec{x}}{d t^2} &= m \vec{g} + \frac12 \rho A \sum_i^N \frac1N |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+    m \frac{d^2 \vec{x}}{d t^2} &= m \vec{g} + \frac12 \rho A \sum_{i=1}^N \frac1N |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
 \end{align}
 The equation can be nondimensionalized using
 the body length $L$ as the length scale, and the
 gravitational time scale $\sqrt{L/g}$,
-giving an 'acceleration scale' $g$.
+giving an `acceleration scale' $g$ and
+a `velocity scale' $\sqrt{gL}$.
 Introducing the $*$ superscript to denote nondimensionalized
 quantities, the equation of motion can be divided by $mg$
 and becomes
 \begin{align}
-    \ddot{x}^* \hat{x} + \ddot{z}^* \hat{z} &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_i^N \frac{1}{gL} |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right] \nonumber \\
-                                            &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_i^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+    \ddot{x}^* \hat{x} + \ddot{z}^* \hat{z} &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_{i=1}^N \frac{1}{gL} |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right] \nonumber \\
+                                            &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_{i=1}^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
 \end{align}
 We introduce the dimensionless inverse wing loading $A^*/m^*$
 defined as
@@ -204,8 +267,22 @@ defined as
 \end{align}
 giving the final form of the dimensionless equation of motion
 \begin{align}
-    \ddot{x}^* \hat{x} + (\ddot{z}^* + 1) \hat{z} &= \frac12 \frac{A^*}{m^*} \frac1N \sum_i^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+    \ddot{x}^* \hat{x} + (\ddot{z}^* + 1) \hat{z} &= \frac12 \frac{A^*}{m^*} \frac1N \sum_{i=1}^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
 \end{align}
+The wing kinematics themselves must also be nondimensionalized.
+Introducing $\tau^* = \omega t$ and $s_0^* = s_0 / L$,
+\begin{align}
+    s^*(\tau^*) &= s_0^* \cos(\tau^* + \phi) \\
+    \psi(\tau^*) &= \psi_0 + \psi_1 \cos(\tau^* + \phi - \delta_0)
+\end{align}
+Finally, the dimensionless wing velocity along $\hat{s}$ relative to the body is
+\begin{align}
+    \dot{s}^*(\tau^*) &= \frac{1}{\sqrt{gL}} \frac{d}{dt} s_0 \cos(\omega t + \phi) \nonumber \\
+                      &= -\frac{1}{\sqrt{gL}} s_0 \omega \sin(\tau^* + \phi) \nonumber \\
+                      &= - s_0^* \omega^* \sin(\tau^* + \phi)
+\end{align}
+with $\omega^* = \omega \sqrt{L/g}$.
+
 
 \section{Controller Design}\label{sec:design}
 
@@ -284,29 +361,31 @@ relative to the air has the stroke-plane normal and
 in-plane components
 \begin{align}
     v_n^* &= \langle u^* \rangle = s_0^* \omega^* J \\
-    v_s^* &= s_0^* \omega^* \cos\tau^*
+    v_s^* &= -s_0^* \omega^* \sin\tau^*
 \end{align}
+with $\tau^*$ as introduced in \autoref{sec:model}; the wing-pair
+phase $\phi$ is dropped without loss of generality, since the
+cycle averages below are unaffected by it. The $+\hat{s}$
+half-stroke corresponds to $\sin\tau^* < 0$.
 The squared norm of the velocity is
 \begin{align}
-    (v^*)^2 &= \left(s_0^* \omega^*\right)^2 \left[ J^2 + \cos^2\tau^* \right]\label{eq:v_sq}
+    (v^*)^2 &= \left(s_0^* \omega^*\right)^2 \left[ J^2 + \sin^2\tau^* \right]\label{eq:v_sq}
 \end{align}
 We introduce the signed angle $\chi$ from
 $\hat{n}$ to $\vec{v}^*$, defined as
 \begin{align}
-    \chi = -\tan^{-1} \frac{v_s^*}{v_n^*} = -\tan^{-1} \frac{\cos\tau^*}{J}
+    \chi = -\tan^{-1} \frac{v_s^*}{v_n^*} = \tan^{-1} \frac{\sin\tau^*}{J}
 \end{align}
-When $\cos\tau^* > 0$ (stroke along $+\hat{s}$, $\chi < 0$), the angle of attack $\alpha$ is 
+Both $\psi$ and $\chi$ are signed angles measured from $\hat{n}$ with
+the same sense (positive tilting toward $-\hat{s}$), locating the
+chord direction $\hat{c}$ and the velocity direction $\hat{v}$
+respectively. The angle of attack of \autoref{sec:model} --- the
+signed angle from $\hat{v}$ to $\hat{c}$ --- is therefore simply
 \begin{align}
-    \alpha = \psi - \chi = \psi + \tan^{-1} \frac{\cos\tau^*}{J}
+    \alpha = \psi - \chi = \psi - \tan^{-1} \frac{\sin\tau^*}{J} \label{eq:alpha}
 \end{align}
-When $\cos\tau^* < 0$ (stroke along $-\hat{s}$, $\chi > 0$), the angle of attack $\alpha$ is 
-\begin{align}
-    \alpha = \chi - \psi = -\psi - \tan^{-1} \frac{\cos\tau^*}{J}
-\end{align}
-The general expression is, then,
-\begin{align}
-    \alpha = \frac{\cos\tau^*}{|\cos\tau^*|} \psi + \tan^{-1} \frac{|\cos\tau^*|}{J} \label{eq:alpha}
-\end{align}
+valid on both half-strokes, with no case distinction on the stroke
+direction.
 The above is sufficient to obtain the mean
 aerodynamic force. The derivation is
 somewhat involved in the general case.
@@ -315,38 +394,39 @@ corresponds to $J = 0$.
 
 \subsubsection{Hover Case $(J=0)$}
 
-For $J=0$, the angle of attack simplifies to
+For $J=0$, the flow angle saturates at
+$\chi = \frac{\pi}{2} \frac{\sin\tau^*}{|\sin\tau^*|}$
+and the angle of attack simplifies to
 \begin{align}
-    \alpha = \frac{\cos\tau^*}{|\cos\tau^*|} \psi + \frac{\pi}{2}\label{eq:alpha-hover}
+    \alpha = \psi - \frac{\pi}{2} \frac{\sin\tau^*}{|\sin\tau^*|}\label{eq:alpha-hover}
 \end{align}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/alpha_quadrants.light.png}
-    \caption{Verification of the hover ($J=0$) angle-of-attack expression
-    (\autoref{eq:alpha-hover}) for the four sign combinations of
-    $(\cos\tau^*, \psi)$.}\label{fig:alpha-quadrants}
-\end{figure}
-See \autoref{fig:alpha-quadrants}.
+The four sign combinations of $(\sin\tau^*, \psi)$ place $\alpha$
+one in each quadrant of \autoref{fig:liftdrag-quadrants}.
 Using the appropriate trigonometric identities, the
 aerodynamic coefficients (defined in \autoref{eq:cl} and \autoref{eq:cd})
 are
 \begin{align}
-    C_L &= -\frac{\cos\tau^*}{|\cos\tau^*|} C_{L,0} \sin 2\psi \label{eq:cl-hover} \\
+    C_L &= -C_{L,0} \sin 2\psi \label{eq:cl-hover} \\
     C_D &= \frac{C_{D,\frac{\pi}{2}} + C_{D,0}}{2} + \frac{C_{D,\frac{\pi}{2}} - C_{D,0}}{2} \cos 2\psi \label{eq:cd-hover}
 \end{align}
+both independent of the stroke direction; the direction dependence
+resides entirely in the force direction vectors.
 Because the wing velocity relative to the air
 is purely in-plane (along $\hat{s}$), the in-plane aerodynamic force
 component is purely drag, and the out-of-plane
-component (along $\hat{n}$) is purely lift. The mean
+component (along $\hat{n}$) is purely lift: the force directions are
+$\hat{d} = \frac{\sin\tau^*}{|\sin\tau^*|} \hat{s}$ and
+$\hat{\ell} = -\hat{d}^\perp = -\frac{\sin\tau^*}{|\sin\tau^*|} \hat{n}$,
+alternating with the stroke direction. The mean
 aerodynamic force components are
 \begin{align}
-    \langle F_n^* \rangle &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \langle C_L |\cos \tau^*|^2 \rangle \nonumber \\
-    &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 C_{L,0} \langle \sin 2\psi\; \cos \tau^* |\cos \tau^*| \rangle \\
-    \langle F_s^* \rangle &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \langle C_D \cos \tau^* |\cos \tau^*| \rangle \nonumber \\
-    &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \frac{C_{D,\frac\pi2} - C_{D,0}}{2}\, \langle \cos 2\psi\; \cos \tau^* |\cos \tau^*| \rangle
+    \langle F_n^* \rangle &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \langle C_L \sin \tau^* |\sin \tau^*| \rangle \nonumber \\
+    &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 C_{L,0} \langle \sin 2\psi\; \sin \tau^* |\sin \tau^*| \rangle \\
+    \langle F_s^* \rangle &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \langle C_D \sin \tau^* |\sin \tau^*| \rangle \nonumber \\
+    &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \frac{C_{D,\frac\pi2} - C_{D,0}}{2}\, \langle \cos 2\psi\; \sin \tau^* |\sin \tau^*| \rangle
 \end{align}
 Note the constant drag term vanishes because
-$\langle \cos \tau^* |\cos \tau^*| \rangle = 0$.
+$\langle \sin \tau^* |\sin \tau^*| \rangle = 0$.
 We introduce the shorthand $\Delta C_D = C_{D,\frac\pi2} - C_{D,0}$.
 The expressions feature a common pre-factor
 we call $q^*$, defined as
@@ -356,8 +436,8 @@ we call $q^*$, defined as
 We further introduce the normal and in-plane force
 coefficients $C_{F^*_n}$ and $C_{F^*_s}$, defined as
 \begin{align}
-    C_{F^*_n} &= \frac{F^*_n}{q^*} = -2 C_{L,0} \langle \sin 2\psi\; \cos \tau^* |\cos \tau^*| \rangle \label{eq:cfn} \\
-    C_{F^*_s} &= \frac{F^*_s}{q^*} = -\Delta C_D \langle \cos 2\psi\; \cos \tau^* |\cos \tau^*| \rangle \label{eq:cfs}
+    C_{F^*_n} &= \frac{F^*_n}{q^*} = 2 C_{L,0} \langle \sin 2\psi\; \sin \tau^* |\sin \tau^*| \rangle \label{eq:cfn} \\
+    C_{F^*_s} &= \frac{F^*_s}{q^*} = \Delta C_D \langle \cos 2\psi\; \sin \tau^* |\sin \tau^*| \rangle \label{eq:cfs}
 \end{align}
 which we synthesize into the overall force magnitude coefficient
 \begin{align}
@@ -445,30 +525,30 @@ $\beta$ can be expressed from the $C_{F^*_n}$ and $C_{F^*_s}$ coefficients
 \begin{align}
     \beta = -\tan^{-1} \frac{C_{F^*_s}}{C_{F^*_n}}
     = -\tan^{-1} \left[ \frac{\Delta C_D}{2 C_{L,0}}
-    \frac{\langle \cos2\psi \cos\tau^* |\cos\tau^*| \rangle}{\langle \sin2\psi \cos\tau^* |\cos\tau^*| \rangle} \right]\label{eq:beta}
+    \frac{\langle \cos2\psi \sin\tau^* |\sin\tau^*| \rangle}{\langle \sin2\psi \sin\tau^* |\sin\tau^*| \rangle} \right]\label{eq:beta}
 \end{align}
-We can simplify the $\langle \cos2\psi \cos\tau^* |\cos\tau^*| \rangle / \langle \sin2\psi \cos\tau^* |\cos\tau^*| \rangle$
+We can simplify the $\langle \cos2\psi \sin\tau^* |\sin\tau^*| \rangle / \langle \sin2\psi \sin\tau^* |\sin\tau^*| \rangle$
 ratio in the above expression.
 With $\delta_0 = 90^\circ$, the pitch kinematics reduce to
-$\psi = \psi_0 - \psi_1 \cos\tau^*$. Using the appropriate
+$\psi = \psi_0 + \psi_1 \sin\tau^*$. Using the appropriate
 trigonometric identities,
 \begin{align}
-    \cos 2\psi &= \cos 2\psi_0 \cos\left(2\psi_1 \cos\tau^*\right) + \sin 2\psi_0 \sin\left(2\psi_1 \cos\tau^*\right) \\
-    \sin 2\psi &= \sin 2\psi_0 \cos\left(2\psi_1 \cos\tau^*\right) - \cos 2\psi_0 \sin\left(2\psi_1 \cos\tau^*\right)
+    \cos 2\psi &= \cos 2\psi_0 \cos\left(2\psi_1 \sin\tau^*\right) - \sin 2\psi_0 \sin\left(2\psi_1 \sin\tau^*\right) \\
+    \sin 2\psi &= \sin 2\psi_0 \cos\left(2\psi_1 \sin\tau^*\right) + \cos 2\psi_0 \sin\left(2\psi_1 \sin\tau^*\right)
 \end{align}
 Under the half-period shift $\tau^* \to \tau^* + \pi$, the factors
-$\cos\tau^* |\cos\tau^*|$ and $\sin\left(2\psi_1 \cos\tau^*\right)$
-change sign while $\cos\left(2\psi_1 \cos\tau^*\right)$ is unchanged,
-so the $\cos\left(2\psi_1 \cos\tau^*\right)$ terms average to zero,
+$\sin\tau^* |\sin\tau^*|$ and $\sin\left(2\psi_1 \sin\tau^*\right)$
+change sign while $\cos\left(2\psi_1 \sin\tau^*\right)$ is unchanged,
+so the $\cos\left(2\psi_1 \sin\tau^*\right)$ terms average to zero,
 leading to
 \begin{align}
-    \langle \cos2\psi\; \cos\tau^* |\cos\tau^*| \rangle &= \sin 2\psi_0\, \langle \sin\left(2\psi_1 \cos\tau^*\right) \cos\tau^* |\cos\tau^*| \rangle \\
-    \langle \sin2\psi\; \cos\tau^* |\cos\tau^*| \rangle &= -\cos 2\psi_0\, \langle \sin\left(2\psi_1 \cos\tau^*\right) \cos\tau^* |\cos\tau^*| \rangle
+    \langle \cos2\psi\; \sin\tau^* |\sin\tau^*| \rangle &= -\sin 2\psi_0\, \langle \sin\left(2\psi_1 \sin\tau^*\right) \sin\tau^* |\sin\tau^*| \rangle \\
+    \langle \sin2\psi\; \sin\tau^* |\sin\tau^*| \rangle &= \cos 2\psi_0\, \langle \sin\left(2\psi_1 \sin\tau^*\right) \sin\tau^* |\sin\tau^*| \rangle
 \end{align}
-The common $\langle \sin\left(2\psi_1 \cos\tau^*\right) \cos\tau^* |\cos\tau^*| \rangle$
+The common $\langle \sin\left(2\psi_1 \sin\tau^*\right) \sin\tau^* |\sin\tau^*| \rangle$
 factor cancels out in the ratio, giving simply
 \begin{align}
-    \frac{\langle \cos2\psi\; \cos\tau^* |\cos\tau^*| \rangle}{\langle \sin2\psi\; \cos\tau^* |\cos\tau^*| \rangle} = -\tan 2\psi_0
+    \frac{\langle \cos2\psi\; \sin\tau^* |\sin\tau^*| \rangle}{\langle \sin2\psi\; \sin\tau^* |\sin\tau^*| \rangle} = -\tan 2\psi_0
 \end{align}
 and \autoref{eq:beta} becomes
 \begin{align}
@@ -544,59 +624,55 @@ components. In terms of the angle $\chi$, the wing velocity direction
 is $\hat{v} = \cos\chi\, \hat{n} - \sin\chi\, \hat{s}$. Drag acts
 along $-\hat{v}$, and lift acts along the perpendicular direction
 \begin{align}
-    \hat{\ell} = -\sigma \left( \sin\chi\, \hat{n} + \cos\chi\, \hat{s} \right)
-    \quad\quad\quad
-    \sigma \equiv \frac{\cos\tau^*}{|\cos\tau^*|}
+    \hat{\ell} = -\hat{d}^\perp = -\cos\chi\, \hat{s} - \sin\chi\, \hat{n}
 \end{align}
-whose sense alternates between half-strokes, consistent with the sign
-convention used to define $\alpha$ (in the hover case, $\hat{\ell}$
-reduces to $+\hat{n}$ on both half-strokes). The instantaneous force is
+recovering the hover directions at $\chi = \pm\frac{\pi}{2}$.
+The instantaneous force is
 \begin{align}
     \vec{F}^* = \frac12 \frac{A^*}{m^*} (v^*)^2 \left( C_L\, \hat{\ell} - C_D\, \hat{v} \right)
 \end{align}
 with components
 \begin{align}
-    F^*_n &= \frac12 \frac{A^*}{m^*} (v^*)^2 \left( -\sigma \sin\chi\; C_L - \cos\chi\; C_D \right) \\
-    F^*_s &= -\frac12 \frac{A^*}{m^*} (v^*)^2 \left( \sigma \cos\chi\; C_L - \sin\chi\; C_D \right)
+    F^*_n &= -\frac12 \frac{A^*}{m^*} (v^*)^2 \left( \sin\chi\; C_L + \cos\chi\; C_D \right) \\
+    F^*_s &= -\frac12 \frac{A^*}{m^*} (v^*)^2 \left( \cos\chi\; C_L - \sin\chi\; C_D \right)
 \end{align}
-Substituting $\cos\chi = J/\sqrt{J^2 + \cos^2\tau^*}$,
-$\sin\chi = -\cos\tau^*/\sqrt{J^2 + \cos^2\tau^*}$, and the expression
+Substituting $\cos\chi = J/\sqrt{J^2 + \sin^2\tau^*}$,
+$\sin\chi = \sin\tau^*/\sqrt{J^2 + \sin^2\tau^*}$, and the expression
 for $(v^*)^2$ (\autoref{eq:v_sq}), we get
 \begin{align}
-    F^*_n &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \sqrt{J^2 + \cos^2\tau^*}\, \left( |\cos\tau^*|\; C_L - J\; C_D \right) \\
-    F^*_s &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \sqrt{J^2 + \cos^2\tau^*}\, \left( \sigma J\; C_L + \cos\tau^*\; C_D \right)
+    F^*_n &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \sqrt{J^2 + \sin^2\tau^*}\, \left( \sin\tau^*\; C_L + J\; C_D \right) \\
+    F^*_s &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \sqrt{J^2 + \sin^2\tau^*}\, \left( J\; C_L - \sin\tau^*\; C_D \right)
 \end{align}
-Writing $\theta \equiv \tan^{-1} \left( |\cos\tau^*|/J \right)$, such that
-$\alpha = \sigma \psi + \theta$ (see \autoref{eq:alpha}),
+From $\alpha = \psi - \chi$ (\autoref{eq:alpha}), the aerodynamic
+coefficients (\autoref{eq:cl} and \autoref{eq:cd}) expand as
 \begin{align}
-    \cos 2\theta = \frac{J^2 - \cos^2\tau^*}{J^2 + \cos^2\tau^*}
-    \quad\quad\quad
-    \sin 2\theta = \frac{2 J |\cos\tau^*|}{J^2 + \cos^2\tau^*}
-\end{align}
-and the aerodynamic coefficients (\autoref{eq:cl} and \autoref{eq:cd})
-become
-\begin{align}
-    C_L &= C_{L,0} \left( \sigma \cos2\theta\; \sin2\psi + \sin2\theta\; \cos2\psi \right) \\
-    C_D &= \bar{C}_D - \frac{\Delta C_D}{2} \left( \cos2\theta\; \cos2\psi - \sigma \sin2\theta\; \sin2\psi \right)
+    C_L &= C_{L,0} \left( \cos2\chi\; \sin2\psi - \sin2\chi\; \cos2\psi \right) \\
+    C_D &= \bar{C}_D - \frac{\Delta C_D}{2} \left( \cos2\chi\; \cos2\psi + \sin2\chi\; \sin2\psi \right)
 \end{align}
 where we define $\bar{C}_D \equiv \left( C_{D,\frac\pi2} + C_{D,0} \right)/2$
-for brevity.
-Substituting into the force components, using $\sigma |\cos\tau^*| = \cos\tau^*$
-and $\sigma^2 = 1$, and averaging, the force coefficients are
+for brevity, and where the double angles are smooth functions of
+the wing phase:
 \begin{align}
-    C_{F^*_n} &= 2 \left\langle \frac{\left[ C_{L,0} \left( J^2 - \cos^2\tau^* \right) - \Delta C_D\, J^2 \right] \cos\tau^*\, \sin2\psi}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle \nonumber \\
-    &\quad + 2 \left\langle \frac{J \left[ 2 C_{L,0} \cos^2\tau^* + \frac{\Delta C_D}{2} \left( J^2 - \cos^2\tau^* \right) \right] \cos2\psi}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle
-    - 2 J \bar{C}_D \left\langle \sqrt{J^2 + \cos^2\tau^*} \right\rangle \label{eq:cfn-general} \\
-    C_{F^*_s} &= -2 \left\langle \frac{J \left[ C_{L,0} \left( J^2 - \cos^2\tau^* \right) + \Delta C_D \cos^2\tau^* \right] \sin2\psi}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle \nonumber \\
-    &\quad - 2 \left\langle \frac{\left[ 2 C_{L,0} J^2 - \frac{\Delta C_D}{2} \left( J^2 - \cos^2\tau^* \right) \right] \cos\tau^*\, \cos2\psi}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle \label{eq:cfs-general}
+    \cos 2\chi = \frac{J^2 - \sin^2\tau^*}{J^2 + \sin^2\tau^*}
+    \quad\quad\quad
+    \sin 2\chi = \frac{2 J \sin\tau^*}{J^2 + \sin^2\tau^*}
+\end{align}
+Substituting into the force components and averaging, the force
+coefficients are
+\begin{align}
+    C_{F^*_n} &= -2 \left\langle \frac{\left[ C_{L,0} \left( J^2 - \sin^2\tau^* \right) - \Delta C_D\, J^2 \right] \sin\tau^*\, \sin2\psi}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \nonumber \\
+    &\quad + 2 \left\langle \frac{J \left[ 2 C_{L,0} \sin^2\tau^* + \frac{\Delta C_D}{2} \left( J^2 - \sin^2\tau^* \right) \right] \cos2\psi}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle
+    - 2 J \bar{C}_D \left\langle \sqrt{J^2 + \sin^2\tau^*} \right\rangle \label{eq:cfn-general} \\
+    C_{F^*_s} &= -2 \left\langle \frac{J \left[ C_{L,0} \left( J^2 - \sin^2\tau^* \right) + \Delta C_D \sin^2\tau^* \right] \sin2\psi}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \nonumber \\
+    &\quad + 2 \left\langle \frac{\left[ 2 C_{L,0} J^2 - \frac{\Delta C_D}{2} \left( J^2 - \sin^2\tau^* \right) \right] \sin\tau^*\, \cos2\psi}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \label{eq:cfs-general}
 \end{align}
 Note the constant ($\bar{C}_D$) drag term of $C_{F^*_s}$ vanishes
-because $\langle \cos\tau^* \sqrt{J^2 + \cos^2\tau^*} \rangle = 0$.
+because $\langle \sin\tau^* \sqrt{J^2 + \sin^2\tau^*} \rangle = 0$.
 Setting $J = 0$ recovers \autoref{eq:cfn} and \autoref{eq:cfs},
 as expected. At the operating point $\delta_0 = 90^\circ$,
-$\psi = \psi_0 - \psi_1 \cos\tau^*$, and the parity argument of the
+$\psi = \psi_0 + \psi_1 \sin\tau^*$, and the parity argument of the
 hover case applies unchanged: under $\tau^* \to \tau^* + \pi$, the
-bracketed polynomials and $\sqrt{J^2 + \cos^2\tau^*}$ are invariant,
+bracketed polynomials and $\sqrt{J^2 + \sin^2\tau^*}$ are invariant,
 so expanding $\sin2\psi$ and $\cos2\psi$ and discarding the vanishing
 averages leaves
 \begin{align}
@@ -605,11 +681,11 @@ averages leaves
 \end{align}
 with
 \begin{align}
-    I_0 &= \left\langle \sqrt{J^2 + \cos^2\tau^*} \right\rangle \\
-    I_n &= \left\langle \frac{J \left[ 2 C_{L,0} \cos^2\tau^* + \frac{\Delta C_D}{2} \left( J^2 - \cos^2\tau^* \right) \right] \cos\left( 2\psi_1 \cos\tau^* \right)}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle \nonumber \\
-    &\quad - \left\langle \frac{\left[ C_{L,0} \left( J^2 - \cos^2\tau^* \right) - \Delta C_D\, J^2 \right] \cos\tau^*\, \sin\left( 2\psi_1 \cos\tau^* \right)}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle \\
-    I_s &= \left\langle \frac{J \left[ C_{L,0} \left( J^2 - \cos^2\tau^* \right) + \Delta C_D \cos^2\tau^* \right] \cos\left( 2\psi_1 \cos\tau^* \right)}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle \nonumber \\
-    &\quad + \left\langle \frac{\left[ 2 C_{L,0} J^2 - \frac{\Delta C_D}{2} \left( J^2 - \cos^2\tau^* \right) \right] \cos\tau^*\, \sin\left( 2\psi_1 \cos\tau^* \right)}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle
+    I_0 &= \left\langle \sqrt{J^2 + \sin^2\tau^*} \right\rangle \\
+    I_n &= \left\langle \frac{J \left[ 2 C_{L,0} \sin^2\tau^* + \frac{\Delta C_D}{2} \left( J^2 - \sin^2\tau^* \right) \right] \cos\left( 2\psi_1 \sin\tau^* \right)}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \nonumber \\
+    &\quad - \left\langle \frac{\left[ C_{L,0} \left( J^2 - \sin^2\tau^* \right) - \Delta C_D\, J^2 \right] \sin\tau^*\, \sin\left( 2\psi_1 \sin\tau^* \right)}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \\
+    I_s &= \left\langle \frac{J \left[ C_{L,0} \left( J^2 - \sin^2\tau^* \right) + \Delta C_D \sin^2\tau^* \right] \cos\left( 2\psi_1 \sin\tau^* \right)}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \nonumber \\
+    &\quad + \left\langle \frac{\left[ 2 C_{L,0} J^2 - \frac{\Delta C_D}{2} \left( J^2 - \sin^2\tau^* \right) \right] \sin\tau^*\, \sin\left( 2\psi_1 \sin\tau^* \right)}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle
 \end{align}
 The angle from the stroke-plane normal to the mean force
 (\autoref{eq:beta}) becomes
@@ -618,9 +694,9 @@ The angle from the stroke-plane normal to the mean force
 \end{align}
 In the limit $J \to 0$, the $I_0$ term vanishes and
 \begin{align}
-    I_n \to C_{L,0} \left\langle \sin\left( 2\psi_1 \cos\tau^* \right) \cos\tau^* |\cos\tau^*| \right\rangle
+    I_n \to C_{L,0} \left\langle \sin\left( 2\psi_1 \sin\tau^* \right) \sin\tau^* |\sin\tau^*| \right\rangle
     \quad\quad\quad
-    I_s \to \frac{\Delta C_D}{2} \left\langle \sin\left( 2\psi_1 \cos\tau^* \right) \cos\tau^* |\cos\tau^*| \right\rangle
+    I_s \to \frac{\Delta C_D}{2} \left\langle \sin\left( 2\psi_1 \sin\tau^* \right) \sin\tau^* |\sin\tau^*| \right\rangle
 \end{align}
 recovering \autoref{eq:beta-hover}. The overall force
 coefficient $C_{F^*}$ is shown in \autoref{fig:cf_J}
@@ -723,16 +799,19 @@ variables that would inform the choice of the values are still listed.
   \end{tabular}
 \end{table}
 
-\subsubsection{Square-Wave Pitch Simplification}\label{sec:square-wave}
+\subsubsection{Constant-Pitch Simplification}\label{sec:square-wave}
 
 The general-case results above are exact but not closed-form:
 $\psi_1$ remains inside the cycle averages through the
-$\cos\left(2\psi_1\cos\tau^*\right)$ and
-$\sin\left(2\psi_1\cos\tau^*\right)$ factors, so quantities
+$\cos\left(2\psi_1\sin\tau^*\right)$ and
+$\sin\left(2\psi_1\sin\tau^*\right)$ factors, so quantities
 such as $\psi_1^\text{opt}(J)$ and the maps of
 \autoref{fig:cf_J} must be evaluated numerically. Closed
-forms can be obtained obtained by replacing the sinusoidal pitch
-schedule with its square-wave idealization,
+forms can be obtained by replacing the sinusoidal pitch
+schedule with the constant-pitch idealization of
+\autoref{sec:model}, restated here in terms of the stroke-direction
+sign $\sigma \equiv -\sin\tau^*/|\sin\tau^*|$ ($\sigma = +1$ on the
+$+\hat{s}$ half-stroke):
 \begin{align}
     \psi(\tau^*) = \psi_0 - \sigma\, \psi_1 \label{eq:psi-square}
 \end{align}
@@ -741,15 +820,14 @@ forward half-stroke ($\sigma = +1$) and at $\psi_0 + \psi_1$
 during the backward half-stroke ($\sigma = -1$). The pitch flip
 occurs at stroke reversal, since we impose $\delta_0 = 90^\circ$.
 
-reaches at mid-stroke. 
 This implies instantaneous rotation of the wing, which is not
 achievable by a real wing but is mostly harmless in the quasi-steady
 model because the in-plane wing velocity vanishes at reversal.
 The flip produces at most a bounded force discontinuity due to the
 normal inflow, when $J > 0$.
 The simulations in the remainder of this report retain
-the sinusoidal schedule, the square wave serves purely as an
-analytical surrogate.
+the sinusoidal schedule; the constant-pitch law serves purely as
+an analytical surrogate.
 
 Since $\sigma^2 = 1$, the pitch trigonometric factors are
 piecewise constant over each half-stroke:
@@ -757,23 +835,23 @@ piecewise constant over each half-stroke:
     \sin 2\psi &= \sin 2\psi_0 \cos 2\psi_1 - \sigma \cos 2\psi_0 \sin 2\psi_1 \\
     \cos 2\psi &= \cos 2\psi_0 \cos 2\psi_1 + \sigma \sin 2\psi_0 \sin 2\psi_1
 \end{align}
-Comparing with the expansions used in the hover case, the square
-wave simply amounts to the substitutions
+Comparing with the expansions used in the hover case, the
+constant-pitch law simply amounts to the substitutions
 \begin{align}
-    \cos\left(2\psi_1 \cos\tau^*\right) \to \cos 2\psi_1
+    \cos\left(2\psi_1 \sin\tau^*\right) \to \cos 2\psi_1
     \quad\quad\quad
-    \sin\left(2\psi_1 \cos\tau^*\right) \to \sigma \sin 2\psi_1 \label{eq:square-subs}
+    \sin\left(2\psi_1 \sin\tau^*\right) \to -\sigma \sin 2\psi_1 \label{eq:square-subs}
 \end{align}
 Since $\sigma$ changes sign under the half-period shift
 $\tau^* \to \tau^* + \pi$, exactly like the
-$\sin\left(2\psi_1\cos\tau^*\right)$ factor it replaces, every
+$\sin\left(2\psi_1\sin\tau^*\right)$ factor it replaces, every
 vanishing average identified previously still vanishes, and the
 pitch dependence now factors entirely out of the remaining
 averages.
 
 In the hover case, applying the substitutions to \autoref{eq:cfn}
 and \autoref{eq:cfs}, and using
-$\langle \sigma \cos\tau^* |\cos\tau^*| \rangle = \langle \cos^2\tau^* \rangle = \frac12$,
+$\langle \sigma \sin\tau^* |\sin\tau^*| \rangle = -\langle \sin^2\tau^* \rangle = -\frac12$,
 gives
 \begin{align}
     C_{F^*_n} = C_{L,0} \sin 2\psi_1 \cos 2\psi_0
@@ -800,15 +878,16 @@ of $\psi_0$:
 the latter attained at the reference $\psi_0 = 0^\circ$ (since
 $C_{L,0} > \Delta C_D / 2$). The maximum has a transparent
 interpretation: with $\psi_1 = 45^\circ$ and $\psi_0 = 0^\circ$,
-the angle of attack is $\alpha = \sigma \psi + \frac\pi2 = 45^\circ$
-on both half-strokes---the square wave holds the wing at the
+the angle of attack is $\alpha = \psi + \sigma \frac\pi2 = \sigma\, 45^\circ$,
+i.e.\ $|\alpha| = 45^\circ$
+on both half-strokes---the constant-pitch law holds the wing at the
 lift-maximizing angle of attack for the entire cycle, so the
 force coefficient equals $C_{L,0}$ exactly. The sinusoidal
 schedule only passes through this ideal angle twice per
 half-stroke, which is why its optimum is displaced
 ($\psi_1^\text{opt} \approx 51^\circ$) and slightly weaker
 ($C_{F^*}^\text{max} \approx 1.43$ versus $C_{L,0} = 1.5$, a
-$5\%$ overestimate by the square wave).
+$5\%$ overestimate by the constant-pitch law).
 
 In the general case, the same substitutions pull $\psi_1$ out of
 $I_n$ and $I_s$:
@@ -820,7 +899,7 @@ $I_n$ and $I_s$:
 where $A_n$, $B_n$, $A_s$, and $B_s$ are functions of $J$ only.
 Introducing the family of averages
 \begin{align}
-    W_k(J) = \left\langle \frac{|\cos\tau^*|^k}{\sqrt{J^2 + \cos^2\tau^*}} \right\rangle
+    W_k(J) = \left\langle \frac{|\sin\tau^*|^k}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle
     \quad\quad\quad
     k \in \{0, 1, 2, 3\}
 \end{align}
@@ -878,14 +957,14 @@ which carries the normal-inflow contributions and peaks at
 $\psi_1 = 0^\circ$, pulls the optimum toward smaller pitch
 amplitudes---exactly the mechanism illustrated in
 \autoref{fig:psi1-decrease}. \autoref{tab:square-wave} compares
-the square-wave predictions with the sinusoidal schedule:
+the constant-pitch predictions with the sinusoidal schedule:
 $\psi_1^\text{opt}$ is offset low by $5$--$6^\circ$, and the
 available force is captured to within $5\%$ across $J \in [0,1]$
 (an overestimate at hover, a slight underestimate at speed).
 \begin{table}[htbp]
   \centering
   \caption{Continued hover optimum at $\psi_0 = 0^\circ$:
-  square-wave closed form (\autoref{eq:psi1-opt-square}) versus
+  constant-pitch closed form (\autoref{eq:psi1-opt-square}) versus
   the sinusoidal schedule evaluated numerically
   (\autoref{fig:hover_opt_J}).}
   \label{tab:square-wave}
@@ -893,7 +972,7 @@ available force is captured to within $5\%$ across $J \in [0,1]$
     \toprule
     & \multicolumn{2}{c}{$\psi_1^\text{opt}$} & \multicolumn{2}{c}{$\left( C_{F^*_n} \right)^\text{max}$} \\
     \cmidrule(lr){2-3} \cmidrule(lr){4-5}
-    $J$ & Square & Sinusoidal & Square & Sinusoidal \\
+    $J$ & Constant & Sinusoidal & Constant & Sinusoidal \\
     \midrule
     $0$    & $45.0^\circ$ & $50.8^\circ$ & $1.500$ & $1.431$ \\
     $0.25$ & $32.9^\circ$ & $38.5^\circ$ & $1.241$ & $1.247$ \\
@@ -914,7 +993,7 @@ a harmonic equation of the form
 $a \sin 2\psi_0 + b \cos 2\psi_0 = c$ with known coefficients,
 yielding $\psi_0$ explicitly, after which $s_0^*$ follows from
 the demanded force magnitude through $q^*$ (\autoref{eq:q}). The
-square-wave expressions could therefore serve as an analytical
+constant-pitch expressions could therefore serve as an analytical
 initialization---or replacement---for the numerical trim solver,
 at the cost of the few-percent model error quantified in
 \autoref{tab:square-wave}.
@@ -1085,8 +1164,8 @@ the hovering stroke plane angle would be $-\gamma^\text{hover} = +45^\circ$,
 as explained in \autoref{sec:strategy}.
 
 Since dragonflies have two wing pairs, we set $N=2$,
-and the wing pair phase shift parameter is set to $\sigma_0 = 180^\circ$
-so as to reduce body oscillations.
+with the two pairs flapping in antiphase (their phase parameters
+$\phi$ differing by $180^\circ$) so as to reduce body oscillations.
 
 \subsection{Hover}
 

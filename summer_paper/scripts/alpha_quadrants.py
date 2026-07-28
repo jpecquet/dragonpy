@@ -1,24 +1,25 @@
 """
-Verification figure for the hover (J = 0) angle-of-attack expression
+Verification figure for the hover (J = 0) signed angle-of-attack expression
 
-    alpha = sign(cos tau*) psi + pi/2                       (report eq:alpha, J = 0)
+    alpha = psi - sign(sin tau*) pi/2 = psi + sigma pi/2    (report eq:alpha-hover)
 
-Four panels, one per sign combination of (cos tau*, psi), drawn in the stroke
-basis (s to the right, n up). Each panel shows the wing chord (dot = the
-psi-reference end, i.e. the ray at angle psi from n), the wing velocity
-v* = s0* omega* cos tau* s, the alpha arc measured from v* to the chord ray
-(counterclockwise on the +s stroke, clockwise on the -s stroke, per the two
-branches alpha = psi - chi and alpha = chi - psi), and the resulting lift and
-drag forces with the sign given by C_L = C_L0 sin 2 alpha (F_n* > 0 <=> +n)
-and drag opposing the motion.
+with sigma = -sign(sin tau*) the stroke-direction sign. Four panels, one per
+sign combination of (sin tau*, psi), landing one in each quadrant of alpha,
+drawn in the stroke basis (s to the right, n up). Each panel shows the wing
+chord (dot = the psi-reference end, i.e. the ray at angle psi from n), the
+wing velocity v* = -s0* omega* sin tau* s, the signed alpha arc from v* to
+the chord ray (counterclockwise when alpha > 0, clockwise when alpha < 0),
+and the resulting lift and drag forces: C_L = C_L0 sin 2 alpha along
+l = -d_perp = sigma n (alternating with the stroke direction), and drag
+opposing the motion.
 
 Before drawing, the closed form is checked numerically against the trusted
 blade-element implementation (`feasibility._wing_force_vec` in translating
 mode, which is exactly the report's 2D model): the instantaneous (F_s*, F_n*)
 from
 
-    F_n* = 1/2 (A_w*/m*) v*^2 C_L(alpha)
-    F_s* = -1/2 (A_w*/m*) v*^2 C_D(alpha) sign(cos tau*)
+    F_n* = 1/2 (A_w*/m*) v*^2 C_L(alpha) sigma
+    F_s* = -1/2 (A_w*/m*) v*^2 C_D(alpha) sigma
 
 must match the code at every phase, for several psi0 (all four sign combos).
 
@@ -48,11 +49,11 @@ def closed_form_forces(p: Params, theta: np.ndarray) -> tuple[np.ndarray, np.nda
     """Instantaneous (F_s*, F_n*) from the report's J = 0 closed form."""
     omega = 2.0 * np.pi * p.wing_frequency
     psi = p.psi0 + p.psi1 * np.sin(theta - p.delta0)
-    sgn = np.sign(np.cos(theta))
-    alpha = sgn * psi + np.pi / 2
+    sgn = np.sign(np.cos(theta))  # stroke-direction sign sigma (code phase)
+    alpha = psi + sgn * np.pi / 2  # signed alpha = psi - chi, chi = -sigma pi/2
     v = p.Lw * p.phi1 * omega * np.abs(np.cos(theta))  # translating-mode tip speed
     q = 0.5 * p.aw_over_m * v ** 2
-    return -q * drag_coeff(alpha) * sgn, q * lift_coeff(alpha)
+    return -q * drag_coeff(alpha) * sgn, q * lift_coeff(alpha) * sgn
 
 
 def verify(n_phase: int = 257) -> float:
@@ -95,9 +96,10 @@ def vec_arrow(ax, tip, color, lw=1.6, tail=(0.0, 0.0)):
 
 def draw_panel(ax, stroke_sign, psi_deg, style, first):
     psi = np.radians(psi_deg)
-    alpha_deg = stroke_sign * psi_deg + 90.0  # the expression under test
+    alpha_deg = psi_deg + 90.0 * stroke_sign  # the expression under test
     cl = 1.5 * np.sin(2.0 * np.radians(alpha_deg))
     cd = 0.1 * np.cos(np.radians(alpha_deg)) ** 2 + 2.0 * np.sin(np.radians(alpha_deg)) ** 2
+    lift_y = cl * stroke_sign  # F_L along l = sigma n, sigma = stroke_sign
 
     muted = style.muted_text_color
     text = style.text_color
@@ -122,13 +124,10 @@ def draw_panel(ax, stroke_sign, psi_deg, style, first):
     ax.text(0.68 * stroke_sign, -0.13, r"$\vec{v}^{\,*}$", color=text,
             ha="center", va="top")
 
-    # alpha arc, always sweeping counterclockwise (positive alpha): from v*
-    # to the chord ray on the +s stroke (alpha = psi - chi), from the chord
-    # ray to v* on the -s stroke (alpha = chi - psi)
-    if stroke_sign > 0:
-        a0, a1 = 0.0, 90.0 + psi_deg
-    else:
-        a0, a1 = 90.0 + psi_deg, 180.0
+    # signed alpha arc, always from v* to the chord ray: counterclockwise
+    # when alpha > 0, clockwise when alpha < 0
+    a0 = 0.0 if stroke_sign > 0 else 180.0
+    a1 = 90.0 + psi_deg
     arc_arrow(ax, 0.40, a0, a1, text, lw=1.0)
     amid = np.radians(0.5 * (a0 + a1))
     ax.text(0.58 * np.cos(amid), 0.58 * np.sin(amid), r"$\alpha$",
@@ -144,24 +143,31 @@ def draw_panel(ax, stroke_sign, psi_deg, style, first):
     ax.text(0.90 * np.cos(pmid), 0.90 * np.sin(pmid), r"$\psi$",
             color=muted, ha="center", va="center")
 
-    # lift (+-n per the sign of C_L = C_L0 sin 2 alpha) and drag (opposes v*)
+    # lift C_L l with l = sigma n, and drag (opposes v*)
     scale = 0.42
-    vec_arrow(ax, (0.0, scale * cl), style.lift_color)
+    vec_arrow(ax, (0.0, scale * lift_y), style.lift_color)
     vec_arrow(ax, (-scale * cd * stroke_sign, 0.0), style.drag_color)
     # lift label goes on whichever side of the arrow the chord is not
-    side = np.sign(cl) * np.sign(psi_deg)
-    ax.text(0.14 * side, scale * cl + 0.14 * np.sign(cl),
+    side = np.sign(lift_y) * np.sign(psi_deg)
+    ax.text(0.14 * side, scale * lift_y + 0.14 * np.sign(lift_y),
             r"$\vec{F}_L^{\,*}$", color=style.lift_color,
             ha="left" if side > 0 else "right", va="center")
     ax.text(-scale * cd * stroke_sign * 0.8, 0.14, r"$\vec{F}_D^{\,*}$",
             color=style.drag_color,
             ha="center", va="bottom")
 
-    # case and formula result
-    sgn_tau = ">" if stroke_sign > 0 else "<"
+    # case and formula result (stroke along +s corresponds to sin tau* < 0)
+    sgn_tau = "<" if stroke_sign > 0 else ">"
     sgn_psi = "+" if psi_deg > 0 else "-"
-    quadrant = "I" if alpha_deg < 90.0 else "II"
-    ax.text(0, -1.06, rf"$\cos\tau^* {sgn_tau} 0,\ \psi = {sgn_psi}{abs(psi_deg):.0f}^\circ$",
+    if alpha_deg > 90.0:
+        quadrant = "II"
+    elif alpha_deg > 0.0:
+        quadrant = "I"
+    elif alpha_deg > -90.0:
+        quadrant = "IV"
+    else:
+        quadrant = "III"
+    ax.text(0, -1.06, rf"$\sin\tau^* {sgn_tau} 0,\ \psi = {sgn_psi}{abs(psi_deg):.0f}^\circ$",
             color=text, ha="center", va="top")
     ax.text(0, -1.32,
             rf"$\alpha = {alpha_deg:.0f}^\circ$ ({quadrant})",

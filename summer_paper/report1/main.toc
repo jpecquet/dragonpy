@@ -2,20 +2,20 @@
 \contentsline {section}{\numberline {2}Model Description}{2}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Overview}{2}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Aerodynamic Force}{2}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Wing Kinematics}{3}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}Equation of Motion}{4}{subsection.2.4}%
-\contentsline {section}{\numberline {3}Controller Design}{4}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Problem Statement}{4}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{4}{subsection.3.2}%
-\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{4}{subsubsection.3.2.1}%
-\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{6}{subsubsection.3.2.2}%
-\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{10}{subsubsection.3.2.3}%
-\contentsline {subsubsection}{\numberline {3.2.4}Square-Wave Pitch Simplification}{13}{subsubsection.3.2.4}%
-\contentsline {subsection}{\numberline {3.3}Control Strategy}{17}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Control Law}{17}{subsection.3.4}%
-\contentsline {section}{\numberline {4}Results}{18}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Reference Configuration}{18}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Hover}{19}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Prescribed Trajectory}{19}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{20}{subsection.4.4}%
-\contentsline {section}{\numberline {5}Conclusion}{27}{section.5}%
+\contentsline {subsection}{\numberline {2.3}Wing Kinematics}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Equation of Motion and Nondimensionalization}{5}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Controller Design}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Problem Statement}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Mean Aerodynamic Force}{7}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Definitions and Assumptions}{7}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Hover Case $(J=0)$}{8}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}General Case $(J \geq 0)$}{12}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Constant-Pitch Simplification}{14}{subsubsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.3}Control Strategy}{19}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Control Law}{19}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Results}{20}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Reference Configuration}{20}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Hover}{21}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Prescribed Trajectory}{21}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{22}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Conclusion}{29}{section.5}%
