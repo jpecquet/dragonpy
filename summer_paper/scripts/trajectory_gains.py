@@ -1,20 +1,20 @@
-"""Prescribed-trajectory tracking: Kp, Kd, Kp+Kd, and Kp+Kd+feedforward.
+"""Prescribed-trajectory tracking under the velocity law.
 
 The reference path is an upward bend: a horizontal run, a circular arc of
 radius R bending up by 45 deg, and a straight 45-deg climb, traversed with a
 trapezoidal speed schedule (linear ramps from/to rest over the taper distance,
-constant cruise speed in between). The reference acceleration a_r carries the
-tangential (ramp) and centripetal (arc) demand exactly.
+constant cruise speed in between). Path and schedule together define the
+reference velocity u_r(t); the force demand is K (u_r - u) plus weight
+compensation (eq:fdes), with no position or acceleration terms. The reference
+position is still computed, but only as a diagnostic (the tracking-error
+trace); it is not fed back.
 
-Four outer-loop cases close the report's control law (sec:control-law):
-    kp    -- a_des = Kp e_p                      (position feedback only)
-    kd    -- a_des = Kd e_v                      (velocity feedback only)
-    kpkd  -- a_des = Kp e_p + Kd e_v             (no feedforward)
-    ff    -- a_des = a_r + Kp e_p + Kd e_v       (full law, eq:fdes)
+Companion to hover_gains.py (same layout):
 
-Companion to hover_gains.py (same layout): left, the (x*, z*) trajectory over
-the reference path; right, time traces of tracking error, velocity and all
-four control variables.
+    trajectory_gains.light.png -- left, the (x*, z*) trajectory over the
+        reference path; right, time traces of tracking error, velocity and
+        all four control variables.
+
 Runs on the project env (numpy + matplotlib only).
 """
 
@@ -39,9 +39,9 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 
 OUT_DIR = HERE.parent / "figures"
 
-KP, KD = 2.25, 2.7                 # outer-loop gains (as in the hover section)
+K = 2.7                            # velocity-law gain (eq:fdes)
 T_SIM = 12.0
-HOLD_PIN_RADIUS = 0.3              # sec:control-law hover pin
+J_PIN = 0.05                       # settled-near-rest threshold for the pin
 GAMMA_HOVER = -GAMMA_H             # +x heading (sigma_x = +1 throughout)
 PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 
@@ -49,16 +49,9 @@ PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 L1, R, BEND, L2 = 1.5, 2.0, np.radians(45.0), 1.5
 V_CRUISE, TAPER = 0.7, 0.3
 
-CASES = [
-    ("kp",   KP,  0.0, False, r"$K_p$ only"),
-    ("kd",   0.0, KD,  False, r"$K_d$ only"),
-    ("kpkd", KP,  KD,  False, r"$K_p + K_d$"),
-    ("ff",   KP,  KD,  True,  r"$K_p + K_d + \vec{a}^*_r$"),
-]
-
 
 # ---------------------------------------------------------------------------
-# Analytical reference: exact position/tangent/curvature + trapezoid speed.
+# Analytical reference: exact position/tangent + trapezoid speed schedule.
 
 L_ARC = R * BEND
 TOTAL = L1 + L_ARC + L2
@@ -69,62 +62,61 @@ T_END = 2.0 * T_RAMP + T_CRUISE              # reference exhausted
 
 
 def _geom(s):
-    """Position, unit tangent, and dT/ds at arc length s (2D, (x, z))."""
+    """Position and unit tangent at arc length s (2D, (x, z))."""
     if s <= L1:
-        return np.array([s, 0.0]), np.array([1.0, 0.0]), np.zeros(2)
+        return np.array([s, 0.0]), np.array([1.0, 0.0])
     if s <= L1 + L_ARC:
         th = (s - L1) / R
         p = np.array([L1 + R * np.sin(th), R * (1.0 - np.cos(th))])
-        return p, np.array([np.cos(th), np.sin(th)]), \
-            np.array([-np.sin(th), np.cos(th)]) / R
+        return p, np.array([np.cos(th), np.sin(th)])
     d = s - L1 - L_ARC
     e = np.array([np.cos(BEND), np.sin(BEND)])
     p0 = np.array([L1 + R * np.sin(BEND), R * (1.0 - np.cos(BEND))])
-    return p0 + d * e, e, np.zeros(2)
+    return p0 + d * e, e
 
 
 def _speed(tau):
-    """Trapezoid speed magnitude, its time-rate, and arc length at time tau."""
+    """Trapezoid speed magnitude and arc length at time tau."""
     if tau <= T_RAMP:
-        return ACC * tau, ACC, 0.5 * ACC * tau * tau
+        return ACC * tau, 0.5 * ACC * tau * tau
     if tau <= T_RAMP + T_CRUISE:
-        return V_CRUISE, 0.0, TAPER + V_CRUISE * (tau - T_RAMP)
+        return V_CRUISE, TAPER + V_CRUISE * (tau - T_RAMP)
     u = tau - T_RAMP - T_CRUISE
-    return max(V_CRUISE - ACC * u, 0.0), -ACC, \
+    return max(V_CRUISE - ACC * u, 0.0), \
         TAPER + (TOTAL - 2.0 * TAPER) + V_CRUISE * u - 0.5 * ACC * u * u
 
 
 def reference(t):
-    """(p_ref, v_ref, a_ref, done) as 3-vectors (y = 0)."""
+    """(p_ref, v_ref, done) as 3-vectors (y = 0)."""
     if t >= T_END:
-        p, _, _ = _geom(TOTAL)
-        return np.array([p[0], 0.0, p[1]]), np.zeros(3), np.zeros(3), True
-    vmag, dvdt, s = _speed(t)
-    p, T, dTds = _geom(min(s, TOTAL))
+        p, _ = _geom(TOTAL)
+        return np.array([p[0], 0.0, p[1]]), np.zeros(3), True
+    vmag, s = _speed(t)
+    p, T = _geom(min(s, TOTAL))
     v = vmag * T
-    a = dvdt * T + vmag ** 2 * dTds
-    return (np.array([p[0], 0.0, p[1]]), np.array([v[0], 0.0, v[1]]),
-            np.array([a[0], 0.0, a[1]]), False)
+    return (np.array([p[0], 0.0, p[1]]), np.array([v[0], 0.0, v[1]]), False)
 
 
 # ---------------------------------------------------------------------------
 
-def allocate(v, F_des, done, e_p_norm, warm):
+def allocate(v, F_des, done, warm):
     """Control-law allocation: schedule while following, pin once settled.
 
-    The stroke-plane lean sign is latched at sigma_x = +1 (the commanded
-    heading is +x throughout), per sec:control-law."""
-    if done and e_p_norm < HOLD_PIN_RADIUS:
+    The pin engages once the reference velocity has vanished (trajectory
+    exhausted) and the body has settled near rest (sec:control-law). The
+    stroke-plane lean sign is latched at sigma_x = +1 (the commanded
+    heading is +x throughout)."""
+    gamma, _, J = gamma_schedule(v, sx=1.0)
+    if done and J < J_PIN:
         gamma, ps1 = GAMMA_HOVER, PSI1_HOVER
     else:
-        gamma, _, J = gamma_schedule(v, sx=1.0)
         ps1 = float(np.clip(slave_psi1(J), *PSI1_LIM))
     u0 = warm if warm is not None else (np.radians(20.0), 0.0)
     phi1, psi0, _ = trim_fast(gamma, ps1, tuple(v), F_des, u0, N_PHASE)
     return (phi1, psi0, gamma, ps1)
 
 
-def simulate(Kp, Kd, ff, T=T_SIM):
+def simulate(T=T_SIM):
     omega = REF_OMEGA_STAR
     period = 2.0 * np.pi / omega
     dt = period / 120.0
@@ -149,15 +141,13 @@ def simulate(Kp, Kd, ff, T=T_SIM):
 
     for i in range(n + 1):
         t = i * dt
-        p_ref, v_ref, a_ref, done = reference(t)
-        e_p = p_ref - s[0:3]
-        e_v = v_ref - s[3:6]
+        p_ref, v_ref, done = reference(t)
+        e_p = p_ref - s[0:3]                     # diagnostic only
         if t - last_ctrl >= period - 1e-9:
-            a_des = Kp * e_p + Kd * e_v + (a_ref if ff else 0.0)
-            F_des = a_des - GRAVITY
+            e_v = v_ref - s[3:6]
+            F_des = K * e_v - GRAVITY
             warm = (u[0], u[1]) if u is not None else None
-            u = allocate(s[3:6], F_des, done,
-                         float(np.hypot(e_p[0], e_p[2])), warm)
+            u = allocate(s[3:6], F_des, done, warm)
             last_ctrl = t
         log["t"].append(t)
         log["x"].append(s[0]); log["z"].append(s[2])
@@ -175,7 +165,7 @@ def simulate(Kp, Kd, ff, T=T_SIM):
     return {k: np.array(val) for k, val in log.items()}
 
 
-def figure(tag, run, style):
+def figure(run, style):
     c1, c2, c3 = "black", "#b2182b", "#2166ac"
     fig = plt.figure(figsize=(6.5, 4.6), constrained_layout=True)
     gs = fig.add_gridspec(4, 2, width_ratios=[1.0, 1.45])
@@ -235,7 +225,7 @@ def figure(tag, run, style):
     for ax in rows[:-1]:
         ax.tick_params(labelbottom=False)
 
-    out = OUT_DIR / f"trajectory_gains_{tag}.light.png"
+    out = OUT_DIR / "trajectory_gains.light.png"
     fig.savefig(out, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return out
@@ -250,16 +240,15 @@ def main():
     print(f"path: {L1} + arc(R={R}, {np.degrees(BEND):.0f} deg) + {L2} "
           f"= {TOTAL:.2f} body lengths; cruise {V_CRUISE}, taper {TAPER}, "
           f"reference ends at t = {T_END:.2f}")
-    print(f"gains: Kp = {KP}, Kd = {KD}")
-    for tag, Kp, Kd, ff, label in CASES:
-        run = simulate(Kp, Kd, ff)
-        out = figure(tag, run, style)
-        ep = np.hypot(run["ex"], run["ez"])
-        follow = run["t"] <= T_END
-        print(f"{label:>22}: max |e_p| following = {ep[follow].max():.3f}, "
-              f"rms = {np.sqrt(np.mean(ep[follow] ** 2)):.3f}, "
-              f"final |e_p| = {ep[-1]:.3f}")
-        print(f"  wrote {out.relative_to(REPO_ROOT)}")
+    print(f"K = {K}")
+    run = simulate()
+    out = figure(run, style)
+    ep = np.hypot(run["ex"], run["ez"])
+    follow = run["t"] <= T_END
+    print(f"max |e_p| following = {ep[follow].max():.3f}, "
+          f"rms = {np.sqrt(np.mean(ep[follow] ** 2)):.3f}, "
+          f"final |e_p| = {ep[-1]:.3f}")
+    print(f"wrote {out.relative_to(REPO_ROOT)}")
 
 
 if __name__ == "__main__":

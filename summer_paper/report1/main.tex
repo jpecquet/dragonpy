@@ -1132,44 +1132,97 @@ direction changes.
 We now formalize the strategy of \autoref{sec:strategy}.
 Let $\vec{x}^*$ and $\vec{u}^*$ be the body position and
 velocity.
-In general, a prescribed trajectory is characterized
-at every point by a reference position $\vec{x}^*_r$,
-velocity $\vec{u}^*_r$, and acceleration $\vec{a}^*_r$
-(\emph{e.g.} centripetal acceleration for a circular
-trajectory). Depending on the exact requirement
-for the controller, only some of these inputs may
-be necessary for the control law. In the case of
-hovering for example, if the objective is to hold
-a specific position in space, $\vec{x}^*_r$ will
-be needed, but $\vec{u}^*_r$ is only needed to
-provide additional damping through derivative control.
-If the objective is simply to hover about an arbitrary
-point, then only $\vec{u}^*_r$ is needed.
-Similarly, in the case of prey pursuit, the
-input is the line-of-sight bearing to the prey,
-without range information, and the objective
-is to align the velocity vector with the line of sight
-as we close in on the prey. In this case,
-only $\vec{u}^*_r$ needs to be formulated,
-which prescribes both the pursuit direction
-(line of sight) and the desired closing speed.
-With this in mind, we start by forming
-the force demand in the most general case,
-using all the potential inputs. The result is
-a proportional-derivative tracking law
-with acceleration feedforward and compensation of
-the weight
+The force demand is formed by a velocity tracking law:
+given a reference velocity $\vec{u}^*_r$, the desired
+acceleration is proportional to the velocity error, through a
+single gain $K$, and the weight is compensated:
 \begin{align}
-    \vec{a}^*_\text{des} &= \vec{a}^*_r
-    + K_p \left( \vec{x}^*_r - \vec{x}^* \right)
-    + K_d \left( \vec{u}^*_r - \vec{u}^* \right) \\
+    \vec{a}^*_\text{des} &= K \left( \vec{u}^*_r - \vec{u}^* \right) \\
     \langle \vec{F}^* \rangle^\text{des} &= \vec{a}^*_\text{des} + \hat{z} \label{eq:fdes}
 \end{align}
-In the hover and prey pursuit cases, $\vec{a}^*_r = \vec{0}$.
-In the prey pursuit case specifically, $K_p = 0$,
-while either $K_p$ or $K_d$ may be zero in the hover case.
-We will see that in practice, a simpler velocity-based
-expression ($\vec{a}^*_\text{des} = K_d \left( \vec{u}^*_r - \vec{u}^* \right)$) is very satisfactory.
+No position or acceleration terms are used: the task enters
+the law only through $\vec{u}^*_r$. (A previous version of
+this report discusses augmenting \autoref{eq:fdes} with
+position feedback and acceleration feedforward terms to
+provide positional accuracy; we do not pursue this here.)
+The reference velocity defines the use case:
+\begin{itemize}
+    \item \emph{Hover:} $\vec{u}^*_r = \vec{0}$. The law nulls
+        the body velocity, and the body hovers about wherever
+        it settles; no reference position is involved.
+    \item \emph{Prescribed trajectory:} the trajectory is
+        specified as a path traversed with a speed schedule,
+        and $\vec{u}^*_r(t)$ is the velocity of the reference
+        point moving along it---the unit tangent of the path,
+        scaled by the scheduled speed. The path geometry
+        enters the law only through this velocity history.
+    \item \emph{Prey pursuit:} the reference velocity is the
+        desired closing speed along the line of sight to the
+        prey,
+        \begin{align}
+            \vec{u}^*_r = u^*_\text{cmd}\, \hat{r}
+            \quad\quad\quad
+            \hat{r} = \frac{\vec{x}^*_\text{prey} - \vec{x}^*}{|\vec{x}^*_\text{prey} - \vec{x}^*|}
+            \label{eq:ur-pursuit}
+        \end{align}
+        formed from the line-of-sight bearing only, with no
+        range information. The law then steers the velocity
+        vector onto the line of sight as the body closes in.
+\end{itemize}
+The hover, trajectory, and pursuit geometries are illustrated in
+\autoref{fig:hover-diagram}, \autoref{fig:trajectory-diagram}, and
+\autoref{fig:pursuit-diagram}.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/hover_diagram.light.png}
+    \caption{Control-law geometry in the hover use case. The reference
+    velocity is zero (and therefore not drawn): the force demand of
+    \autoref{eq:fdes} composes, tip to tail, the weight compensation
+    $\hat{z}$ with the braking term $-K \vec{u}^*$ opposing the residual
+    drift velocity $\vec{u}^*$, giving a resultant that supports the
+    weight while arresting the drift. The stroke plane is pinned at
+    $\gamma = \gamma^\text{hover} = -45^\circ$ with $\psi_1 =
+    \psi_1^\text{opt}(0)$; wingbeat overlay as in
+    \autoref{fig:hover-beta-gamma}, arrow lengths
+    schematic.}\label{fig:hover-diagram}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/trajectory_diagram.light.png}
+    \caption{Control-law geometry in the prescribed-trajectory use case.
+    The reference point (dot) travels along the prescribed path (in
+    color, solid where already traveled, dashed ahead) with velocity
+    $\vec{u}^*_r$, the path tangent scaled by the speed schedule. The
+    body is not
+    constrained to the path: with no position feedback it trails the
+    reference, cutting slightly inside the bend, and its velocity
+    $\vec{u}^*$ lags the leveling-off of the path. The reference
+    velocity is copied at the body (in color) to close the velocity
+    triangle, and the force demand of \autoref{eq:fdes} composes, tip to
+    tail, the weight compensation $\hat{z}$ with the amplified error
+    $K (\vec{u}^*_r - \vec{u}^*)$. Wingbeat overlay as in
+    \autoref{fig:pursuit-diagram}, at the blended stroke-plane angle for
+    the drawn $J \approx 0.2$; arrow lengths are
+    schematic.}\label{fig:trajectory-diagram}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/pursuit_diagram.light.png}
+    \caption{Control-law geometry in the prey pursuit use case. The prey
+    is detected at the line-of-sight bearing $\hat{r}$ (sparse dots), and
+    the reference velocity $\vec{u}^*_r = u^*_\text{cmd}\,\hat{r}$
+    (\autoref{eq:ur-pursuit}) points along it, while the body velocity
+    $\vec{u}^*$ lags behind (tail chase, the prey moving along
+    $+\hat{x}$). The velocity error $\vec{u}^*_r - \vec{u}^*$ closes the
+    velocity triangle, and the force demand of \autoref{eq:fdes}
+    composes, tip to tail, the weight compensation $\hat{z}$ with the
+    amplified error $K (\vec{u}^*_r - \vec{u}^*)$. The wingbeat overlay
+    is drawn as in \autoref{fig:hover-beta-gamma}, at the blended
+    stroke-plane angle of \autoref{eq:gamma-schedule} for the drawn
+    $J \approx 0.2$ ($\gamma \approx -60^\circ$, $\psi_1 =
+    \psi_1^\text{opt}(J)$); velocity and force arrow lengths are
+    schematic.}\label{fig:pursuit-diagram}
+\end{figure}
 With the force demand formulated, $\gamma$ and $\psi_1$ 
 must now adapt to the measured velocity.
 The advance ratio is evaluated as
@@ -1212,8 +1265,9 @@ are trimmed to the force demand by solving
 \end{align}
 for $(s_0^*, \psi_0)$, using the expressions for
 $\langle \vec{F}^* \rangle$ derived in \autoref{sec:maf}.
-Finally, once the reference trajectory is exhausted and the
-position error falls within a small radius (0.3 body lengths),
+Finally, once the commanded reference velocity vanishes
+(hover, or an exhausted reference trajectory) and the body has
+settled near rest,
 $\gamma$ and $\psi_1$ are pinned to their hover values
 $\sigma_x \gamma^\text{hover}$ and $\psi_1^\text{opt}(0)$,
 avoiding jitter from the residual hover velocity, while
@@ -1250,110 +1304,50 @@ $\phi$ differing by $180^\circ$) so as to reduce body oscillations.
 \subsection{Hover}
 
 The hover regime of the control law is exercised by initializing
-the body at the reference position, $\vec{x}^*(0) = \vec{x}^*_r =
-(0, 0)$, with a velocity perturbation $\vec{u}^*(0) = (0.2, 0.2)$
-and $\vec{u}^*_r = 0$. Position feedback only ($K_d = 0$),
-velocity feedback only ($K_p = 0$), and the full tracking law are
-compared in \autoref{fig:hover-kp}, \autoref{fig:hover-kd}, and
-\autoref{fig:hover-kpkd}, with $K_p = 2.25$ and $K_d = 2.7$.
+the body at the origin with a velocity perturbation
+$\vec{u}^*(0) = (0.2, 0.2)$, and $\vec{u}^*_r = 0$, with
+$K = 2.7$. The response is shown in \autoref{fig:hover}.
 \begin{figure}[htbp]
     \centering
-    \includegraphics{figures/hover_gains_kp.light.png}
-    \caption{Hover hold with position feedback only ($K_d = 0$).
-    The oscillation about $\vec{x}^*_r$ is not damped, and the
-    phase lag of the once-per-wingbeat control update makes it
-    grow. Once the position error exceeds the hover pin radius,
-    $\gamma$ and $\psi_1$ resume scheduling and the trim
-    saturates.}\label{fig:hover-kp}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/hover_gains_kd.light.png}
-    \caption{Hover hold with velocity feedback only ($K_p = 0$).
-    The velocity perturbation is eliminated within about one time
-    unit, but the position offset accumulated meanwhile (about
-    $0.05$ body lengths) is never corrected. With that
-said, the resulting error is very small, and while there is some
-residual drift over time, the result is quite satisfactory.}\label{fig:hover-kd}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/hover_gains_kpkd.light.png}
-    \caption{Hover hold with the full tracking law. The body
-    returns to $\vec{x}^*_r$ (peak excursion $0.06$ body lengths,
-    residual position error below $2 \times 10^{-3}$).}\label{fig:hover-kpkd}
+    \includegraphics{figures/hover_gains.light.png}
+    \caption{Hover hold under the velocity law
+    (\autoref{eq:fdes}, $K = 2.7$). The velocity perturbation is
+    eliminated within about one time unit. The position offset
+    accumulated meanwhile (about $0.05$ body lengths) is never
+    corrected---there is no position feedback---and some slow
+    residual drift remains, but the body settles into a clean
+    hover about the settled point.}\label{fig:hover}
 \end{figure}
 
 \subsection{Prescribed Trajectory}
 
-We choose an upward bend as the reference trajectory: a horizontal run of
+We choose an upward bend as the reference path: a horizontal run of
 $1.5$ body lengths, a circular arc of radius $2$ bending up by
 $45^\circ$, and a straight climb of $1.5$ body lengths, traversed
 with a trapezoidal speed schedule (linear ramps from and to rest
-over a distance of $0.3$, cruise speed $0.7$). The reference
-acceleration $\vec{a}^*_r$ carries the tangential (ramp) and
-centripetal (arc) demand. Starting from rest on the path,
-four configurations are compared: position feedback
-only (\autoref{fig:traj-kp}), velocity feedback only
-(\autoref{fig:traj-kd}), both (\autoref{fig:traj-kpkd}), and
-both with acceleration feedforward---the full law of
-\autoref{eq:fdes} (\autoref{fig:traj-ff})---again with
-$K_p = 2.25$ and $K_d = 2.7$.
+over a distance of $0.3$, cruise speed $0.7$), which together
+define $\vec{u}^*_r(t)$. Starting from rest on the path, the
+tracking response with $K = 2.7$ is shown in \autoref{fig:traj}.
 \begin{figure}[htbp]
     \centering
-    \includegraphics{figures/trajectory_gains_kp.light.png}
-    \caption{Prescribed trajectory with position feedback only
-    ($K_d = 0$): as in hover, the undamped error dynamics under
-    the once-per-wingbeat update are unstable, and the body
-    departs from the path.}\label{fig:traj-kp}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/trajectory_gains_kd.light.png}
-    \caption{Prescribed trajectory with velocity feedback only
-    ($K_p = 0$): the body follows the commanded velocity with a
-    first-order lag, trailing the reference by $|\vec{u}^*_r| /
-    K_d \approx 0.26$ body lengths throughout. The deceleration
-    ramp lets it catch up near the end, but nothing corrects
-    position drift. With that said, the resulting
-trajectory appears very satisfactory.}\label{fig:traj-kd}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/trajectory_gains_kpkd.light.png}
-    \caption{Prescribed trajectory with position and velocity
-    feedback ($K_p + K_d$, no feedforward). Tracking error peaks
-    at $0.25$ body lengths, dominated by the speed-ramp lag
-    and by the ``cutting'' inside the
-    arc, since the required acceleration must be generated by a
-    standing error.}\label{fig:traj-kpkd}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/trajectory_gains_ff.light.png}
-    \caption{Prescribed trajectory with the full law of
-    \autoref{eq:fdes}, including the acceleration feedforward
-    $\vec{a}^*_r$. The maneuver demand is supplied directly
-    rather than through the error terms, and the peak tracking
-    error drops significantly.}\label{fig:traj-ff}
+    \includegraphics{figures/trajectory_gains.light.png}
+    \caption{Prescribed trajectory under the velocity law
+    ($K = 2.7$): the body follows the commanded velocity with a
+    first-order lag, trailing the reference point by
+    $|\vec{u}^*_r| / K \approx 0.26$ body lengths through the
+    cruise; the deceleration ramp lets it catch up near the end.
+    Position drift is not corrected, but the achieved path stays
+    close to the reference.}\label{fig:traj}
 \end{figure}
 
 \subsection{Prey Pursuit}
 
 Prey pursuit closes the guidance loop through the control law
-using only the velocity term of \autoref{eq:fdes}. The reference
-velocity is defined as the desired closing speed along the line
-of sight to the prey,
-\begin{align}
-    \vec{u}^*_r = u^*_\text{cmd}\, \hat{r}
-    \quad\quad\quad
-    \hat{r} = \frac{\vec{x}^*_\text{prey} - \vec{x}^*}{|\vec{x}^*_\text{prey} - \vec{x}^*|}
-\end{align}
-with no position reference or acceleration feedforward, so that
-$\langle \vec{F}^* \rangle^\text{des} = K_d (\vec{u}^*_r -
-\vec{u}^*) + \hat{z}$. The prey starts at $(2.5, 2.0)$ and moves
+with the reference velocity of \autoref{eq:ur-pursuit}: the
+desired closing speed along the line of sight to the prey.
+The prey starts at $(2.5, 2.0)$ and moves
 at the constant velocity $(0.35, 0)$; the body starts at rest at
-the origin, with $u^*_\text{cmd} = 0.7$ and $K_d = 2.7$.
+the origin, with $u^*_\text{cmd} = 0.7$ and $K = 2.7$.
 Interception is declared at a range of $0.5$ body lengths. The
 resulting pursuit is shown in \autoref{fig:pursuit}.
 \begin{figure}[htbp]
@@ -1379,7 +1373,7 @@ Some caveats are worth mentioning:
 \begin{itemize}
     \item \emph{Not strictly proportional control}. While
     all control tasks can be achieved with a single
-    proportional gain $K_d$ in the force demand formulation,
+    proportional gain $K$ in the force demand formulation,
     the control variables vary nonlinearly with
     the force demand, since we are solving the inverse
     problem of which variable values satisfy the force demand.

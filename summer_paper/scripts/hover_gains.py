@@ -1,18 +1,16 @@
-"""Hover recovery from a velocity perturbation: Kp only, Kd only, Kp + Kd.
+"""Hover recovery from a velocity perturbation under the velocity law.
 
-Exercises the report's control law (sec:control-law) in its hover regime: the
-reference is a fixed point x_r = (0, 0) with u_r = a_r = 0, the body starts at
-x_r with velocity (0.2, 0.2), and the outer loop's gains are ablated. Because
-the position error never leaves the hold-pin radius, gamma and psi1 stay pinned
-at their hover values and the recovery is carried by the two hover control
-variables (s0*, psi0) -- table tab:hover in action.
+Exercises the report's control law (sec:control-law) in its hover regime:
+u_r = 0, the body starts at the origin with velocity (0.2, 0.2), and the
+force demand is K (u_r - u) plus weight compensation (eq:fdes). The
+commanded reference velocity is zero throughout, so once the body settles
+near rest (J below a small threshold) gamma and psi1 pin to their hover
+values and the recovery is carried by the two hover control variables
+(s0*, psi0) -- table tab:hover in action.
 
-    hover_gains_kp.light.png    -- Kd = 0: undamped oscillation about x_r
-    hover_gains_kd.light.png    -- Kp = 0: velocity killed, position drifts
-    hover_gains_kpkd.light.png  -- both:   return to x_r
+    hover_gains.light.png -- left, the (x*, z*) trajectory; right, time
+        traces of the body state and all four control variables.
 
-Each figure: left, the (x*, z*) trajectory; right, time traces of the body
-state and all four control variables.
 Runs on the project env (numpy + matplotlib only).
 """
 
@@ -37,33 +35,30 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 
 OUT_DIR = HERE.parent / "figures"
 
-KP, KD = 2.25, 2.7                 # outer-loop gains (gui demo defaults)
+K = 2.7                            # velocity-law gain (eq:fdes)
 V0 = (0.2, 0.0, 0.2)               # initial body velocity perturbation
 T_SIM = 20.0
-HOLD_PIN_RADIUS = 0.3              # sec:control-law hover pin
+J_PIN = 0.05                       # settled-near-rest threshold for the pin
 GAMMA_HOVER = -GAMMA_H             # +x heading default (sigma_x = +1)
 PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 
-CASES = [
-    ("kp",   KP,  0.0, r"$K_p$ only"),
-    ("kd",   0.0, KD,  r"$K_d$ only"),
-    ("kpkd", KP,  KD,  r"$K_p + K_d$"),
-]
 
+def allocate(v, F_des, warm):
+    """Control-law allocation: gamma/psi1 schedule with hover pin + trim.
 
-def allocate(v, F_des, e_p_norm, warm):
-    """Control-law allocation for the hover reference (gamma/psi1 pin + trim)."""
-    if e_p_norm < HOLD_PIN_RADIUS:
+    The reference velocity is zero throughout, so the pin engages whenever
+    the body has settled near rest (sec:control-law)."""
+    gamma, _, J = gamma_schedule(v, sx=1.0)   # latched commanded heading
+    if J < J_PIN:
         gamma, ps1 = GAMMA_HOVER, PSI1_HOVER
     else:
-        gamma, _, J = gamma_schedule(v, sx=1.0)   # latched commanded heading
         ps1 = float(np.clip(slave_psi1(J), *PSI1_LIM))
     u0 = warm if warm is not None else (np.radians(20.0), 0.0)
     phi1, psi0, _ = trim_fast(gamma, ps1, tuple(v), F_des, u0, N_PHASE)
     return (phi1, psi0, gamma, ps1)
 
 
-def simulate(Kp, Kd, T=T_SIM):
+def simulate(T=T_SIM):
     """Unsteady closed-loop hover hold from the perturbed initial condition."""
     omega = REF_OMEGA_STAR
     period = 2.0 * np.pi / omega
@@ -90,11 +85,10 @@ def simulate(Kp, Kd, T=T_SIM):
     for i in range(n + 1):
         t = i * dt
         if t - last_ctrl >= period - 1e-9:
-            e_p = -s[0:3]                        # x_r = 0
             e_v = -s[3:6]                        # u_r = 0
-            F_des = Kp * e_p + Kd * e_v - GRAVITY
+            F_des = K * e_v - GRAVITY
             warm = (u[0], u[1]) if u is not None else None
-            u = allocate(s[3:6], F_des, float(np.hypot(e_p[0], e_p[2])), warm)
+            u = allocate(s[3:6], F_des, warm)
             last_ctrl = t
         log["t"].append(t)
         log["x"].append(s[0]); log["z"].append(s[2])
@@ -110,7 +104,7 @@ def simulate(Kp, Kd, T=T_SIM):
     return {k: np.array(val) for k, val in log.items()}
 
 
-def figure(tag, run, style):
+def figure(run, style):
     c1, c2, c3 = "black", "#b2182b", "#2166ac"
     fig = plt.figure(figsize=(6.5, 4.6), constrained_layout=True)
     gs = fig.add_gridspec(4, 2, width_ratios=[1.0, 1.45])
@@ -118,15 +112,12 @@ def figure(tag, run, style):
     # left: trajectory
     axT = fig.add_subplot(gs[:, 0])
     axT.plot(run["x"], run["z"], color=c1, lw=1.4)
-    axT.plot(0.0, 0.0, "+", color=c2, ms=9, mew=1.6, zorder=5,
-             label=r"$\vec{x}^*_r$")
     axT.plot(run["x"][0], run["z"][0], "o", color=c1, ms=4, mfc="white")
     axT.plot(run["x"][-1], run["z"][-1], "o", color=c1, ms=4)
     axT.set_xlabel(r"$x^*$ (body lengths)")
     axT.set_ylabel(r"$z^*$ (body lengths)")
     axT.set_title("(a) trajectory", fontsize=style.font_size)
     axT.set_aspect("equal", adjustable="datalim")
-    axT.legend(fontsize=style.font_size - 3, frameon=True, loc="best")
 
     # right: time traces
     rows = []
@@ -165,7 +156,7 @@ def figure(tag, run, style):
     for ax in rows[:-1]:
         ax.tick_params(labelbottom=False)
 
-    out = OUT_DIR / f"hover_gains_{tag}.light.png"
+    out = OUT_DIR / "hover_gains.light.png"
     fig.savefig(out, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return out
@@ -177,19 +168,18 @@ def main():
     apply_matplotlib_style(style)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"gains: Kp = {KP}, Kd = {KD}; v0 = ({V0[0]}, {V0[2]}); "
+    print(f"K = {K}; v0 = ({V0[0]}, {V0[2]}); "
           f"gamma_hover = {np.degrees(GAMMA_HOVER):.0f} deg, "
           f"psi1_hover = {np.degrees(PSI1_HOVER):.1f} deg")
-    for tag, Kp, Kd, label in CASES:
-        run = simulate(Kp, Kd)
-        out = figure(tag, run, style)
-        ep = np.hypot(run["x"], run["z"])
-        sp = np.hypot(run["vx"], run["vz"])
-        m = len(run["t"]) // 2
-        print(f"{label:>11}: max |e_p| = {ep.max():.3f}, "
-              f"final |e_p| = {ep[-1]:.3f}, final speed = {sp[-1]:.3f}, "
-              f"|e_p| range over 2nd half = [{ep[m:].min():.3f}, {ep[m:].max():.3f}]")
-        print(f"  wrote {out.relative_to(REPO_ROOT)}")
+    run = simulate()
+    out = figure(run, style)
+    ep = np.hypot(run["x"], run["z"])
+    sp = np.hypot(run["vx"], run["vz"])
+    m = len(run["t"]) // 2
+    print(f"max |x| = {ep.max():.3f}, final |x| = {ep[-1]:.3f}, "
+          f"final speed = {sp[-1]:.3f}, "
+          f"|x| range over 2nd half = [{ep[m:].min():.3f}, {ep[m:].max():.3f}]")
+    print(f"wrote {out.relative_to(REPO_ROOT)}")
 
 
 if __name__ == "__main__":
