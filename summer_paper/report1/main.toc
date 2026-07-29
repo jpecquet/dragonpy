@@ -17,5 +17,5 @@
 \contentsline {subsection}{\numberline {4.1}Reference Configuration}{24}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Hover}{25}{subsection.4.2}%
 \contentsline {subsection}{\numberline {4.3}Prescribed Trajectory}{25}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{25}{subsection.4.4}%
-\contentsline {section}{\numberline {5}Conclusion}{27}{section.5}%
+\contentsline {subsection}{\numberline {4.4}Prey Pursuit}{26}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Conclusion}{29}{section.5}%

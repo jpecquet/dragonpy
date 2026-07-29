@@ -38,6 +38,13 @@ third-party packages.
 - **Orange trace**: the actual flown trajectory, drawn beneath the prescribed
   (dashed blue) path for comparison. It persists across successive paths and
   clears only on *Reset*.
+- **Report hand-off**: every committed path is also saved to
+  `summer_paper/data/drawn_path.json` (raw points, anchor, smoothed polyline,
+  current follow speed/taper), overwritten on each release.
+  `summer_paper/scripts/trajectory_gains.py` picks the file up automatically —
+  re-smoothed with the same `smooth_path`, shifted to start at the origin, and
+  replayed at the report's canonical speed schedule — as the prescribed-trajectory
+  test case of the report; without the file it falls back to its built-in bend.
 - **Left panel**:
   - *Morphology* — wing length \(L_w^*\), inverse wing loading \(A^*/m^*\),
     wingbeat frequency \(\omega^*\) (Table 1 ranges).

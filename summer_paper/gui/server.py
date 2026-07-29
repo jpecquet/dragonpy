@@ -51,6 +51,9 @@ BOUNDS = {
 # Pursuit-target speed cap (BL per sqrt(L/g)); absurd aim drags are clamped.
 TARGET_VMAX = 5.0
 
+# Where committed drawings are persisted for the report scripts.
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+
 
 class SimRunner:
     """Owns the simulator and drives it in real time on a daemon thread."""
@@ -136,8 +139,29 @@ class SimRunner:
 
     def set_path(self, points):
         with self.lock:
+            anchor = (float(self.sim.s[0]), float(self.sim.s[2]))
             path = self.sim.set_path(points)
+            v_follow, taper = self.sim.cfg.v_follow, self.sim.cfg.taper
+        if path is not None:
+            self._dump_path(points, anchor, path, v_follow, taper)
         return None if path is None else path.tolist()
+
+    @staticmethod
+    def _dump_path(points, anchor, path, v_follow, taper):
+        """Persist the last committed drawing (raw + smoothed) so the report's
+        prescribed-trajectory figure (scripts/trajectory_gains.py) can replay
+        it. Overwritten on every committed path; best-effort (a failed write
+        never disturbs the sim)."""
+        try:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            out = {"points": [[float(x), float(z)] for x, z in points],
+                   "anchor": [anchor[0], anchor[1]],
+                   "smoothed": [[float(x), float(z)] for x, z in path],
+                   "v_follow": float(v_follow), "taper": float(taper)}
+            with open(DATA_DIR / "drawn_path.json", "w") as f:
+                json.dump(out, f)
+        except OSError as e:
+            print(f"drawn-path dump failed: {e}", file=sys.stderr)
 
     def set_target(self, d):
         try:

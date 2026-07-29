@@ -1,23 +1,38 @@
 """Prescribed-trajectory tracking under the velocity law.
 
-The reference path is an upward bend: a horizontal run, a circular arc of
-radius R bending up by 45 deg, and a straight 45-deg climb, traversed with a
-trapezoidal speed schedule (linear ramps from/to rest over the taper distance,
-constant cruise speed in between). Path and schedule together define the
-reference velocity u_r(t); the force demand is K (u_r - u) plus weight
-compensation (eq:fdes), with no position or acceleration terms. The reference
-position is still computed, but only as a diagnostic (the tracking-error
-trace); it is not fed back.
+The reference path is a closed-course test trajectory idealized from a GUI
+drawing (data/drawn_path.json) into grid-snapped primitives -- lines and
+tangent circular arcs covering several regimes: a level start easing into a
+45-deg climb, a tight loop (radius 0.4, 225-deg arc through its own
+crossing), a vertical descent, two sharp corners (radius 0.25) framing a
+level run, and a gentle quarter-turn (radius 1, centered on the origin) onto
+a level finish. All polygon control vertices sit on the integer grid: (0,0),
+(1,0), (2,1) [loop crossing], (2,-1), (-1,-1), (-1,1), (1,1).
+
+A second case replays the committed GUI freehand drawing
+(data/drawn_path.json, re-smoothed with the GUI's own smooth_path and
+shifted to the origin) -- a dragonfly-shaped closed course -- when the file
+is present.
+
+The polyline is traversed with the GUI Reference's trapezoidal speed
+schedule (linear ramps from/to rest over the taper distance, constant cruise
+speed in between), which defines the reference velocity u_r(t); the force
+demand is K (u_r - u) plus weight compensation (eq:fdes), with no position
+or acceleration terms. The reference position is still computed, but only as
+a diagnostic (the tracking-error trace); it is not fed back.
 
 Companion to hover_gains.py (same layout):
 
-    trajectory_gains.light.png -- left, the (x*, z*) trajectory over the
-        reference path; right, time traces of tracking error, velocity and
-        all four control variables.
+    trajectory_gains.light.png       -- the primitive course: left, the
+        (x*, z*) trajectory over the reference path; right, time traces of
+        tracking error, velocity and all four control variables.
+    trajectory_gains_drawn.light.png -- same layout for the freehand
+        drawing (only if data/drawn_path.json exists).
 
 Runs on the project env (numpy + matplotlib only).
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -36,65 +51,75 @@ REPO_ROOT = HERE.parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
+from summer_paper.gui.dragonfly_sim import Reference, smooth_path  # noqa: E402
 
 OUT_DIR = HERE.parent / "figures"
+DRAWN_PATH = HERE.parent / "data" / "drawn_path.json"
 
 K = 2.7                            # velocity-law gain (eq:fdes)
-T_SIM = 12.0
+T_PAD = 4.6                        # sim time past the reference end (settling)
 J_PIN = 0.05                       # settled-near-rest threshold for the pin
 GAMMA_HOVER = -GAMMA_H             # +x heading (sigma_x = +1 throughout)
 PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 
-# Path geometry: horizontal run, radius-R arc up by BEND, straight climb.
-L1, R, BEND, L2 = 1.5, 2.0, np.radians(45.0), 1.5
-V_CRUISE, TAPER = 0.7, 0.3
+# Speed schedule (canonical figure values; the GUI's live settings are
+# recorded in the dump but not used here). The drawn course is flown at a
+# reduced cruise: its near-vertical plunges into the lower wing lobes
+# saturate the descent trim at 0.5.
+V_CRUISE, TAPER = 0.5, 0.3
+V_DRAWN = 0.4
+
+SQ2 = np.sqrt(2.0)
 
 
-# ---------------------------------------------------------------------------
-# Analytical reference: exact position/tangent + trapezoid speed schedule.
+def primitive_path(ds=0.04):
+    """The test path as grid-snapped lines and tangent arcs (module doc)."""
+    R1, RL, RC = 1.0, 0.4, 0.25   # ease-in / loop / sharp-corner radii
+    e = SQ2 / 2.0
+    t1 = (1.0 + SQ2) * RL * e     # loop tangency overshoot past (2, 1)
+    cy = 1.0 + RL * (1.0 + SQ2)   # loop center height (tangency-derived)
+    segs = []
 
-L_ARC = R * BEND
-TOTAL = L1 + L_ARC + L2
-ACC = V_CRUISE ** 2 / (2.0 * TAPER)          # ramp acceleration (= v^2 / 2d)
-T_RAMP = V_CRUISE / ACC
-T_CRUISE = (TOTAL - 2.0 * TAPER) / V_CRUISE
-T_END = 2.0 * T_RAMP + T_CRUISE              # reference exhausted
+    def line(p0, p1):
+        p0, p1 = np.asarray(p0, float), np.asarray(p1, float)
+        n = max(2, int(np.ceil(np.linalg.norm(p1 - p0) / ds)) + 1)
+        s = np.linspace(0.0, 1.0, n)[:, None]
+        segs.append(p0 + s * (p1 - p0))
+
+    def arc(c, r, a0, a1):
+        n = max(2, int(np.ceil(np.radians(abs(a1 - a0)) * r / ds)) + 1)
+        th = np.radians(np.linspace(a0, a1, n))
+        segs.append(np.column_stack([c[0] + r * np.cos(th),
+                                     c[1] + r * np.sin(th)]))
+
+    line((0.0, 0.0), (2.0 - SQ2, 0.0))              # level start
+    arc((2.0 - SQ2, R1), R1, -90.0, -45.0)          # ease into the 45-deg climb
+    line((2.0 - e, 1.0 - e), (2.0 + t1, 1.0 + t1))  # climb through the crossing
+    arc((2.0 + RL, cy), RL, -45.0, 180.0)           # tight loop over the top
+    line((2.0, cy), (2.0, -1.0 + RC))               # vertical descent
+    arc((2.0 - RC, -1.0 + RC), RC, 0.0, -90.0)      # sharp bottom-right corner
+    line((2.0 - RC, -1.0), (-1.0 + RC, -1.0))       # level run left
+    arc((-1.0 + RC, -1.0 + RC), RC, -90.0, -180.0)  # sharp bottom-left corner
+    line((-1.0, -1.0 + RC), (-1.0, 0.0))            # climb the left wall
+    arc((0.0, 0.0), 1.0, 180.0, 90.0)               # gentle quarter turn
+    line((0.0, 1.0), (1.0, 1.0))                    # level finish
+
+    gaps = [np.linalg.norm(b[0] - a[-1]) for a, b in zip(segs, segs[1:])]
+    assert max(gaps) < 1e-9, "primitive chain is not continuous"
+    return np.vstack([s if i == 0 else s[1:] for i, s in enumerate(segs)])
 
 
-def _geom(s):
-    """Position and unit tangent at arc length s (2D, (x, z))."""
-    if s <= L1:
-        return np.array([s, 0.0]), np.array([1.0, 0.0])
-    if s <= L1 + L_ARC:
-        th = (s - L1) / R
-        p = np.array([L1 + R * np.sin(th), R * (1.0 - np.cos(th))])
-        return p, np.array([np.cos(th), np.sin(th)])
-    d = s - L1 - L_ARC
-    e = np.array([np.cos(BEND), np.sin(BEND)])
-    p0 = np.array([L1 + R * np.sin(BEND), R * (1.0 - np.cos(BEND))])
-    return p0 + d * e, e
-
-
-def _speed(tau):
-    """Trapezoid speed magnitude and arc length at time tau."""
-    if tau <= T_RAMP:
-        return ACC * tau, 0.5 * ACC * tau * tau
-    if tau <= T_RAMP + T_CRUISE:
-        return V_CRUISE, TAPER + V_CRUISE * (tau - T_RAMP)
-    u = tau - T_RAMP - T_CRUISE
-    return max(V_CRUISE - ACC * u, 0.0), \
-        TAPER + (TOTAL - 2.0 * TAPER) + V_CRUISE * u - 0.5 * ACC * u * u
-
-
-def reference(t):
-    """(p_ref, v_ref, done) as 3-vectors (y = 0)."""
-    if t >= T_END:
-        p, _ = _geom(TOTAL)
-        return np.array([p[0], 0.0, p[1]]), np.zeros(3), True
-    vmag, s = _speed(t)
-    p, T = _geom(min(s, TOTAL))
-    v = vmag * T
-    return (np.array([p[0], 0.0, p[1]]), np.array([v[0], 0.0, v[1]]), False)
+def drawn_path():
+    """(M, 2) polyline of the committed GUI drawing, or None if absent."""
+    if not DRAWN_PATH.exists():
+        return None
+    with open(DRAWN_PATH) as f:
+        d = json.load(f)
+    path = smooth_path([tuple(p) for p in d["points"]], tuple(d["anchor"]))
+    print(f"reference: GUI drawing ({DRAWN_PATH.relative_to(REPO_ROOT)}, "
+          f"drawn at v_follow = {d['v_follow']:.2f}, "
+          f"taper = {d['taper']:.2f})")
+    return path - path[0]                        # start at the origin
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +141,7 @@ def allocate(v, F_des, done, warm):
     return (phi1, psi0, gamma, ps1)
 
 
-def simulate(T=T_SIM):
+def simulate(ref, T):
     omega = REF_OMEGA_STAR
     period = 2.0 * np.pi / omega
     dt = period / 120.0
@@ -141,7 +166,9 @@ def simulate(T=T_SIM):
 
     for i in range(n + 1):
         t = i * dt
-        p_ref, v_ref, done = reference(t)
+        p2, v2, _, done = ref.sample(t)
+        p_ref = np.array([p2[0], 0.0, p2[1]])
+        v_ref = np.array([v2[0], 0.0, v2[1]])
         e_p = p_ref - s[0:3]                     # diagnostic only
         if t - last_ctrl >= period - 1e-9:
             e_v = v_ref - s[3:6]
@@ -165,20 +192,18 @@ def simulate(T=T_SIM):
     return {k: np.array(val) for k, val in log.items()}
 
 
-def figure(run, style):
+def figure(run, path, style, tag=""):
     c1, c2, c3 = "black", "#b2182b", "#2166ac"
     fig = plt.figure(figsize=(6.5, 4.6), constrained_layout=True)
     gs = fig.add_gridspec(4, 2, width_ratios=[1.0, 1.45])
 
     # left: trajectory over the reference path
     axT = fig.add_subplot(gs[:, 0])
-    s_grid = np.linspace(0.0, TOTAL, 200)
-    P = np.array([_geom(si)[0] for si in s_grid])
-    axT.plot(P[:, 0], P[:, 1], color="0.65", lw=2.6, alpha=0.6,
+    axT.plot(path[:, 0], path[:, 1], color="0.65", lw=2.6, alpha=0.6,
              label="reference", zorder=0)
     axT.plot(run["x"], run["z"], color=c1, lw=1.2, label="achieved")
     axT.plot(run["x"][0], run["z"][0], "o", color=c1, ms=4, mfc="white")
-    axT.plot(P[-1, 0], P[-1, 1], "+", color=c2, ms=9, mew=1.6, zorder=5)
+    axT.plot(path[-1, 0], path[-1, 1], "+", color=c2, ms=9, mew=1.6, zorder=5)
     axT.set_xlabel(r"$x^*$ (body lengths)")
     axT.set_ylabel(r"$z^*$ (body lengths)")
     axT.set_title("(a) trajectory", fontsize=style.font_size)
@@ -218,17 +243,31 @@ def figure(run, style):
 
     for ax in rows:
         ax.axhline(0.0, color="0.85", lw=0.8, zorder=0)
-        ax.set_xlim(0.0, T_SIM)
+        ax.set_xlim(0.0, t[-1])
         ax.legend(fontsize=style.font_size - 4, frameon=True,
                   loc="upper right", ncol=3, handlelength=1.3,
                   labelspacing=0.2, columnspacing=0.8)
     for ax in rows[:-1]:
         ax.tick_params(labelbottom=False)
 
-    out = OUT_DIR / "trajectory_gains.light.png"
+    out = OUT_DIR / f"trajectory_gains{tag}.light.png"
     fig.savefig(out, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return out
+
+
+def run_case(path, tag, style, v_cruise):
+    ref = Reference(path, v_cruise, TAPER, 0.0)
+    print(f"path: {ref.total:.2f} body lengths; cruise {v_cruise}, "
+          f"taper {TAPER}, reference ends at t = {ref.duration():.2f}")
+    run = simulate(ref, ref.duration() + T_PAD)
+    out = figure(run, path, style, tag)
+    ep = np.hypot(run["ex"], run["ez"])
+    follow = run["t"] <= ref.duration()
+    print(f"max |e_p| following = {ep[follow].max():.3f}, "
+          f"rms = {np.sqrt(np.mean(ep[follow] ** 2)):.3f}, "
+          f"final |e_p| = {ep[-1]:.3f}")
+    print(f"wrote {out.relative_to(REPO_ROOT)}")
 
 
 def main():
@@ -236,19 +275,13 @@ def main():
     style.font_size = 11
     apply_matplotlib_style(style)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    print(f"path: {L1} + arc(R={R}, {np.degrees(BEND):.0f} deg) + {L2} "
-          f"= {TOTAL:.2f} body lengths; cruise {V_CRUISE}, taper {TAPER}, "
-          f"reference ends at t = {T_END:.2f}")
     print(f"K = {K}")
-    run = simulate()
-    out = figure(run, style)
-    ep = np.hypot(run["ex"], run["ez"])
-    follow = run["t"] <= T_END
-    print(f"max |e_p| following = {ep[follow].max():.3f}, "
-          f"rms = {np.sqrt(np.mean(ep[follow] ** 2)):.3f}, "
-          f"final |e_p| = {ep[-1]:.3f}")
-    print(f"wrote {out.relative_to(REPO_ROOT)}")
+
+    print("reference: primitive test path (lines + arcs)")
+    run_case(primitive_path(), "", style, V_CRUISE)
+    drawn = drawn_path()
+    if drawn is not None:
+        run_case(drawn, "_drawn", style, V_DRAWN)
 
 
 if __name__ == "__main__":

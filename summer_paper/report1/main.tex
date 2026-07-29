@@ -1321,23 +1321,50 @@ $K = 2.7$. The response is shown in \autoref{fig:hover}.
 
 \subsection{Prescribed Trajectory}
 
-We choose an upward bend as the reference path: a horizontal run of
-$1.5$ body lengths, a circular arc of radius $2$ bending up by
-$45^\circ$, and a straight climb of $1.5$ body lengths, traversed
-with a trapezoidal speed schedule (linear ramps from and to rest
-over a distance of $0.3$, cruise speed $0.7$), which together
-define $\vec{u}^*_r(t)$. Starting from rest on the path, the
-tracking response with $K = 2.7$ is shown in \autoref{fig:traj}.
+The reference path is a closed-course test trajectory covering
+several flight regimes: a level start easing into a $45^\circ$
+climb, a tight self-crossing loop (radius $0.4$), a vertical
+descent of nearly three body lengths, two sharp corners (radius
+$0.25$) framing a level run, and a gentle quarter-turn (radius
+$1$) onto a level finish. The course is assembled from straight
+lines and tangent circular arcs, with all control vertices on the
+integer grid, and is traversed with a trapezoidal speed schedule
+(linear ramps from and to rest over a distance of $0.3$, cruise
+speed $0.5$), which together define $\vec{u}^*_r(t)$. The cruise
+speed is kept moderate because the vertical descent is the
+demanding segment: at faster descent rates the trim saturates
+(see the descent caveat in the conclusion). Starting from rest on
+the path, the tracking response with $K = 2.7$ is shown in
+\autoref{fig:traj}.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/trajectory_gains.light.png}
     \caption{Prescribed trajectory under the velocity law
     ($K = 2.7$): the body follows the commanded velocity with a
     first-order lag, trailing the reference point by
-    $|\vec{u}^*_r| / K \approx 0.26$ body lengths through the
-    cruise; the deceleration ramp lets it catch up near the end.
-    Position drift is not corrected, but the achieved path stays
-    close to the reference.}\label{fig:traj}
+    $|\vec{u}^*_r| / K \approx 0.19$ body lengths through the
+    cruise and cutting slightly inside the sharp corners, with the
+    tracking error peaking at $0.28$. Position drift is not
+    corrected, but the achieved path stays close to the course
+    throughout---including the loop and the descent---and the body
+    settles next to the course endpoint (final offset
+    $0.06$).}\label{fig:traj}
+\end{figure}
+A second, freehand test case is shown in \autoref{fig:traj-drawn}: a
+hand-drawn closed course tracing a dragonfly, replayed directly from
+the recorded drawing---$19$ body lengths of continuous turns through
+four wing lobes, a tail sweep, and a head. Its near-vertical plunges
+into the lower wing lobes are steeper than the descent of the course
+above and saturate the trim at the same cruise speed, so it is flown
+at a reduced cruise of $0.4$.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/trajectory_gains_drawn.light.png}
+    \caption{Freehand trajectory under the velocity law ($K = 2.7$,
+    cruise $0.4$): a hand-drawn closed course tracing a dragonfly. The
+    body stays within $0.27$ body lengths of the reference point
+    throughout and closes the course with a final offset of
+    $0.09$.}\label{fig:traj-drawn}
 \end{figure}
 
 \subsection{Prey Pursuit}
