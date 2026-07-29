@@ -3,8 +3,8 @@ Model geometry definition figure for the Model Description section.
 
 Single panel showing, in the fixed frame (x to the right, z up):
 the point mass body at the origin (center-of-mass symbol), the stroke basis
-(s, n) obtained by rotating (x, z) by the stroke plane angle gamma, the wing
-element (slender ellipse) at position s(t) s along the stroke axis, the chord
+(s, n) obtained by rotating (x, z) by the stroke plane angle gamma, the
+lumped wing (slender ellipse) at position s(t) s along the stroke axis, the chord
 direction c at pitch angle psi from the stroke plane normal n (dashed copy of
 n translated to the wing hinge), and the gamma and psi arcs.
 
@@ -111,7 +111,7 @@ def main():
     spos = 0.62 * s_hat + 0.10 * np.array([s_hat[1], -s_hat[0]])
     ax.text(*spos, r"$s(t)$", color=text, ha="left", va="top")
 
-    # wing element: slender ellipse along the chord, hinge dot on the s axis
+    # lumped wing: slender ellipse along the chord, hinge dot on the s axis
     chord_angle = np.degrees(np.arctan2(c_hat[1], c_hat[0]))
     ax.add_patch(Ellipse(tuple(hinge), width=0.84, height=0.11,
                          angle=chord_angle, fc=style.wing_color,
@@ -139,10 +139,10 @@ def main():
 
     com_symbol(ax, (0.0, 0.0), 0.065, text)
 
-    # point mass and wing element area annotations
+    # point mass and lumped wing area annotations
     ax.text(-0.09, -0.08, r"$m$", color=text, ha="right", va="top")
     ax.text(*(hinge - 0.54 * c_hat + np.array([0.0, -0.02])),
-            r"$\frac{A}{N}$", color=text, ha="left", va="top")
+            r"$\dfrac{A}{N}$", color=text, ha="left", va="top")
 
     ax.set_xlim(-0.85, 1.68)
     ax.set_ylim(-0.26, 1.48)

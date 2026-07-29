@@ -25,7 +25,8 @@ Two figures, both at the section operating point delta0 = 90 deg:
         per J, each at that J's tracked-optimum psi1 (beta is psi1-independent
         only at J = 0). Companion to force_direction_test.light.png, beta only.
     hover_optimum_J.light.png -- the tracked point's psi1 and C_{F^*} as
-        functions of J (solid / dotted twin axes, force_direction_test style).
+        functions of J (solid / dotted twin axes, force_direction_test style),
+        with the flow-tracking approximation psi1_opt(0) - atan(J) dashed.
 
 Output: light-mode figures in summer_paper/figures/.
 Runs on the project env (numpy + matplotlib only).
@@ -226,9 +227,16 @@ def main():
           f"{np.degrees(psi1_c[-1]):.1f} deg, C_F* {cf_c[0]:.3f} -> "
           f"{cf_c[-1]:.3f}; local max -> saddle at J = {saddle_J:.2f}")
 
-    fig_c, axc = plt.subplots(figsize=(4.0, 2.0), constrained_layout=True)
+    fig_c, axc = plt.subplots(figsize=(4.4, 2.7), constrained_layout=True)
     (l_p1,) = axc.plot(J_fine, np.degrees(psi1_c), color="black", lw=1.8,
-                       label=r"$\psi_1$")
+                       label=r"$\psi_1^{\mathrm{opt}}$")
+    # Flow-tracking approximation: the pitch rotates with the mid-stroke
+    # inflow, whose flow angle rotates by atan(J) from hover, holding the
+    # mid-stroke angle of attack at its hover-optimal value.
+    (l_ap,) = axc.plot(J_fine,
+                       np.degrees(psi1_c[0]) - np.degrees(np.arctan(J_fine)),
+                       color="black", lw=1.4, ls="--",
+                       label=r"$\psi_1^{\mathrm{opt}}(0) - \tan^{-1} J$")
     axc.set_xlabel(r"$J$")
     axc.set_ylabel(r"$\psi_1$ (deg)")
     axc.set_xlim(0.0, 1.0)
@@ -238,7 +246,7 @@ def main():
                         label=r"$C_{F^\ast}$")
     axc2.set_ylabel(r"$C_{F^\ast}$")
     axc2.set_ylim(0.0, 1.5)
-    axc.legend(handles=[l_p1, l_cf], loc="lower left",
+    axc.legend(handles=[l_p1, l_ap, l_cf], loc="lower left",
                fontsize=style.font_size - 1, frameon=True)
     out_c = OUT_DIR / "hover_optimum_J.light.png"
     fig_c.savefig(out_c, dpi=200, bbox_inches="tight")

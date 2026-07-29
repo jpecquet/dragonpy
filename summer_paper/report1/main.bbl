@@ -1,4 +1,4 @@
-\begin{thebibliography}{5}
+\begin{thebibliography}{6}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -23,6 +23,13 @@ Z.~Jane Wang.
 \newblock ISSN 0022-0949.
 \newblock \doi{10.1242/jeb.013797}.
 \newblock URL \url{https://doi.org/10.1242/jeb.013797}.
+
+\bibitem[Andersen et~al.(2005)Andersen, Pesavento, and Wang]{andersen2005}
+A.~Andersen, U.~Pesavento, and Z.~Jane Wang.
+\newblock Unsteady aerodynamics of fluttering and tumbling plates.
+\newblock \emph{Journal of Fluid Mechanics}, 541:\penalty0 65--90, 10 2005.
+\newblock \doi{10.1017/S002211200500594X}.
+\newblock URL \url{https://doi.org/10.1017/S002211200500594X}.
 
 \bibitem[Azuma et~al.(1997)Azuma, Azuma, Watanabe, and Furuta]{azuma1985}
 Akira Azuma, Soichi Azuma, Isao Watanabe, and Toyohiko Furuta.

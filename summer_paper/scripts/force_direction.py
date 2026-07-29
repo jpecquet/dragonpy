@@ -80,7 +80,7 @@ def main():
     beta_lim = 180.0
     cf_lim = 1.5  # symmetric too, so C_{F^*} = 0 aligns with beta = 0 (center)
 
-    fig, ax = plt.subplots(figsize=(4.0, 2.0), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(4.0, 2.4), constrained_layout=True)
     ax.axhline(0.0, color="0.7", lw=0.8)
     ax.axvline(0.0, color="0.7", lw=0.8)
     (l_beta,) = ax.plot(np.degrees(psi0), beta, color="black", lw=1.8,
@@ -100,7 +100,7 @@ def main():
     ax2.set_ylim(-cf_lim, cf_lim)                # zero centered, aligned with beta
     ax2.set_yticks(np.arange(0.0, cf_lim + 0.01, 0.5))  # positive ticks only
 
-    ax.legend(handles=[l_beta, l_cf], loc="lower left",
+    ax.legend(handles=[l_beta, l_cf], loc="lower right",
               fontsize=style.font_size - 1, frameon=True)
 
     out = OUT_DIR / "force_direction_test.light.png"

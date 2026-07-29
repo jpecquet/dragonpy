@@ -5,9 +5,9 @@ Five panels: the sinusoidal pitch law psi = psi0 + psi1 cos(theta - delta0)
 (theta = omega0 t + phi the flapping phase, psi0 = 0) for four values of the
 pitch phase lead delta0, plus the square-wave simplification. Each panel shows
 the two halves of the flapping cycle s = s0 cos(theta) as two rows of wing
-snapshots along the stroke axis (s to the right): the top row is the first
-half-stroke, theta in [0, pi], wing moving along -s; the bottom row is the
-second half-stroke, theta in [pi, 2 pi], moving along +s. Arrows on the
+snapshots along the stroke axis (s to the right): the top row is the second
+half-stroke, theta in [pi, 2 pi], wing moving along +s; the bottom row is
+the first half-stroke, theta in [0, pi], moving along -s. Arrows on the
 dashed stroke lines indicate the direction of motion. Chord orientation is
 computed from the report's equations (c = -sin(psi) s + cos(psi) n), with the
 hollow dot marking the leading edge (the c end), as in the lift/drag quadrant
@@ -69,13 +69,13 @@ def draw_half_row(ax, center, s_positions, psis, motion_sign, style):
         draw_chord(ax, np.array([x0 + s, y0]), psi, style)
 
 
-def draw_block(ax, center, title, psi_top, psi_bot, style):
-    """One panel: title, first half-stroke (-s motion), second (+s motion)."""
+def draw_block(ax, center, title, psi_first, psi_second, style):
+    """One panel: title, second half-stroke (+s motion), first (-s motion)."""
     x0, y0 = center
     ax.text(x0, y0 + 0.52, title, color=style.text_color, ha="center",
             va="bottom")
-    draw_half_row(ax, (x0, y0), np.cos(THETA_TOP), psi_top, -1, style)
-    draw_half_row(ax, (x0, y0 - ROW_GAP), np.cos(THETA_BOT), psi_bot, +1,
+    draw_half_row(ax, (x0, y0), np.cos(THETA_BOT), psi_second, +1, style)
+    draw_half_row(ax, (x0, y0 - ROW_GAP), np.cos(THETA_TOP), psi_first, -1,
                   style)
 
 

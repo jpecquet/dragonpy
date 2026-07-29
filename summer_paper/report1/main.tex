@@ -50,8 +50,18 @@ We propose a control strategy for flapping flight.
 
 \section{Model Description}\label{sec:model}
 
-\subsection{Overview}
+\subsection{Geometry and Aerodynamic Force}
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/model_geometry.light.png}
+    \caption{Model geometry. The stroke basis $(\hat{s},\hat{n})$ is obtained
+    by rotating the fixed frame basis $(\hat{x},\hat{z})$ by the stroke plane
+    angle $\gamma$. The lumped wing sits at position $s(t)\,\hat{s}$ relative
+    to the point mass body, with chord direction $\hat{c}$ at pitch angle
+    $\psi$ from the stroke plane normal $\hat{n}$. For simplicity, only one
+    lumped wing is drawn.}\label{fig:model-geometry}
+\end{figure}
 The flapping flight dynamics model consists of a
 point mass subjected to its own weight $m\vec{g}$
 and to the aerodynamic force $\vec{F}$ from $N$ wing pairs.
@@ -61,14 +71,11 @@ $\vec{g} = -g \hat{z}$, and $\hat{x}$ such that
 $\left(\hat{x},\hat{z}\right)$ forms a direct orthonormal basis.
 The body position is $\vec{x} = x \hat{x} + z \hat{z}$ and
 the body velocity is $\vec{u} = \dot{x} \hat{x} + \dot{z} \hat{z}$.
-
-\subsection{Aerodynamic Force}
-
 The total wing area is $A$, and both wings of each pair
-are lumped into a single, massless surface element with area $A / N$.
-We will refer to these surface elements as \emph{wing elements},
+are lumped into a single, massless surface with area $A / N$.
+We will refer to these surfaces as \emph{lumped wings},
 keeping in mind they each represent \emph{both} wings of a
-left-right pair. The aerodynamic properties of a wing element
+left-right pair. The aerodynamic properties of a lumped wing
 are represented by the quasi-steady model of~\cite{wang2004, wang2008}:
 \begin{align}
     C_L(\alpha) &= C_{L,0} \sin 2\alpha \label{eq:cl} \\
@@ -76,8 +83,8 @@ are represented by the quasi-steady model of~\cite{wang2004, wang2008}:
 \end{align}
 where $\alpha$ is the angle of attack, and the parameter values
 are $C_{L,0} = 1.5$, $C_{D,0} = 0.1$, and $C_{D,\frac{\pi}{2}} = 2.0$.
-The model neglects any aerodynamic interaction between wing elements.
-To express the wing element kinematics and aerodynamic force $\vec{F}$,
+The model neglects any aerodynamic interaction between lumped wings.
+To express the lumped wing kinematics and aerodynamic force $\vec{F}$,
 it is convenient to introduce the stroke basis $(\hat{s},\hat{n})$,
 obtained by rotating the fixed frame basis $(\hat{x},\hat{z})$
 by the \emph{stroke plane angle} $\gamma$. That is
@@ -85,13 +92,13 @@ by the \emph{stroke plane angle} $\gamma$. That is
     \hat{s} &= \cos\gamma\hat{x} + \sin\gamma\hat{z} \\
     \hat{n} &= -\sin\gamma\hat{x} + \cos\gamma\hat{z}
 \end{align}
-Each wing element translates along the stroke axis $\hat{s}$,
+Each lumped wing translates along the stroke axis $\hat{s}$,
 and $\hat{n}$ represents the stroke plane normal.
-The wing element position relative to the point mass body is
+The lumped wing position relative to the point mass body is
 $\vec{s} = s(t) \hat{s}$, where $s(t)$ is the prescribed
 flapping coordinate. Because the wing
-is instantaneously at a distance $s(t)$ from the body,
-the aerodynamic force acts on the body via a moment arm $s(t)$.
+is instantaneously at a distance $|s(t)|$ from the body,
+the aerodynamic force acts on the body via a moment arm $|s(t)|$.
 However, in the present point mass model, there is no
 rotational degree of freedom, and the force is effectively
 considered to act through the center of mass.
@@ -102,7 +109,7 @@ $\vec{\dot{s}} = \dot{s}(t) \hat{s}$.
 With the body velocity in the fixed frame (relative to still air) $\vec{u}$,
 the wing velocity relative to the air is $\vec{v} = \vec{\dot{s}} + \vec{u}$.
 The aerodynamic force for wing pair $i$ is given below (note the
-subscript $i$ is omitted from quantities on the right hand side for tidiness)
+subscript $i$ is omitted from quantities on the right-hand side for tidiness)
 \begin{align}
     \vec{F}_i = \frac12 \rho \frac{A}{N} |\vec{v}|^2 \left[ C_L(\alpha) \hat{\ell} + C_D(\alpha) \hat{d} \right]
 \end{align}
@@ -124,17 +131,10 @@ relative to the stroke plane normal $\hat{n}$. The chord direction vector is
 \begin{align}
     \hat{c} = - \sin\psi\hat{s} + \cos\psi\hat{n}
 \end{align}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/model_geometry.light.png}
-    \caption{Model geometry. The stroke basis $(\hat{s},\hat{n})$ is obtained
-    by rotating the fixed frame basis $(\hat{x},\hat{z})$ by the stroke plane
-    angle $\gamma$. The wing element sits at position $s(t)\,\hat{s}$ relative
-    to the point mass body, with chord direction $\hat{c}$ at pitch angle
-    $\psi$ from the stroke plane normal $\hat{n}$. For simplicity, only one wing element
-    is drawn.}\label{fig:model-geometry}
-\end{figure}
-The geometry introduced so far is illustrated in \autoref{fig:model-geometry}.
+The geometry introduced thus far is illustrated in \autoref{fig:model-geometry}.
+
+\subsection{Angle of Attack and Aerodynamic Coefficients}\label{sec:aoa}
+
 The angle of attack $\alpha$ can be defined here as the
 signed angle from the velocity direction vector $\hat{v}$
 to the chord direction vector $\hat{c}$. We show
@@ -147,8 +147,24 @@ giving the correct sign for lift. With this definition,
 \end{align}
 where $\hat{v} = \vec{v} / |\vec{v}|$ and $\times$
 denotes the 2D cross product, defined as $\vec{a}\times\vec{b} = a_1 b_2 - a_2 b_1$.
+The velocity composition, the angle of attack, and the resulting
+lift and drag are illustrated in \autoref{fig:velocity-triangle}.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/velocity_triangle.light.png}
+    \caption{Lumped wing velocity triangle and aerodynamic force.
+    The wing velocity relative to the air, $\vec{v} = \vec{\dot{s}} + \vec{u}$,
+    composes the flapping velocity $\vec{\dot{s}} = \dot{s}\,\hat{s}$ (along
+    the stroke axis, dotted) with the body velocity $\vec{u}$. The angle of
+    attack $\alpha$ is the signed angle from $\hat{v}$ to the chord direction
+    $\hat{c}$, with $\hat{p} = \hat{c}^\perp$ the chord-normal direction,
+    and the lift and drag contributions are drawn along
+    $\hat{\ell}$ and $\hat{d}$ with lengths proportional to $C_L$ and $C_D$
+    (here $0 < \alpha < \frac{\pi}{2}$, so
+    $C_L > 0$).}\label{fig:velocity-triangle}
+\end{figure}
 $C_L(\alpha)$ can be rewritten as a function of
-$\cos \alpha$ and $\sin \alpha$ only, indeed
+$\cos \alpha$ and $\sin \alpha$ only; indeed,
 \begin{align}
     C_L(\alpha) &= C_{L,0} \sin 2\alpha \nonumber \\
                 &= 2 C_{L,0} \sin \alpha \cos \alpha
@@ -158,17 +174,30 @@ $C_L$ and $C_D$ can then be expressed with simple vector math as follows
     C_L &= 2 C_{L,0} (\hat{v} \cdot \hat{c}) (\hat{v} \times \hat{c}) \\
     C_D &= C_{D,0} (\hat{v} \cdot \hat{c})^2 + C_{D,\frac{\pi}{2}} (\hat{v} \times \hat{c})^2
 \end{align}
+Introducing the chord-normal direction $\hat{p} = \hat{c}^\perp$ and
+the wing velocity components along and normal to the chord,
+$v_c = \vec{v} \cdot \hat{c}$ and $v_p = \vec{v} \cdot \hat{p}$,
+we have $\hat{v} \cdot \hat{c} = v_c / |\vec{v}|$,
+$\hat{v} \times \hat{c} = -v_p / |\vec{v}|$, and
+$|\vec{v}|^2 = v_c^2 + v_p^2$, so the coefficients expand to the
+scalar form
+\begin{align}
+    C_L &= -2 C_{L,0} \frac{v_c\, v_p}{v_c^2 + v_p^2} \\
+    C_D &= \frac{C_{D,0}\, v_c^2 + C_{D,\frac{\pi}{2}}\, v_p^2}{v_c^2 + v_p^2}
+\end{align}
+This treatment of $C_L$ is the same as that of \cite{andersen2005},
+but with the opposite sign convention, $\alpha$ being defined
+from $\hat{c}$ to $\hat{v}$ in that work, whereas
+it is defined from $\hat{v}$ to $\hat{c}$ here.
 The lift and drag directions resulting from the above expressions
-for $C_L$, $C_D$, $\hat{\ell}$, and $\hat{d}$ are checked for
-correctness in all four quadrants of the angle of attack in
-\autoref{fig:liftdrag-quadrants}, generated directly from the expressions.
+are checked for correctness in all four quadrants of the angle of attack in
+\autoref{fig:liftdrag-quadrants}.
 Because $\hat{\ell}$ and $\hat{d}$ are constructed from
-$\hat{v}$ alone, the wing attitude enters only through the scalar
-coefficients, so it suffices to check the coefficient signs
+$\hat{v}$ alone, the wing attitude enters only through $C_L$ and $C_D$,
+so it suffices to check the coefficient signs
 quadrant by quadrant. Naturally, drag is positive along $\hat{d}$ for every
 $\alpha$. The sign of $C_L$ is that of
-$(\hat{v} \cdot \hat{c})(\hat{v} \times \hat{c}) =
-\cos\alpha \sin\alpha$: positive in quadrants I and III, negative
+$-v_c v_p$, which is that of $\sin2\alpha$: positive in quadrants I and III, negative
 in II and IV, as drawn.
 \begin{figure}[htbp]
     \centering
@@ -183,17 +212,17 @@ in II and IV, as drawn.
     chord).}\label{fig:liftdrag-quadrants}
 \end{figure}
 
-\subsection{Wing Kinematics}
+\subsection{Prescribed Wing Kinematics}
 
 Wing motion is prescribed by the flapping coordinate $s(t)$
-and the pitch angle $\psi(t)$. Flapping motion for each wing
-element is taken to be sinusoidal:
+and the pitch angle $\psi(t)$. Flapping motion for each lumped
+wing is taken to be sinusoidal:
 \begin{align}
     s(t) &= s_0 \cos(\omega t + \phi)
 \end{align}
 where $s_0$ and $\omega$ are set parameters for all wing pairs,
 and $\phi$ is a phase parameter specific to a given wing pair,
-allowing for out of phase flapping of two wing pairs.
+allowing for out-of-phase flapping of distinct wing pairs.
 For pitch, we consider two different kinematics. The first is
 sinusoidal:
 \begin{align}
@@ -203,10 +232,10 @@ where $\psi_0$ (mean pitch), $\psi_1$ (pitch amplitude),
 and $\delta_0$ (pitch phase lead) are set parameters
 for all wing pairs. The second kinematics law is simpler: through each
 half of the wing stroke, the wing pitch remains constant.
-The first half of the stroke, when the wing moves along $-\hat{s}$,
-corresponds to $\omega t + \phi \in [0,\,\pi[\pmod{2\pi}$.
-The second half, when the wing moves along $+\hat{s}$,
-corresponds to $\omega t + \phi \in [\pi,\,2\pi[\pmod{2\pi}$.
+The half-stroke along $-\hat{s}$
+corresponds to $\omega t + \phi \in [0,\,\pi[\pmod{2\pi}$,
+and the half-stroke along $+\hat{s}$
+to $\omega t + \phi \in [\pi,\,2\pi[\pmod{2\pi}$.
 The simplified pitch kinematics are, then,
 \begin{align}
     \psi(t) =
@@ -231,19 +260,19 @@ extremes at the reversals.
     \caption{Wing motion through the two halves of the flapping cycle, for the
     sinusoidal pitch kinematics with
     $\delta_0 \in \{0, \frac{\pi}{2}, -\frac{\pi}{2}, \pi\}$ and for
-    the constant pitch simplification. Across all panels, $\psi_0 = 0$ and $\psi_1 = 45^\circ$.
-    The top row shows the first half-stroke (wing
-    moving along $-\hat{s}$, with $\hat{s}$ pointing right) and the bottom row
-    the second half-stroke, along $+\hat{s}$. Arrows indicate the direction
+    the constant-pitch simplification. Across all panels, $\psi_0 = 0$ and $\psi_1 = 45^\circ$.
+    The top row shows the half-stroke along $+\hat{s}$
+    (with $\hat{s}$ pointing right) and the bottom row
+    the half-stroke along $-\hat{s}$. Arrows indicate the direction
     of motion, the hollow circle marks the wing leading edge, and snapshots
     are taken at equal time increments, crowding near the stroke reversals
-    where the flapping motion slows. The constant pitch kinematics match 
+    where the flapping motion slows. The constant-pitch kinematics match
     the $\delta_0 = \pi/2$ kinematics well, except near stroke reversal.}\label{fig:pitch-kinematics}
 \end{figure}
 
 \subsection{Equation of Motion and Nondimensionalization}
 
-The point mass is subjected to its own weight under gravity,
+The point mass is subjected to its own weight
 and to the aerodynamic force from each wing pair, so the equation of motion is
 \begin{align}
     m \frac{d^2 \vec{x}}{d t^2} &= m \vec{g} + \frac12 \rho A \sum_{i=1}^N \frac1N |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
@@ -259,6 +288,10 @@ and becomes
 \begin{align}
     \ddot{x}^* \hat{x} + \ddot{z}^* \hat{z} &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_{i=1}^N \frac{1}{gL} |\vec{v}_i|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right] \nonumber \\
                                             &= -\hat{z} + \frac12 \frac{\rho A L}{m} \frac1N \sum_{i=1}^N |\vec{v}_i^*|^2 \left[ C_{L,i} \hat{\ell}_i + C_{D,i} \hat{d}_i \right]
+\end{align}
+in which (dropping the $i$ subscript for conciseness)
+\begin{align}
+    \vec{v}^* = \frac{1}{\sqrt{gL}} \left( \vec{u} + \vec{\dot{s}} \right)
 \end{align}
 We introduce the dimensionless inverse wing loading $A^*/m^*$
 defined as
@@ -281,8 +314,11 @@ Finally, the dimensionless wing velocity along $\hat{s}$ relative to the body is
                       &= -\frac{1}{\sqrt{gL}} s_0 \omega \sin(\tau^* + \phi) \nonumber \\
                       &= - s_0^* \omega^* \sin(\tau^* + \phi)
 \end{align}
-with $\omega^* = \omega \sqrt{L/g}$.
-
+with $\omega^* = \omega \sqrt{L/g}$. The dimensionless
+velocities can be used straightforwardly in place
+of the dimensional velocities in the expressions of \autoref{sec:aoa}
+to obtain $C_L$ and $C_D$. In the following,
+we deal exclusively with the dimensionless quantities.
 
 \section{Controller Design}\label{sec:design}
 
@@ -363,7 +399,7 @@ in-plane components
     v_n^* &= \langle u^* \rangle = s_0^* \omega^* J \\
     v_s^* &= -s_0^* \omega^* \sin\tau^*
 \end{align}
-with $\tau^*$ as introduced in \autoref{sec:model}; the wing-pair
+with $\tau^*$ as introduced in \autoref{sec:model}. The wing-pair
 phase $\phi$ is dropped without loss of generality, since the
 cycle averages below are unaffected by it. The $+\hat{s}$
 half-stroke corresponds to $\sin\tau^* < 0$.
@@ -377,31 +413,43 @@ $\hat{n}$ to $\vec{v}^*$, defined as
     \chi = -\tan^{-1} \frac{v_s^*}{v_n^*} = \tan^{-1} \frac{\sin\tau^*}{J}
 \end{align}
 Both $\psi$ and $\chi$ are signed angles measured from $\hat{n}$ with
-the same sense (positive tilting toward $-\hat{s}$), locating the
-chord direction $\hat{c}$ and the velocity direction $\hat{v}$
-respectively. The angle of attack of \autoref{sec:model} --- the
-signed angle from $\hat{v}$ to $\hat{c}$ --- is therefore simply
+the same sense (positive tilting counterclockwise, toward $-\hat{s}$).
+Respectively, they locate the
+chord direction $\hat{c}$ and the velocity direction $\hat{v}$.
+The angle of attack as defined in \autoref{sec:model} (the
+signed angle from $\hat{v}$ to $\hat{c}$) is therefore simply
 \begin{align}
     \alpha = \psi - \chi = \psi - \tan^{-1} \frac{\sin\tau^*}{J} \label{eq:alpha}
 \end{align}
-valid on both half-strokes, with no case distinction on the stroke
-direction.
-The above is sufficient to obtain the mean
-aerodynamic force. The derivation is
-somewhat involved in the general case.
-We first present the hovering case, which
-corresponds to $J = 0$.
+The stroke-frame velocity decomposition and the angles $\psi$, $\chi$,
+and $\alpha$ are illustrated in \autoref{fig:flow-angles}.
+\begin{figure}[t]
+    \centering
+    \includegraphics{figures/flow_angles.light.png}
+    \caption{Stroke-frame velocity decomposition and flow angle. With the
+    body velocity assumed normal to the stroke plane, the instantaneous wing
+    velocity $\vec{v}^*$ composes the in-plane flapping component
+    $v_s^*\,\hat{s}$ with the normal component $\langle u^* \rangle\,\hat{n}$.
+    The pitch angle $\psi$ and the flow angle $\chi$ are measured from
+    $\hat{n}$ with the same signed sense (positive tilting toward
+    $-\hat{s}$), locating the chord direction $\hat{c}$ and the velocity
+    direction $\hat{v}$, so the angle of attack is $\alpha = \psi - \chi$.
+    Drawn on the $+\hat{s}$ half-stroke ($\sin\tau^* < 0$), where both
+    $\psi$ and $\chi$ are negative.}\label{fig:flow-angles}
+\end{figure}
 
 \subsubsection{Hover Case $(J=0)$}
 
-For $J=0$, the flow angle saturates at
+The mean aerodynamic force derivation is
+somewhat involved in the general case,
+so we first present the hovering case, which
+corresponds to $J = 0$.
+With $J=0$, the flow angle saturates at
 $\chi = \frac{\pi}{2} \frac{\sin\tau^*}{|\sin\tau^*|}$
 and the angle of attack simplifies to
 \begin{align}
     \alpha = \psi - \frac{\pi}{2} \frac{\sin\tau^*}{|\sin\tau^*|}\label{eq:alpha-hover}
 \end{align}
-The four sign combinations of $(\sin\tau^*, \psi)$ place $\alpha$
-one in each quadrant of \autoref{fig:liftdrag-quadrants}.
 Using the appropriate trigonometric identities, the
 aerodynamic coefficients (defined in \autoref{eq:cl} and \autoref{eq:cd})
 are
@@ -417,8 +465,23 @@ component is purely drag, and the out-of-plane
 component (along $\hat{n}$) is purely lift: the force directions are
 $\hat{d} = \frac{\sin\tau^*}{|\sin\tau^*|} \hat{s}$ and
 $\hat{\ell} = -\hat{d}^\perp = -\frac{\sin\tau^*}{|\sin\tau^*|} \hat{n}$,
-alternating with the stroke direction. The mean
-aerodynamic force components are
+alternating with the stroke direction, as shown in \autoref{fig:hover-quadrants}.
+\begin{figure}[t]
+    \centering
+    \includegraphics{figures/hover_quadrants.light.png}
+    \caption{Lift and drag directions over the hover wingbeat ($J=0$), for
+    the four sign combinations of the pitch angle $\psi$ and the
+    stroke phase $\sin\tau^*$, drawn in the stroke frame. The wing
+    velocity $\vec{v}^*$ is purely in-plane, so drag is purely in-plane,
+    and lift is purely out-of-plane. 
+    The hollow circle marks the leading edge. The pitch
+    angle $\psi$, measured from $\hat{n}$, and the angle of attack $\alpha$
+    of \autoref{eq:alpha-hover}, measured from $\hat{v}$, are marked as in
+    \autoref{fig:flow-angles}. $\alpha$ quadrants I--IV
+    are marked as in \autoref{fig:liftdrag-quadrants}. The ``useful''
+    quadrants (lift along $\hat{n}$) are I and IV.}\label{fig:hover-quadrants}
+\end{figure}
+The mean aerodynamic force components are
 \begin{align}
     \langle F_n^* \rangle &= -\frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \langle C_L \sin \tau^* |\sin \tau^*| \rangle \nonumber \\
     &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 C_{L,0} \langle \sin 2\psi\; \sin \tau^* |\sin \tau^*| \rangle \\
@@ -505,6 +568,7 @@ In summary, the reference pitch kinematics
 result in $C_{F^*} = C_{F^*}^\text{max}$,
 and $\langle \vec{F}^* \rangle$
 pointing towards $+\hat{n}$.
+
 These reference kinematics allow for \emph{efficient} hover
 (in the sense that the characteristic wingbeat velocity $s_0^* \omega^*$
 is minimized, because $C_{F^*}$ is maximized) when the stroke
@@ -581,6 +645,22 @@ angle must be $\beta = -\gamma^\text{hover}$.
 This requires $\psi_0 = \psi_0^\text{hover}$, given
 by \autoref{eq:beta-hover} (specifically the inverse
 relation) when $\beta = -\gamma^\text{hover}$.
+The two hover configurations are illustrated in
+\autoref{fig:hover-beta-gamma}.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{figures/hover_beta_gamma.light.png}
+    \caption{Hover at (a) a horizontal stroke plane and (b) an inclined
+    stroke plane (drawn here with $\gamma < 0$). The wing is drawn over one full wingbeat at
+    equal time increments, with the $-\hat{s}$ half-stroke behind, in
+    darker grey, and the $+\hat{s}$ half-stroke in front. In (a), the
+    reference pitch kinematics ($\psi_0 = 0^\circ$) set the mean force
+    $\langle \vec{F}^* \rangle$ vertically along $\hat{n}$.
+    In (b), the mean force remains vertical while $\hat{n}$
+    is tilted because $\psi_0^\text{hover}$ is trimmed to bias
+    $\langle \vec{F}^* \rangle$ by $\beta = -\gamma^\text{hover}$
+    using the inverse of \autoref{eq:beta-hover}.}\label{fig:hover-beta-gamma}
+\end{figure}
 
 Now that we have narrowed down the pitch
 kinematics for hover, we step back to consider
@@ -712,21 +792,23 @@ the reference point corresponds to $C_{F^*_n} > 0$.
 Within this region, the stroke-plane-normal
 component of the mean force points towards $+\hat{n}$.
 
-The values of $C_{F^*}$ and $\psi_1$ at the reference point
+The values of $C_{F^*}$ and $\psi_1^\text{opt}$ at the reference point
 are shown as functions of $J$ in \autoref{fig:hover_opt_J}.
-As the figure makes clear, to obtain the maximum force along
-$+\hat{n}$, $\psi_1$ should be decreased as $J$ increases.
-The mechanism behind this is illustrated in \autoref{fig:psi1-decrease}.
-For a given $\psi$, $\alpha$ decreases as $J$ is increased.
-This moves us away from the ideal $\alpha$, reducing lift,
-and in turn the force component along $+\hat{n}$.
-By decreasing $\psi$, the ideal $\alpha$ is recovered,
-thrust along $+\hat{n}$ is maximized. Of course, this is
-an instantaneous picture, but the conclusion can be
-extended to the mean force over the wingbeat stroke.
-To achieve the required reduction in $\psi$
-everywhere throughout the stroke, it is hopefully clear that
-the relevant parameter is $\psi_1$.
+As the figure makes clear, $\psi_1^\text{opt}(J)$ decreases as $J$ increases.
+Recall that $\alpha = \psi - \chi$ and consider the stroke half
+along $+\hat{s}$, as pictured in \autoref{fig:flow-angles}.
+Mid-stroke, when $\sin\tau^* = \mp 1$, $\chi = \mp \tan^{-1} (1/J)$
+($-$ when the stroke is along $+\hat{s}$, $+$ when it is along $-\hat{s}$).
+This corresponds to a rotation of $\vec{v}^*$ \emph{towards}
+the stroke plane normal $\hat{n}$ by an angle of magnitude
+$\pi/2 - \tan^{-1} (1/J) = \tan^{-1} J$. This suggests the following
+trend for $\psi_1^\text{opt}(J)$:
+\begin{align}
+    \psi_1^\text{opt}(J) \approx \psi_1^\text{opt}(0) - \tan^{-1} J
+\end{align}
+which is also shown in \autoref{fig:hover_opt_J}, and
+does appear to be the leading order effect.
+
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/pitch_efficiency_J.light.png}
@@ -744,16 +826,13 @@ the relevant parameter is $\psi_1$.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/hover_optimum_J.light.png}
-    \caption{Pitch amplitude $\psi_1$ and force coefficient $C_{F^*}$ of
-    the continued hover optimum (the point tracked in
-    \autoref{fig:cf_J}) as functions of advance ratio $J$. The point
-    turns from a local maximum into a saddle at $J \approx
-    0.46$.}\label{fig:hover_opt_J}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/psi1-decrease-mechanism.png}
-    \caption{Illustration of the $\psi$ reduction mechanism for maximizing stroke-plane-normal force as $J$ increases.}\label{fig:psi1-decrease}
+    \caption{Pitch amplitude $\psi_1^\text{opt}$ and force coefficient
+    $C_{F^*}$ of the continued hover optimum (the point tracked in
+    \autoref{fig:cf_J}) as functions of advance ratio $J$.
+    The dashed line is the approximation
+    $\psi_1^\text{opt}(0) - \tan^{-1} J$,
+    which holds the midstroke $\alpha$ constant as $J$ increases.
+    }\label{fig:hover_opt_J}
 \end{figure}
 
 Finally, \autoref{fig:beta_vs_psi0_J} shows $\beta$
@@ -773,8 +852,8 @@ need to adapt based on the current $J$.
     \includegraphics{figures/force_direction_J.light.png}
     \caption{Effect of $\psi_0$ on the force direction angle $\beta$ for
     increasing advance ratio $J$, at $\delta_0 = 90^\circ$ and with
-    $\psi_1$ set, for each $J$, to the continued-optimum value of
-    \autoref{fig:hover_opt_J}. Unlike in the hover case, $\beta$ depends
+    $\psi_1 = \psi_1^\text{opt}(J)$.
+    Unlike in the hover case, $\beta$ depends
     on $\psi_1$ when $J > 0$.}\label{fig:beta_vs_psi0_J}
 \end{figure}
 
@@ -955,8 +1034,9 @@ The closed form thus reproduces, and explains, the trend of
 \autoref{fig:hover_opt_J}: the growing $A_n \cos 2\psi_1$ term,
 which carries the normal-inflow contributions and peaks at
 $\psi_1 = 0^\circ$, pulls the optimum toward smaller pitch
-amplitudes---exactly the mechanism illustrated in
-\autoref{fig:psi1-decrease}. \autoref{tab:square-wave} compares
+amplitudes---exactly the mechanism captured by the flow-tracking
+approximation drawn dashed in
+\autoref{fig:hover_opt_J}. \autoref{tab:square-wave} compares
 the constant-pitch predictions with the sinusoidal schedule:
 $\psi_1^\text{opt}$ is offset low by $5$--$6^\circ$, and the
 available force is captured to within $5\%$ across $J \in [0,1]$
