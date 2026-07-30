@@ -56,7 +56,7 @@ from summer_paper.gui.dragonfly_sim import Reference, smooth_path  # noqa: E402
 OUT_DIR = HERE.parent / "figures"
 DRAWN_PATH = HERE.parent / "data" / "drawn_path.json"
 
-K = 2.7                            # velocity-law gain (eq:fdes)
+K = REF_OMEGA_STAR / (2.0 * np.pi)  # one-beat velocity-law gain, K T* = 1 (eq:fdes)
 T_PAD = 4.6                        # sim time past the reference end (settling)
 J_PIN = 0.05                       # settled-near-rest threshold for the pin
 GAMMA_HOVER = -GAMMA_H             # +x heading (sigma_x = +1 throughout)
@@ -65,9 +65,10 @@ PSI1_HOVER = float(np.clip(slave_psi1(0.0), *PSI1_LIM))
 # Speed schedule (canonical figure values; the GUI's live settings are
 # recorded in the dump but not used here). The drawn course is flown at a
 # reduced cruise: its near-vertical plunges into the lower wing lobes
-# saturate the descent trim at 0.5.
+# saturate the descent trim at 0.5, and at the one-beat gain the
+# departure persists down to 0.4.
 V_CRUISE, TAPER = 0.5, 0.3
-V_DRAWN = 0.4
+V_DRAWN = 0.35
 
 SQ2 = np.sqrt(2.0)
 

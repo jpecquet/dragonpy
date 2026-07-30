@@ -35,7 +35,7 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 
 OUT_DIR = HERE.parent / "figures"
 
-K = 2.7                            # velocity-law gain (eq:fdes)
+K = REF_OMEGA_STAR / (2.0 * np.pi)  # one-beat velocity-law gain, K T* = 1 (eq:fdes)
 V0 = (0.2, 0.0, 0.2)               # initial body velocity perturbation
 T_SIM = 20.0
 J_PIN = 0.05                       # settled-near-rest threshold for the pin

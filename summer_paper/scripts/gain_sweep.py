@@ -20,7 +20,8 @@ model of sec:control-law against the closed-loop simulation:
 
     gain_sweep.light.png -- the four metrics against K T*, with the
         theory overlays, the one-beat gain K T* = 1, the predicted
-        stability bound K T* = 2, and the report's K = 2.7 marked.
+        stability bound K T* = 2, and the report's gain
+        K = omega*/2pi (K T* = 1) marked.
 
 Runs on the project env (numpy + matplotlib only).
 """
@@ -48,7 +49,7 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 OUT_DIR = HERE.parent / "figures"
 
 T_STAR = 2.0 * np.pi / REF_OMEGA_STAR   # wingbeat period, time units
-K_REPORT = 2.7                          # the gain used throughout the report
+K_REPORT = REF_OMEGA_STAR / (2.0 * np.pi)  # the gain used throughout, K T* = 1
 V0 = (0.2, 0.0, 0.2)                    # initial velocity perturbation
 T_SIM = 20.0
 J_PIN = 0.05                            # settled-near-rest threshold for the pin
@@ -191,7 +192,7 @@ def figure(kts, table, style):
     axA.plot(kts, contr, "o", color=text, ms=4, label="measured", zorder=3)
     axA.plot(kt_report, contr[np.argmin(np.abs(kts - kt_report))], "o",
              mfc="none", mec=text, ms=9, mew=1.2, zorder=4)
-    axA.annotate(rf"$K = {K_REPORT}$",
+    axA.annotate(r"$K = \omega^*/2\pi$",
                  xy=(kt_report, contr[np.argmin(np.abs(kts - kt_report))]),
                  xytext=(kt_report + 0.12, 0.32), color=text,
                  arrowprops=dict(arrowstyle="-", color=muted, lw=0.7))

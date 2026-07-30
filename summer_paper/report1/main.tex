@@ -159,8 +159,8 @@ lift and drag are illustrated in \autoref{fig:velocity-triangle}.
     attack $\alpha$ is the signed angle from $\hat{v}$ to the chord direction
     $\hat{c}$, with $\hat{p} = \hat{c}^\perp$ the chord-normal direction,
     and the lift and drag contributions are drawn along
-    $\hat{\ell}$ and $\hat{d}$ with lengths proportional to $C_L$ and $C_D$
-    (here $0 < \alpha < \frac{\pi}{2}$, so
+    $\hat{\ell}$ and $\hat{d}$ 
+    (as drawn, $0 < \alpha < \frac{\pi}{2}$, so
     $C_L > 0$).}\label{fig:velocity-triangle}
 \end{figure}
 $C_L(\alpha)$ can be rewritten as a function of
@@ -260,9 +260,10 @@ extremes at the reversals.
     \caption{Wing motion through the two halves of the flapping cycle, for the
     sinusoidal pitch kinematics with
     $\delta_0 \in \{0, \frac{\pi}{2}, -\frac{\pi}{2}, \pi\}$ and for
-    the constant-pitch simplification. Across all panels, $\psi_0 = 0$ and $\psi_1 = 45^\circ$.
+    the constant-pitch simplification.
+    All panels drawn with $\psi_0 = 0$ and $\psi_1 = 45^\circ$.
     The top row shows the half-stroke along $+\hat{s}$
-    (with $\hat{s}$ pointing right) and the bottom row
+    ($\hat{s}$ pointing right) and the bottom row shows
     the half-stroke along $-\hat{s}$. Arrows indicate the direction
     of motion, the hollow circle marks the wing leading edge, and snapshots
     are taken at equal time increments, crowding near the stroke reversals
@@ -432,14 +433,13 @@ and $\alpha$ are illustrated in \autoref{fig:flow-angles}.
     \includegraphics{figures/flow_angles.light.png}
     \caption{Stroke-frame velocity decomposition and flow angle. With the
     body velocity assumed normal to the stroke plane, the instantaneous wing
-    velocity $\vec{v}^*$ composes the in-plane flapping component
-    $v_s^*\,\hat{s}$ with the normal component $\langle u^* \rangle\,\hat{n}$.
+    velocity $\vec{v}^*$ has an in-plane flapping component
+    $v_s^*\,\hat{s}$ and a normal component $\langle u^* \rangle\,\hat{n}$.
     The pitch angle $\psi$ and the flow angle $\chi$ are measured from
-    $\hat{n}$ with the same signed sense (positive tilting toward
-    $-\hat{s}$), locating the chord direction $\hat{c}$ and the velocity
-    direction $\hat{v}$, so the angle of attack is $\alpha = \psi - \chi$.
-    Drawn on the $+\hat{s}$ half-stroke ($\sin\tau^* < 0$), where both
-    $\psi$ and $\chi$ are negative.}\label{fig:flow-angles}
+    $\hat{n}$ with the same signed sense (positive when tilting toward
+    $-\hat{s}$), and locate the chord direction $\hat{c}$ and the velocity
+    direction $\hat{v}$, respectively, so the angle of attack is $\alpha = \psi - \chi$.
+    As drawn, both $\psi$ and $\chi$ are negative.}\label{fig:flow-angles}
 \end{figure}
 
 \subsubsection{Hover Case $(J=0)$}
@@ -609,7 +609,7 @@ hence the minus sign (see \autoref{fig:beta-def}).
     $\langle \vec{F}^* \rangle = q^* \left( C_{F^*_n} \hat{n} +
     C_{F^*_s} \hat{s} \right)$ is decomposed into its stroke-frame
     components (\autoref{eq:cfn}, \autoref{eq:cfs}). Here the positive
-    mean pitch gives $C_{F^*_s} < 0$, so the force tilts
+    mean pitch $\psi_0 > 0$ gives $C_{F^*_s} < 0$, so the force tilts
     counterclockwise off the normal and $\beta$ is positive. The wing is
     drawn over one full wingbeat.}\label{fig:beta-def}
 \end{figure}
@@ -679,7 +679,7 @@ The two hover configurations are illustrated in
     reference pitch kinematics ($\psi_0 = 0^\circ$) set the mean force
     $\langle \vec{F}^* \rangle$ vertically along $\hat{n}$.
     In (b), the mean force remains vertical while $\hat{n}$
-    is tilted because $\psi_0^\text{hover}$ is trimmed to bias
+    is tilted because $\psi_0^\text{hover}$ is set to rotate
     $\langle \vec{F}^* \rangle$ by $\beta = -\gamma^\text{hover}$
     using the inverse of \autoref{eq:beta-hover}.}\label{fig:hover-beta-gamma}
 \end{figure}
@@ -899,207 +899,207 @@ variables that would inform the choice of the values are still listed.
 
 \FloatBarrier
 
-\subsubsection{Constant-Pitch Simplification}\label{sec:square-wave}
-
-The general-case results above are exact but not closed-form:
-$\psi_1$ remains inside the cycle averages through the
-$\cos\left(2\psi_1\sin\tau^*\right)$ and
-$\sin\left(2\psi_1\sin\tau^*\right)$ factors, so quantities
-such as $\psi_1^\text{opt}(J)$ and the maps of
-\autoref{fig:cf_J} must be evaluated numerically. Closed
-forms can be obtained by replacing the sinusoidal pitch
-schedule with the constant-pitch idealization of
-\autoref{sec:model}, restated here in terms of the stroke-direction
-sign $\sigma \equiv -\sin\tau^*/|\sin\tau^*|$ ($\sigma = +1$ on the
-$+\hat{s}$ half-stroke):
-\begin{align}
-    \psi(\tau^*) = \psi_0 - \sigma\, \psi_1 \label{eq:psi-square}
-\end{align}
-which holds the pitch constant at $\psi_0 - \psi_1$ during the
-forward half-stroke ($\sigma = +1$) and at $\psi_0 + \psi_1$
-during the backward half-stroke ($\sigma = -1$). The pitch flip
-occurs at stroke reversal, since we impose $\delta_0 = 90^\circ$.
-
-This implies instantaneous rotation of the wing, which is not
-achievable by a real wing but is mostly harmless in the quasi-steady
-model because the in-plane wing velocity vanishes at reversal.
-The flip produces at most a bounded force discontinuity due to the
-normal inflow, when $J > 0$.
-The simulations in the remainder of this report retain
-the sinusoidal schedule; the constant-pitch law serves purely as
-an analytical surrogate.
-
-Since $\sigma^2 = 1$, the pitch trigonometric factors are
-piecewise constant over each half-stroke:
-\begin{align}
-    \sin 2\psi &= \sin 2\psi_0 \cos 2\psi_1 - \sigma \cos 2\psi_0 \sin 2\psi_1 \\
-    \cos 2\psi &= \cos 2\psi_0 \cos 2\psi_1 + \sigma \sin 2\psi_0 \sin 2\psi_1
-\end{align}
-Comparing with the expansions used in the hover case, the
-constant-pitch law simply amounts to the substitutions
-\begin{align}
-    \cos\left(2\psi_1 \sin\tau^*\right) \to \cos 2\psi_1
-    \quad\quad\quad
-    \sin\left(2\psi_1 \sin\tau^*\right) \to -\sigma \sin 2\psi_1 \label{eq:square-subs}
-\end{align}
-Since $\sigma$ changes sign under the half-period shift
-$\tau^* \to \tau^* + \pi$, exactly like the
-$\sin\left(2\psi_1\sin\tau^*\right)$ factor it replaces, every
-vanishing average identified previously still vanishes, and the
-pitch dependence now factors entirely out of the remaining
-averages.
-
-In the hover case, applying the substitutions to \autoref{eq:cfn}
-and \autoref{eq:cfs}, and using
-$\langle \sigma \sin\tau^* |\sin\tau^*| \rangle = -\langle \sin^2\tau^* \rangle = -\frac12$,
-gives
-\begin{align}
-    C_{F^*_n} = C_{L,0} \sin 2\psi_1 \cos 2\psi_0
-    \quad\quad\quad
-    C_{F^*_s} = -\frac{\Delta C_D}{2} \sin 2\psi_1 \sin 2\psi_0 \label{eq:cf-hover-square}
-\end{align}
-and therefore
-\begin{align}
-    C_{F^*} = \sin 2\psi_1 \sqrt{C_{L,0}^2 \cos^2 2\psi_0 + \frac{\Delta C_D^2}{4} \sin^2 2\psi_0}
-\end{align}
-The structure observed numerically in \autoref{fig:cf_components}
-and \autoref{fig:cf} is now explicit. The component ratio
-$C_{F^*_s} / C_{F^*_n} = -\left( \Delta C_D / 2 C_{L,0} \right) \tan 2\psi_0$
-reproduces \autoref{eq:beta-hover} identically---as it must,
-since that relation was derived independently of the $\psi_1$
-schedule. The pitch amplitude enters only through the
-$\sin 2\psi_1$ prefactor, so the optimum is exact and independent
-of $\psi_0$:
-\begin{align}
-    \psi_1^\text{opt} = 45^\circ
-    \quad\quad\quad
-    C_{F^*}^\text{max} = C_{L,0}
-\end{align}
-the latter attained at the reference $\psi_0 = 0^\circ$ (since
-$C_{L,0} > \Delta C_D / 2$). The maximum has a transparent
-interpretation: with $\psi_1 = 45^\circ$ and $\psi_0 = 0^\circ$,
-the angle of attack is $\alpha = \psi + \sigma \frac\pi2 = \sigma\, 45^\circ$,
-i.e.\ $|\alpha| = 45^\circ$
-on both half-strokes---the constant-pitch law holds the wing at the
-lift-maximizing angle of attack for the entire cycle, so the
-force coefficient equals $C_{L,0}$ exactly. The sinusoidal
-schedule only passes through this ideal angle twice per
-half-stroke, which is why its optimum is displaced
-($\psi_1^\text{opt} \approx 51^\circ$) and slightly weaker
-($C_{F^*}^\text{max} \approx 1.43$ versus $C_{L,0} = 1.5$, a
-$5\%$ overestimate by the constant-pitch law).
-
-In the general case, the same substitutions pull $\psi_1$ out of
-$I_n$ and $I_s$:
-\begin{align}
-    I_n = A_n \cos 2\psi_1 + B_n \sin 2\psi_1
-    \quad\quad\quad
-    I_s = A_s \cos 2\psi_1 + B_s \sin 2\psi_1 \label{eq:In-Is-square}
-\end{align}
-where $A_n$, $B_n$, $A_s$, and $B_s$ are functions of $J$ only.
-Introducing the family of averages
-\begin{align}
-    W_k(J) = \left\langle \frac{|\sin\tau^*|^k}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle
-    \quad\quad\quad
-    k \in \{0, 1, 2, 3\}
-\end{align}
-they read
-\begin{align}
-    A_n &= J \left[ \left( 2 C_{L,0} - \frac{\Delta C_D}{2} \right) W_2 + \frac{\Delta C_D}{2} J^2 W_0 \right]
-    &
-    A_s &= J \left[ C_{L,0} J^2 W_0 - \left( C_{L,0} - \Delta C_D \right) W_2 \right] \\
-    B_n &= C_{L,0} W_3 - \left( C_{L,0} - \Delta C_D \right) J^2 W_1
-    &
-    B_s &= \frac{\Delta C_D}{2} W_3 + \left( 2 C_{L,0} - \frac{\Delta C_D}{2} \right) J^2 W_1
-\end{align}
-The odd-$k$ members are elementary,
-\begin{align}
-    W_1 = \frac{2}{\pi} \tan^{-1} \frac{1}{J}
-    \quad\quad\quad
-    W_3 = \frac{1}{\pi} \left[ \left( 1 - J^2 \right) \tan^{-1} \frac{1}{J} + J \right]
-\end{align}
-while the even-$k$ members, together with $I_0$, are complete
-elliptic integrals: with $\mu = 1 / \left( 1 + J^2 \right)$,
-\begin{align}
-    W_0 = \frac{2}{\pi} \sqrt{\mu}\, K(\mu)
-    \quad\quad\quad
-    W_2 = I_0 - J^2 W_0
-    \quad\quad\quad
-    I_0 = \frac{2}{\pi} \frac{E(\mu)}{\sqrt{\mu}}
-\end{align}
-where $K(\mu) = \int_0^{\pi/2} \left( 1 - \mu \sin^2\theta \right)^{-1/2} d\theta$
-and $E(\mu) = \int_0^{\pi/2} \left( 1 - \mu \sin^2\theta \right)^{1/2} d\theta$.
-\autoref{eq:cfn-general-op}, \autoref{eq:cfs-general-op}, and
-\autoref{eq:beta-general} then hold unchanged with these $I_n$
-and $I_s$, so the mean aerodynamic force is closed-form in all
-of the kinematic parameters. Setting $J = 0$ gives
-$A_n = A_s = 0$, $B_n = C_{L,0}/2$, and $B_s = \Delta C_D / 4$,
-recovering \autoref{eq:cf-hover-square}.
-
-Along the reference axis $\psi_0 = 0^\circ$,
-\autoref{eq:cfn-general-op} becomes a pure harmonic in $2\psi_1$,
-\begin{align}
-    C_{F^*_n} = 2 \left( A_n \cos 2\psi_1 + B_n \sin 2\psi_1 \right) - 2 J \bar{C}_D\, I_0
-\end{align}
-so the continued hover optimum tracked numerically in
-\autoref{fig:hover_opt_J} becomes exact:
-\begin{align}
-    \psi_1^\text{opt}(J) = \frac12 \tan^{-1} \frac{B_n}{A_n}
-    \quad\quad\quad
-    \left( C_{F^*_n} \right)^\text{max} = 2 \sqrt{A_n^2 + B_n^2} - 2 J \bar{C}_D\, I_0 \label{eq:psi1-opt-square}
-\end{align}
-At $J = 0$, $A_n = 0$ and $\psi_1^\text{opt} = 45^\circ$; as $J$
-grows, $A_n$ increases from zero (both $A_n$ and $B_n$ are
-positive here), so $\psi_1^\text{opt}$ decreases monotonically.
-The closed form thus reproduces, and explains, the trend of
-\autoref{fig:hover_opt_J}: the growing $A_n \cos 2\psi_1$ term,
-which carries the normal-inflow contributions and peaks at
-$\psi_1 = 0^\circ$, pulls the optimum toward smaller pitch
-amplitudes---exactly the mechanism captured by the flow-tracking
-approximation drawn dashed in
-\autoref{fig:hover_opt_J}. \autoref{tab:square-wave} compares
-the constant-pitch predictions with the sinusoidal schedule:
-$\psi_1^\text{opt}$ is offset low by $5$--$6^\circ$, and the
-available force is captured to within $5\%$ across $J \in [0,1]$
-(an overestimate at hover, a slight underestimate at speed).
-\begin{table}[htbp]
-  \centering
-  \caption{Continued hover optimum at $\psi_0 = 0^\circ$:
-  constant-pitch closed form (\autoref{eq:psi1-opt-square}) versus
-  the sinusoidal schedule evaluated numerically
-  (\autoref{fig:hover_opt_J}).}
-  \label{tab:square-wave}
-  \begin{tabular}{lcccc}
-    \toprule
-    & \multicolumn{2}{c}{$\psi_1^\text{opt}$} & \multicolumn{2}{c}{$\left( C_{F^*_n} \right)^\text{max}$} \\
-    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
-    $J$ & Constant & Sinusoidal & Constant & Sinusoidal \\
-    \midrule
-    $0$    & $45.0^\circ$ & $50.8^\circ$ & $1.500$ & $1.431$ \\
-    $0.25$ & $32.9^\circ$ & $38.5^\circ$ & $1.241$ & $1.247$ \\
-    $0.5$  & $23.0^\circ$ & $28.5^\circ$ & $1.084$ & $1.124$ \\
-    $0.75$ & $16.1^\circ$ & $21.1^\circ$ & $0.975$ & $1.024$ \\
-    $1$    & $11.6^\circ$ & $16.0^\circ$ & $0.875$ & $0.921$ \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Beyond its transparency, this limit has practical value for
-control. The trim of the two control variables
-$\left( s_0^*, \psi_0 \right)$ to a demanded mean
-force---performed numerically in
-\autoref{sec:control-law}---becomes analytically invertible: for
-a demanded force direction, \autoref{eq:beta-general} reduces to
-a harmonic equation of the form
-$a \sin 2\psi_0 + b \cos 2\psi_0 = c$ with known coefficients,
-yielding $\psi_0$ explicitly, after which $s_0^*$ follows from
-the demanded force magnitude through $q^*$ (\autoref{eq:q}). The
-constant-pitch expressions could therefore serve as an analytical
-initialization---or replacement---for the numerical trim solver,
-at the cost of the few-percent model error quantified in
-\autoref{tab:square-wave}.
-
-\newpage
+%\subsubsection{Constant-Pitch Simplification}\label{sec:square-wave}
+%
+%The general-case results above are exact but not closed-form:
+%$\psi_1$ remains inside the cycle averages through the
+%$\cos\left(2\psi_1\sin\tau^*\right)$ and
+%$\sin\left(2\psi_1\sin\tau^*\right)$ factors, so quantities
+%such as $\psi_1^\text{opt}(J)$ and the maps of
+%\autoref{fig:cf_J} must be evaluated numerically. Closed
+%forms can be obtained by replacing the sinusoidal pitch
+%schedule with the constant-pitch idealization of
+%\autoref{sec:model}, restated here in terms of the stroke-direction
+%sign $\sigma \equiv -\sin\tau^*/|\sin\tau^*|$ ($\sigma = +1$ on the
+%$+\hat{s}$ half-stroke):
+%\begin{align}
+%    \psi(\tau^*) = \psi_0 - \sigma\, \psi_1 \label{eq:psi-square}
+%\end{align}
+%which holds the pitch constant at $\psi_0 - \psi_1$ during the
+%forward half-stroke ($\sigma = +1$) and at $\psi_0 + \psi_1$
+%during the backward half-stroke ($\sigma = -1$). The pitch flip
+%occurs at stroke reversal, since we impose $\delta_0 = 90^\circ$.
+%
+%This implies instantaneous rotation of the wing, which is not
+%achievable by a real wing but is mostly harmless in the quasi-steady
+%model because the in-plane wing velocity vanishes at reversal.
+%The flip produces at most a bounded force discontinuity due to the
+%normal inflow, when $J > 0$.
+%The simulations in the remainder of this report retain
+%the sinusoidal schedule; the constant-pitch law serves purely as
+%an analytical surrogate.
+%
+%Since $\sigma^2 = 1$, the pitch trigonometric factors are
+%piecewise constant over each half-stroke:
+%\begin{align}
+%    \sin 2\psi &= \sin 2\psi_0 \cos 2\psi_1 - \sigma \cos 2\psi_0 \sin 2\psi_1 \\
+%    \cos 2\psi &= \cos 2\psi_0 \cos 2\psi_1 + \sigma \sin 2\psi_0 \sin 2\psi_1
+%\end{align}
+%Comparing with the expansions used in the hover case, the
+%constant-pitch law simply amounts to the substitutions
+%\begin{align}
+%    \cos\left(2\psi_1 \sin\tau^*\right) \to \cos 2\psi_1
+%    \quad\quad\quad
+%    \sin\left(2\psi_1 \sin\tau^*\right) \to -\sigma \sin 2\psi_1 \label{eq:square-subs}
+%\end{align}
+%Since $\sigma$ changes sign under the half-period shift
+%$\tau^* \to \tau^* + \pi$, exactly like the
+%$\sin\left(2\psi_1\sin\tau^*\right)$ factor it replaces, every
+%vanishing average identified previously still vanishes, and the
+%pitch dependence now factors entirely out of the remaining
+%averages.
+%
+%In the hover case, applying the substitutions to \autoref{eq:cfn}
+%and \autoref{eq:cfs}, and using
+%$\langle \sigma \sin\tau^* |\sin\tau^*| \rangle = -\langle \sin^2\tau^* \rangle = -\frac12$,
+%gives
+%\begin{align}
+%    C_{F^*_n} = C_{L,0} \sin 2\psi_1 \cos 2\psi_0
+%    \quad\quad\quad
+%    C_{F^*_s} = -\frac{\Delta C_D}{2} \sin 2\psi_1 \sin 2\psi_0 \label{eq:cf-hover-square}
+%\end{align}
+%and therefore
+%\begin{align}
+%    C_{F^*} = \sin 2\psi_1 \sqrt{C_{L,0}^2 \cos^2 2\psi_0 + \frac{\Delta C_D^2}{4} \sin^2 2\psi_0}
+%\end{align}
+%The structure observed numerically in \autoref{fig:cf_components}
+%and \autoref{fig:cf} is now explicit. The component ratio
+%$C_{F^*_s} / C_{F^*_n} = -\left( \Delta C_D / 2 C_{L,0} \right) \tan 2\psi_0$
+%reproduces \autoref{eq:beta-hover} identically---as it must,
+%since that relation was derived independently of the $\psi_1$
+%schedule. The pitch amplitude enters only through the
+%$\sin 2\psi_1$ prefactor, so the optimum is exact and independent
+%of $\psi_0$:
+%\begin{align}
+%    \psi_1^\text{opt} = 45^\circ
+%    \quad\quad\quad
+%    C_{F^*}^\text{max} = C_{L,0}
+%\end{align}
+%the latter attained at the reference $\psi_0 = 0^\circ$ (since
+%$C_{L,0} > \Delta C_D / 2$). The maximum has a transparent
+%interpretation: with $\psi_1 = 45^\circ$ and $\psi_0 = 0^\circ$,
+%the angle of attack is $\alpha = \psi + \sigma \frac\pi2 = \sigma\, 45^\circ$,
+%i.e.\ $|\alpha| = 45^\circ$
+%on both half-strokes---the constant-pitch law holds the wing at the
+%lift-maximizing angle of attack for the entire cycle, so the
+%force coefficient equals $C_{L,0}$ exactly. The sinusoidal
+%schedule only passes through this ideal angle twice per
+%half-stroke, which is why its optimum is displaced
+%($\psi_1^\text{opt} \approx 51^\circ$) and slightly weaker
+%($C_{F^*}^\text{max} \approx 1.43$ versus $C_{L,0} = 1.5$, a
+%$5\%$ overestimate by the constant-pitch law).
+%
+%In the general case, the same substitutions pull $\psi_1$ out of
+%$I_n$ and $I_s$:
+%\begin{align}
+%    I_n = A_n \cos 2\psi_1 + B_n \sin 2\psi_1
+%    \quad\quad\quad
+%    I_s = A_s \cos 2\psi_1 + B_s \sin 2\psi_1 \label{eq:In-Is-square}
+%\end{align}
+%where $A_n$, $B_n$, $A_s$, and $B_s$ are functions of $J$ only.
+%Introducing the family of averages
+%\begin{align}
+%    W_k(J) = \left\langle \frac{|\sin\tau^*|^k}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle
+%    \quad\quad\quad
+%    k \in \{0, 1, 2, 3\}
+%\end{align}
+%they read
+%\begin{align}
+%    A_n &= J \left[ \left( 2 C_{L,0} - \frac{\Delta C_D}{2} \right) W_2 + \frac{\Delta C_D}{2} J^2 W_0 \right]
+%    &
+%    A_s &= J \left[ C_{L,0} J^2 W_0 - \left( C_{L,0} - \Delta C_D \right) W_2 \right] \\
+%    B_n &= C_{L,0} W_3 - \left( C_{L,0} - \Delta C_D \right) J^2 W_1
+%    &
+%    B_s &= \frac{\Delta C_D}{2} W_3 + \left( 2 C_{L,0} - \frac{\Delta C_D}{2} \right) J^2 W_1
+%\end{align}
+%The odd-$k$ members are elementary,
+%\begin{align}
+%    W_1 = \frac{2}{\pi} \tan^{-1} \frac{1}{J}
+%    \quad\quad\quad
+%    W_3 = \frac{1}{\pi} \left[ \left( 1 - J^2 \right) \tan^{-1} \frac{1}{J} + J \right]
+%\end{align}
+%while the even-$k$ members, together with $I_0$, are complete
+%elliptic integrals: with $\mu = 1 / \left( 1 + J^2 \right)$,
+%\begin{align}
+%    W_0 = \frac{2}{\pi} \sqrt{\mu}\, K(\mu)
+%    \quad\quad\quad
+%    W_2 = I_0 - J^2 W_0
+%    \quad\quad\quad
+%    I_0 = \frac{2}{\pi} \frac{E(\mu)}{\sqrt{\mu}}
+%\end{align}
+%where $K(\mu) = \int_0^{\pi/2} \left( 1 - \mu \sin^2\theta \right)^{-1/2} d\theta$
+%and $E(\mu) = \int_0^{\pi/2} \left( 1 - \mu \sin^2\theta \right)^{1/2} d\theta$.
+%\autoref{eq:cfn-general-op}, \autoref{eq:cfs-general-op}, and
+%\autoref{eq:beta-general} then hold unchanged with these $I_n$
+%and $I_s$, so the mean aerodynamic force is closed-form in all
+%of the kinematic parameters. Setting $J = 0$ gives
+%$A_n = A_s = 0$, $B_n = C_{L,0}/2$, and $B_s = \Delta C_D / 4$,
+%recovering \autoref{eq:cf-hover-square}.
+%
+%Along the reference axis $\psi_0 = 0^\circ$,
+%\autoref{eq:cfn-general-op} becomes a pure harmonic in $2\psi_1$,
+%\begin{align}
+%    C_{F^*_n} = 2 \left( A_n \cos 2\psi_1 + B_n \sin 2\psi_1 \right) - 2 J \bar{C}_D\, I_0
+%\end{align}
+%so the continued hover optimum tracked numerically in
+%\autoref{fig:hover_opt_J} becomes exact:
+%\begin{align}
+%    \psi_1^\text{opt}(J) = \frac12 \tan^{-1} \frac{B_n}{A_n}
+%    \quad\quad\quad
+%    \left( C_{F^*_n} \right)^\text{max} = 2 \sqrt{A_n^2 + B_n^2} - 2 J \bar{C}_D\, I_0 \label{eq:psi1-opt-square}
+%\end{align}
+%At $J = 0$, $A_n = 0$ and $\psi_1^\text{opt} = 45^\circ$; as $J$
+%grows, $A_n$ increases from zero (both $A_n$ and $B_n$ are
+%positive here), so $\psi_1^\text{opt}$ decreases monotonically.
+%The closed form thus reproduces, and explains, the trend of
+%\autoref{fig:hover_opt_J}: the growing $A_n \cos 2\psi_1$ term,
+%which carries the normal-inflow contributions and peaks at
+%$\psi_1 = 0^\circ$, pulls the optimum toward smaller pitch
+%amplitudes---exactly the mechanism captured by the flow-tracking
+%approximation drawn dashed in
+%\autoref{fig:hover_opt_J}. \autoref{tab:square-wave} compares
+%the constant-pitch predictions with the sinusoidal schedule:
+%$\psi_1^\text{opt}$ is offset low by $5$--$6^\circ$, and the
+%available force is captured to within $5\%$ across $J \in [0,1]$
+%(an overestimate at hover, a slight underestimate at speed).
+%\begin{table}[htbp]
+%  \centering
+%  \caption{Continued hover optimum at $\psi_0 = 0^\circ$:
+%  constant-pitch closed form (\autoref{eq:psi1-opt-square}) versus
+%  the sinusoidal schedule evaluated numerically
+%  (\autoref{fig:hover_opt_J}).}
+%  \label{tab:square-wave}
+%  \begin{tabular}{lcccc}
+%    \toprule
+%    & \multicolumn{2}{c}{$\psi_1^\text{opt}$} & \multicolumn{2}{c}{$\left( C_{F^*_n} \right)^\text{max}$} \\
+%    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+%    $J$ & Constant & Sinusoidal & Constant & Sinusoidal \\
+%    \midrule
+%    $0$    & $45.0^\circ$ & $50.8^\circ$ & $1.500$ & $1.431$ \\
+%    $0.25$ & $32.9^\circ$ & $38.5^\circ$ & $1.241$ & $1.247$ \\
+%    $0.5$  & $23.0^\circ$ & $28.5^\circ$ & $1.084$ & $1.124$ \\
+%    $0.75$ & $16.1^\circ$ & $21.1^\circ$ & $0.975$ & $1.024$ \\
+%    $1$    & $11.6^\circ$ & $16.0^\circ$ & $0.875$ & $0.921$ \\
+%    \bottomrule
+%  \end{tabular}
+%\end{table}
+%
+%Beyond its transparency, this limit has practical value for
+%control. The trim of the two control variables
+%$\left( s_0^*, \psi_0 \right)$ to a demanded mean
+%force---performed numerically in
+%\autoref{sec:control-law}---becomes analytically invertible: for
+%a demanded force direction, \autoref{eq:beta-general} reduces to
+%a harmonic equation of the form
+%$a \sin 2\psi_0 + b \cos 2\psi_0 = c$ with known coefficients,
+%yielding $\psi_0$ explicitly, after which $s_0^*$ follows from
+%the demanded force magnitude through $q^*$ (\autoref{eq:q}). The
+%constant-pitch expressions could therefore serve as an analytical
+%initialization---or replacement---for the numerical trim solver,
+%at the cost of the few-percent model error quantified in
+%\autoref{tab:square-wave}.
+%
+%\newpage
 
 \subsection{Control Strategy}\label{sec:strategy}
 
@@ -1150,188 +1150,204 @@ direction changes.
 
 \subsection{Control Law}\label{sec:control-law}
 
+\subsubsection{Basic Formulation}
+
 We now formalize the strategy of \autoref{sec:strategy}.
-Let $\vec{x}^*$ and $\vec{u}^*$ be the body position and
-velocity.
-The force demand is formed by a velocity tracking law:
-given a reference velocity $\vec{u}^*_r$, the desired
-acceleration is proportional to the velocity error, through a
-single gain $K$, and the weight is compensated:
+Let $\vec{u}^*$ be the body velocity.
+The force demand is formed by a velocity tracking law.
+Given a reference velocity $\vec{u}^*_r$, the desired
+acceleration is proportional to the velocity error through a
+proportional gain $K$, and the force demand is obtained
+by adding a $+\hat{z}$ term which compensates the weight:
 \begin{align}
-    \vec{a}^*_\text{des} &= K \left( \vec{u}^*_r - \vec{u}^* \right) \\
+    \vec{a}^*_\text{des} &= K \left( \vec{u}^*_r - \vec{u}^* \right) \label{eq:ades} \\
     \langle \vec{F}^* \rangle^\text{des} &= \vec{a}^*_\text{des} + \hat{z} \label{eq:fdes}
 \end{align}
-No position or acceleration terms are used: the task enters
-the law only through $\vec{u}^*_r$. (A previous version of
-this report discusses augmenting \autoref{eq:fdes} with
+A previous version of
+this report discusses augmenting \autoref{eq:ades} with
 position feedback and acceleration feedforward terms to
-provide positional accuracy; we do not pursue this here.)
-The gain $K$ has a simple closed-loop reading: whenever the trim
-described below delivers the demanded mean force, the
-cycle-averaged equation of motion reduces to
-$\langle \dot{\vec{u}}^* \rangle = K \left( \vec{u}^*_r -
-\vec{u}^* \right)$, first-order velocity tracking with time
-constant $1/K$. Two effects bound the gain from above. First,
-the law is actuated once per wingbeat, with the kinematic
-parameters held over each cycle, so the loop is discrete: over
-one wingbeat period $T^* = 2\pi/\omega^*$, the velocity error is
-multiplied by approximately $\left( 1 - K T^* \right)$, giving
-stability for $K T^* < 2$ and one-beat convergence at
-$K T^* = 1$. Second, a large gain turns routine velocity errors
-into force demands outside the reachable force set, saturating
-the trim. Within these ceilings the choice is free; the
-simulations of \autoref{sec:results} all use $K = 2.7$, slightly
-above the one-beat gain of the reference configuration
-($K T^* \approx 1.2$).
-The reference velocity defines the use case:
+provide positional accuracy, but we do not pursue this here.
+The definition of the reference velocity $u_r^*$ depends on the use case:
 \begin{itemize}
-    \item \emph{Hover:} $\vec{u}^*_r = \vec{0}$. The law nulls
-        the body velocity, and the body hovers about wherever
-        it settles; no reference position is involved.
+    \item \emph{Hover:} $\vec{u}^*_r = \vec{0}$. The control law
+        attempts to zero out the body velocity. See \autoref{fig:hover-diagram}.
     \item \emph{Prescribed trajectory:} the trajectory is
-        specified as a path traversed with a speed schedule,
-        and $\vec{u}^*_r(t)$ is the velocity of the reference
-        point moving along it---the unit tangent of the path,
-        scaled by the scheduled speed. The path geometry
-        enters the law only through this velocity history.
+        specified as a path $\vec{x}^*_r$  with a prescribed
+        velocity $\vec{u}^*_r(\vec{x}^*_r)$ at every point,
+        obtained as $\vec{u}^*_r = u^*_\text{cmd} \hat{t}$
+        where $\hat{t}$ is the local unit vector tangent to the
+        path and $u^*_\text{cmd}$ is the prescribed magnitude.
+        $\vec{u}^*_r$ is fed to the control law at the same
+        rate at which a point travelling along the
+        path at exactly $\vec{u}^*_r$ would experience it.
+        See \autoref{fig:trajectory-diagram}.
     \item \emph{Prey pursuit:} the reference velocity is the
-        desired closing speed along the line of sight to the
-        prey,
+        prescribed pursuit speed $u^*_\text{cmd}$ directed
+        along the line of sight to the prey $\hat{r}$,
         \begin{align}
             \vec{u}^*_r = u^*_\text{cmd}\, \hat{r}
             \quad\quad\quad
             \hat{r} = \frac{\vec{x}^*_\text{prey} - \vec{x}^*}{|\vec{x}^*_\text{prey} - \vec{x}^*|}
             \label{eq:ur-pursuit}
         \end{align}
-        formed from the line-of-sight bearing only, with no
-        range information. The law then steers the velocity
-        vector onto the line of sight as the body closes in.
+        The control law attempts to steer
+        the velocity vector towards the line-of-sight direction,
+        similar to a proposed control law for tiger
+        beetle prey pursuit~\cite{haselsteiner2014}
+        which attempts to minimize the angle between
+        the velocity and line-of-sight vectors.
+        See \autoref{fig:pursuit-diagram}.
 \end{itemize}
-The hover, trajectory, and pursuit geometries are illustrated in
-\autoref{fig:hover-diagram}, \autoref{fig:trajectory-diagram}, and
-\autoref{fig:pursuit-diagram}.
+The force demand is met by adjusting the
+control parameters, as discussed in \autoref{sec:force_demand}.
+The control law is exercised at the start of every wingbeat,
+so the control parameters remain constant through
+a wingbeat cycle and are only updated between cycles.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/hover_diagram.light.png}
-    \caption{Control-law geometry in the hover use case. The reference
-    velocity is zero (and therefore not drawn): the force demand of
-    \autoref{eq:fdes} composes, tip to tail, the weight compensation
+    \caption{Control law geometry in the hover use case. The reference
+    velocity is zero and therefore not drawn. The force demand of
+    \autoref{eq:fdes} adds up the weight compensation
     $\hat{z}$ with the braking term $-K \vec{u}^*$ opposing the residual
     drift velocity $\vec{u}^*$, giving a resultant that supports the
-    weight while arresting the drift. The stroke plane is pinned at
-    $\gamma = \gamma^\text{hover} = -45^\circ$ with $\psi_1 =
-    \psi_1^\text{opt}(0)$; wingbeat overlay as in
-    \autoref{fig:hover-beta-gamma}, arrow lengths
-    schematic.}\label{fig:hover-diagram}
+    weight while arresting the drift. The stroke plane is fixed at
+    $\gamma = \gamma^\text{hover}$ and $\psi_1 =
+    \psi_1^\text{opt}(J=0)$.}\label{fig:hover-diagram}
 \end{figure}
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/trajectory_diagram.light.png}
-    \caption{Control-law geometry in the prescribed-trajectory use case.
-    The reference point (dot) travels along the prescribed path (in
-    color, solid where already traveled, dashed ahead) with velocity
-    $\vec{u}^*_r$, the path tangent scaled by the speed schedule. The
-    body is not
-    constrained to the path: with no position feedback it trails the
-    reference, cutting slightly inside the bend, and its velocity
-    $\vec{u}^*$ lags the leveling-off of the path. The reference
-    velocity is copied at the body (in color) to close the velocity
-    triangle, and the force demand of \autoref{eq:fdes} composes, tip to
-    tail, the weight compensation $\hat{z}$ with the amplified error
-    $K (\vec{u}^*_r - \vec{u}^*)$. Wingbeat overlay as in
-    \autoref{fig:pursuit-diagram}, at the blended stroke-plane angle for
-    the drawn $J \approx 0.2$; arrow lengths are
-    schematic.}\label{fig:trajectory-diagram}
+    \caption{Control law geometry in the prescribed-trajectory use case.
+    The reference point (blue dot) travels along the prescribed path (blue curve).
+    The body is not constrained to the path since there is no position feedback,
+    so its own path (in orange) does not line up exactly.
+    The path velocity $\vec{u}^*_r$ shown in blue and the body velocity $\vec{u}^*$
+    give the error term $\vec{u}^*_r - \vec{u}^*$, 
+    and the force demand of \autoref{eq:fdes} adds up
+    the weight compensation $\hat{z}$ with the amplified error
+    $K (\vec{u}^*_r - \vec{u}^*)$.}\label{fig:trajectory-diagram}
 \end{figure}
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/pursuit_diagram.light.png}
-    \caption{Control-law geometry in the prey pursuit use case. The prey
+    \caption{Control law geometry in the prey pursuit use case. The prey
     is detected at the line-of-sight bearing $\hat{r}$ (sparse dots), and
-    the reference velocity $\vec{u}^*_r = u^*_\text{cmd}\,\hat{r}$
-    (\autoref{eq:ur-pursuit}) points along it, while the body velocity
-    $\vec{u}^*$ lags behind (tail chase, the prey moving along
-    $+\hat{x}$). The velocity error $\vec{u}^*_r - \vec{u}^*$ closes the
-    velocity triangle, and the force demand of \autoref{eq:fdes}
-    composes, tip to tail, the weight compensation $\hat{z}$ with the
-    amplified error $K (\vec{u}^*_r - \vec{u}^*)$. The wingbeat overlay
-    is drawn as in \autoref{fig:hover-beta-gamma}, at the blended
-    stroke-plane angle of \autoref{eq:gamma-schedule} for the drawn
-    $J \approx 0.2$ ($\gamma \approx -60^\circ$, $\psi_1 =
-    \psi_1^\text{opt}(J)$); velocity and force arrow lengths are
-    schematic.}\label{fig:pursuit-diagram}
+    the reference velocity defined as $\vec{u}^*_r = u^*_\text{cmd}\,\hat{r}$
+    (\autoref{eq:ur-pursuit}) points along it.
+    The control law attempts to correct the velocity error
+    $\vec{u}^*_r - \vec{u}^*$ to maintain the pursuit course. 
+    The force demand of \autoref{eq:fdes}
+    adds up the weight compensation $\hat{z}$ with the
+    amplified error $K (\vec{u}^*_r - \vec{u}^*)$.
+    The prey position $\vec{x}^*_\text{prey}$ enters the control
+    law only to obtain $\hat{r}$, with all range information discarded.
+    The prey velocity $\vec{u}^*_\text{prey}$ never enters the control law.
+    }\label{fig:pursuit-diagram}
 \end{figure}
-With the force demand formulated, $\gamma$ and $\psi_1$ 
-must now adapt to the measured velocity.
-The advance ratio is evaluated as
+
+\subsubsection{Gain Discussion}
+
+The gain $K$ has a simple interpretation. Assuming the demanded
+mean force is actually delivered over one wingbeat cycle, the cycle-averaged
+equation of motion reduces to  $\langle \dot{\vec{u}}^* \rangle =
+K \left( \vec{u}^*_r - \vec{u}^* \right)$. This corresponds to
+first-order velocity tracking with time constant $1/K$.
+Let $\vec{e}_n$ be the velocity error sampled at the start of wingbeat $n$.
+Holding the demanded acceleration $K \vec{e}_n$ over the wingbeat period
+$T^* = 2\pi/\omega^*$ changes the velocity by $K T^* \vec{e}_n$,
+so, assuming the reference velocity remains constant over one beat,
+\begin{align}
+    \vec{e}_{n+1} = \left( 1 - K T^* \right) \vec{e}_n
+    \label{eq:discrete-map}
+\end{align}
+The factor $\left( 1 - K T^* \right)$ represents the
+decay (or amplification) of the velocity error over one cycle.
+The convergence behavior follows e.g.~\cite{astrom1997}: monotone convergence for
+$K T^* < 1$, single-beat (so-called \emph{deadbeat}) convergence at $K T^* = 1$,
+where the beat delivers exactly the velocity increment that
+cancels the sampled error, and sign-alternating convergence up to
+the stability bound $K T^* = 2$, with divergence beyond.
+Here, \autoref{eq:discrete-map} is an approximation:
+even if the force demand is perfectly met for the conditions
+at the start of the wingbeat, body velocity fluctuations during
+the wingbeat will cause it to deviate to some extent.
+The reference velocity itself may also have changed by
+the end of the wingbeat.
+Nevertheless, given the relatively short timescale of the wingbeat
+cycle compared to the body motion (an assumption that the mean aerodynamic
+force calculation rests upon), we consider it a useful approximation.
+Since it provides the fastest theoretical response, we select
+$K = 1/T^* = \omega^*/2\pi$ in the simulations presented below.
+
+\subsubsection{Achieving the Demanded Force}\label{sec:force_demand}
+
+With the demanded force formulated, the four variables
+$\gamma$, $\psi_1$, $\psi_0$, and $s_0^*$ must be set
+to effectively achieve it. First, the `passive'
+variables $\gamma$ and $\psi_1$ are adapted to the
+new body velocity. For this purpose, the advance ratio is evaluated as
 \begin{align}
     J = \frac{|\vec{u}^*|}{\left(s_0^* \omega^*\right)^\text{ref}}
 \end{align}
 where $\left(s_0^* \omega^*\right)^\text{ref}$ is the
-wingbeat velocity of the reference configuration at the hover condition, held fixed so
-that $J$ does not depend on the control variable $s_0^*$.
-This $J$ is formed from the speed alone, regardless of the
-velocity direction relative to the stroke plane, and serves to
-parameterize the schedules; the trim below sees the full
-velocity vector.
-The stroke-plane angle blends from the inclined-hover value to
-the velocity-aligned value $\gamma_u$, defined such that
-$\hat{n}$ is aligned with $\vec{u}^*$---the two-argument
-arctangent
-$\gamma_u = \operatorname{atan2} \left( -u^*_x,\, u^*_z \right)$,
-giving $\mp 90^\circ$ in level flight toward $\pm\hat{x}$,
-$0^\circ$ in climb, and $\pm 180^\circ$ in descent:
+wingbeat velocity of the reference configuration at
+the hover condition, such that $J$ is independent
+of the control variable $s_0^*$, to prevent an undesirable feedback loop.
+At high $J$, $\gamma$ is made to approach the velocity-aligned value
+$\gamma_u$, defined such that $\hat{n}$ is aligned with $\vec{u}^*$, as
+$\gamma_u = \operatorname{atan2} \left( -u^*_x,\, u^*_z \right)$.
+This gives $\mp 90^\circ$ in level flight toward $\pm\hat{x}$,
+$0^\circ$ in climb, and $\pm 180^\circ$ in descent.
+$\gamma$ blends from $\gamma^\text{hover}$ to $\gamma_u$ as
 \begin{align}
     \gamma = \left[ 1 - f(J) \right] \sigma_x \gamma^\text{hover}
     + f(J)\, \gamma_u
     \quad\quad\quad
     f(J) = 1 - e^{-(J/J_c)^2} \label{eq:gamma-schedule}
 \end{align}
-with $J_c = 0.35$, placed between the two velocity regimes the
-schedule must separate: residual station-keeping velocities
-($J \lesssim 0.1$) engage the blend by under a tenth
-($f < 0.08$), keeping the stroke plane at its hover lean, while
-at cruise speeds ($J \gtrsim 2 J_c$) the blend is essentially
+with a somewhat arbitrary $J_c = 0.35$, placed between the two velocity regimes.
+Tuning of $J_c$ has not been pursued as of yet.
+At residual station-keeping velocities ($J \lesssim 0.1$)
+the stroke plane effectively remains in its hover inclination.
+At cruising speeds ($J \gtrsim 2 J_c$) the blend is essentially
 complete ($f > 0.98$). The sign $\sigma_x \in \{-1, +1\}$ sets the
 lean of the hover stroke plane (\autoref{sec:strategy}): it is
 the sign of the horizontal component of the commanded velocity,
 $\sigma_x = \operatorname{sgn} \left( \vec{u}^*_r \cdot \hat{x}
-\right)$, latched---retaining its previous value whenever
-$\vec{u}^*_r \cdot \hat{x} = 0$---and initialized to $+1$.
-Latching on the commanded rather than the measured velocity
-keeps the residual drift of station-keeping from flipping the
-stroke plane.
-\autoref{fig:gamma-schedule-level} illustrates the schedule in
-level flight: the stroke plane holds its hover lean near rest,
-and is nearly velocity-aligned once $J$ exceeds roughly $2 J_c$.
+\right)$. It is latched (retaining its previous value whenever
+$\vec{u}^*_r \cdot \hat{x} = 0$) and initialized to $+1$.
+\autoref{fig:gamma-schedule-level} illustrates the change in
+$\gamma$ for accelerating level flight.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/gamma_schedule_level.light.png}
-    \caption{Stroke-plane schedule (\autoref{eq:gamma-schedule})
+    \caption{Stroke plane tilting (\autoref{eq:gamma-schedule})
     in level flight toward $+\hat{x}$ ($\sigma_x = +1$), at
     increasing advance ratio. At rest (left), the stroke plane
-    holds the inclined-hover lean $\sigma_x \gamma^\text{hover}$;
-    as the forward speed builds (middle, right), the blend leans
-    it toward the velocity-aligned value $\gamma_u$, at which the
+    holds the hover stroke plane angle $\sigma_x \gamma^\text{hover}$.
+    As the forward speed builds (middle, right), the stroke
+    plane tilts towards the velocity-aligned value $\gamma_u$, at which the
     stroke-plane normal $\hat{n}$ points along the flight
-    direction and the inflow is axial. The wingbeat overlay is
-    drawn as in \autoref{fig:hover-beta-gamma}, with
-    $\psi_1 = \psi_1^\text{opt}(J)$; the mean pitch and the
-    velocity arrow lengths are
-    schematic.}\label{fig:gamma-schedule-level}
+    direction and the inflow is axial.}\label{fig:gamma-schedule-level}
 \end{figure}
-The schedule is applied unrestricted. In descent, $\gamma_u$
-aims the stroke-plane normal downward, along the fall, and
-weight support then requires a mean force along $-\hat{n}$: as
-established in \autoref{sec:maf} (\autoref{fig:cf_J}), such a
+
+A notable issue with this $\gamma$ mechanism is descent.
+During descent, $\gamma_u$ aims the stroke-plane normal
+$\hat{n}$ downward. If the prescribed velocity is steady,
+rather than accelerating, the weight must be supported,
+which then requires a mean force along $-\hat{n}$.
+As established in \autoref{sec:maf} (\autoref{fig:cf_J}), such a
 reversed force is reached at mean pitch near $\pm 90^\circ$,
-where drag from the normal inflow dominates, and the trim
-formulated below (\autoref{eq:trim}) steers there. This is the
-delicate regime of the scheme---fast descents saturate the trim
-(\autoref{sec:results})---and it motivates the alternate gliding
-descent mode discussed in the conclusion.
-The pitch amplitude is slaved to the force-maximizing value of
-\autoref{fig:hover_opt_J},
+where drag from the normal inflow dominates.
+This has proven to be a delicate regime, and so the current
+formulation is limited in descent to low velocities (or sustained
+accelerations greater than that due to gravity).
+An alternate control scheme making passive use of drag to
+control descent velocity could perhaps be devised.
+
+The other passive variable, the pitch amplitude $\psi_1$,
+is slaved to the optimal value of \autoref{fig:hover_opt_J}
 \begin{align}
     \psi_1 = \psi_1^\text{opt}(J)
     \label{eq:psi1-slave}
@@ -1340,58 +1356,50 @@ under an assumed axial inflow. The actual inflow deviates from
 the stroke-plane normal during transients, but only appreciably
 at low advance ratio, where the optimum is insensitive to the
 inflow direction, so the deviation is neglected.
+
 With $(\gamma, \psi_1)$ now set, the remaining two variables
-$(s_0^*,\psi_0)$
-are trimmed to the force demand by solving
+$(s_0^*,\psi_0)$ are trimmed to the force demand by solving
 \begin{align}
     \langle \vec{F}^* \rangle \left( s_0^*, \psi_0;\,
     \gamma, \psi_1, \vec{u}^* \right)
     = \langle \vec{F}^* \rangle^\text{des} \label{eq:trim}
 \end{align}
-for $(s_0^*, \psi_0)$. Care must be taken with which force map
-is inverted here. In \autoref{eq:trim},
-$\langle \vec{F}^* \rangle$ is the cycle average of the
-instantaneous force law of \autoref{sec:model}, evaluated at the
-\emph{measured} velocity $\vec{u}^*$ with no assumption on its
-direction; the trim therefore remains exact during transients,
-when the inflow is oblique to the stroke plane. The axial-inflow
-expressions of \autoref{sec:maf} coincide with this map when
-$\hat{n}$ is aligned with $\vec{u}^*$---the condition the
-$\gamma$ schedule works to restore---and they expose its
-structure.
-The two unknowns match the two numbers the planar demand supplies
-once resolved in the stroke frame: a direction, the signed angle
-$\beta^\text{des}$ from the stroke-plane normal $\hat{n}$ to
-$\langle \vec{F}^* \rangle^\text{des}$, and a magnitude
-$F^\text{des} = | \langle \vec{F}^* \rangle^\text{des} |$, both
-known once $\gamma$ is set. The mean force at the operating point,
+The two unknowns match the two numbers that the planar force demand supplies
+once resolved in the stroke frame: direction and magnitude.
+The direction is the signed angle $\beta^\text{des}$
+from the stroke-plane normal $\hat{n}$ to
+$\langle \vec{F}^* \rangle^\text{des}$. The magnitude
+$F^\text{des} = | \langle \vec{F}^* \rangle^\text{des} |$.
+Both are known once $\gamma$ is set.
+
+The mean force at the operating point,
 $\langle \vec{F}^* \rangle = q^* \left( C_{F^*_n} \hat{n}
 + C_{F^*_s} \hat{s} \right)$ with the coefficients of
 \autoref{eq:cfn-general-op} and \autoref{eq:cfs-general-op},
 splits these two roles cleanly between the two unknowns. Because
 $J$ is evaluated at the fixed reference wingbeat velocity, the
 coefficients are independent of $s_0^*$, which enters only through
-the flapping dynamic pressure $q^* \propto (s_0^* \omega^*)^2$
-(\autoref{eq:q}): $s_0^*$ scales the mean force without turning
-it. The direction $\beta$ is in turn governed by $\psi_0$ alone
+$q^* \propto (s_0^* \omega^*)^2$
+(\autoref{eq:q}), so $s_0^*$ scales the mean force without turning it.
+The direction $\beta$ is in turn governed by $\psi_0$ alone
 (\autoref{eq:beta-general}), while the magnitude depends on both
-unknowns. \autoref{eq:trim} is therefore triangular, equivalent
-to the pair
+unknowns. \autoref{eq:trim} can therefore be split into
 \begin{align}
     \beta \left( \psi_0;\, \psi_1, J \right) = \beta^\text{des}
     \quad\quad\quad
     q^*\, C_{F^*} \left( \psi_0;\, \psi_1, J \right) = F^\text{des}
     \label{eq:trim-split}
 \end{align}
-solved in that order: the direction demand fixes $\psi_0$ by
+solved in that order. The direction demand fixes $\psi_0$ by
 inverting \autoref{eq:beta-general}, and the magnitude demand then
-yields the amplitude explicitly through $q^*$ (\autoref{eq:q}),
+yields the amplitude explicitly through $q^*$ (\autoref{eq:q})
 \begin{align}
     s_0^* = \frac{1}{\omega^*}
     \sqrt{\frac{4 F^\text{des}}{C_{F^*} \frac{A^*}{m^*}}}
 \end{align}
-with $C_{F^*}$ evaluated at the trimmed pitch. This is the
-demand-driven generalization of the hover trim of
+with $C_{F^*}$ evaluated at the new $\psi_0$ and $\psi_1$ using
+\autoref{eq:cfn-general-op} and \autoref{eq:cfs-general-op}.
+This is the demand-driven generalization of the hover trim of
 \autoref{sec:maf}, recovered when the body is at rest and the
 demand reduces to the weight: $\beta^\text{des} =
 -\gamma^\text{hover}$ returns $\psi_0^\text{hover}$, and
@@ -1409,9 +1417,11 @@ Jacobian and iterates confined to the admissible kinematic ranges,
 converges in a handful of steps: the near-triangular structure
 keeps the system well-conditioned, and each solve is warm-started
 from the previous wingbeat's $(s_0^*, \psi_0)$, so the demand
-moves little between solves. In the constant-pitch limit the split
-becomes fully explicit and can initialize---or replace---the
-iteration, as noted in \autoref{sec:square-wave}. When the demand
+moves little between solves.
+%In the constant-pitch limit the split
+%becomes fully explicit and can initialize---or replace---the
+%iteration, as noted in \autoref{sec:square-wave}.
+When the demand
 leaves the reachable force set, the iteration saturates at the
 kinematic bounds and the demand is met only approximately; this is
 the trim saturation encountered in the steep descents of
@@ -1451,9 +1461,8 @@ a horizontal dragonfly pointing towards $+\hat{x}$.
 When settling from lateral motion towards $-\hat{x}$,
 the hovering stroke plane angle would be $-\gamma^\text{hover} = +45^\circ$,
 as explained in \autoref{sec:strategy}.
-
 Since dragonflies have two wing pairs, we set $N=2$,
-with the two pairs flapping in antiphase (their phase parameters
+with the two pairs flapping out of phase (their phase parameters
 $\phi$ differing by $180^\circ$) so as to reduce body oscillations.
 
 \subsection{Hover}
@@ -1461,66 +1470,65 @@ $\phi$ differing by $180^\circ$) so as to reduce body oscillations.
 The hover regime of the control law is exercised by initializing
 the body at the origin with a velocity perturbation
 $\vec{u}^*(0) = (0.2, 0.2)$, and $\vec{u}^*_r = 0$, with
-$K = 2.7$. The response is shown in \autoref{fig:hover}.
+$K T^* = 1$. The response is shown in \autoref{fig:hover}.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/hover_gains.light.png}
-    \caption{Hover hold under the velocity law
-    (\autoref{eq:fdes}, $K = 2.7$). The velocity perturbation is
-    eliminated within about one time unit. The position offset
-    accumulated meanwhile (about $0.05$ body lengths) is never
-    corrected---there is no position feedback---and some slow
-    residual drift remains, but the body settles into a clean
-    hover about the settled point.}\label{fig:hover}
+    \caption{Hover control with initial velocity perturbation
+    at $K T^* = 1$. The velocity perturbation is
+    eliminated within about one time unit. The small position offset
+    accumulated meanwhile is never corrected since there is no
+    position feedback, and some slow residual drift remains,
+    but the body settles into a clean hover about the settled point.}\label{fig:hover}
 \end{figure}
 
-The sensitivity to the single gain is checked by repeating this
-recovery across a sweep of gains, $K T^* \in [0.2, 2.7]$
-(\autoref{fig:gain-sweep}). Below the stability boundary, the
-discrete model of \autoref{sec:control-law} holds well: the
-measured per-beat contraction of the velocity error follows
-$1 - K T^*$, with a slightly milder slope---at these gains the
-velocity changes appreciably \emph{within} a beat, weakening the
-realized braking relative to the frozen-velocity trim---which
-places the measured one-beat gain near $K T^* \approx 1.1$
-rather than $1$. The settling time is U-shaped with its minimum
-there, staying under one time unit for $K T^*$ between roughly
-$1$ and $1.3$, and the accumulated drift follows the discrete
-prediction $|\vec{u}^*(0)| \left( 1/K - T^*/2 \right)$. The
-loop remains stable out to $K T^* \approx 2.1$, just past the
-predicted bound of $2$. Two findings round out the picture.
-First, the trim never saturates across the entire stable range:
-for a perturbation of this size, the reachable-force ceiling is
-not the binding constraint. Second, past the stability boundary
-the growing errors do saturate the trim, and the saturation
-clamps the divergence into a bounded wandering of a few body
-lengths rather than an escape. The gain used throughout,
-$K = 2.7$ ($K T^* \approx 1.2$), sits in the flat basin around
-the measured one-beat optimum---settling in two wingbeats, with
-nearly a factor of two of gain margin.
-\begin{figure}[htbp]
-    \centering
-    \includegraphics{figures/gain_sweep.light.png}
-    \caption{Gain sensitivity of the hover recovery of
-    \autoref{fig:hover}, swept over $K T^*$ (gain $\times$
-    wingbeat period). Open circle: the gain $K = 2.7$ used
-    throughout; dotted line: the one-beat gain $K T^* = 1$;
-    shaded band: beyond the predicted stability bound
-    $K T^* = 2$. (a) Per-beat contraction of the velocity error
-    (least-squares fit of $\vec{e}_{n+1} = r\, \vec{e}_n$ over
-    the transient beats), against the discrete-model line
-    $1 - K T^*$; in the unstable band the fit reflects bounded
-    wandering, not contraction. (b) Time for the beat-sampled
-    error to settle below $5\%$ of the perturbation; the last
-    stable gain ($K T^* = 2.1$) settles off scale at $16$, and
-    unstable gains never settle. (c) Accumulated position
-    offset, against the discrete prediction
-    $|\vec{u}^*(0)| \left( 1/K - T^*/2 \right)$; unstable gains
-    wander off scale. (d) Fraction of transient beats on which
-    the trim saturates: zero across the stable range, nonzero
-    only past the stability boundary, where the saturation
-    bounds the divergence.}\label{fig:gain-sweep}
-\end{figure}
+%The sensitivity to the single gain is checked by repeating this
+%recovery across a sweep of gains, $K T^* \in [0.2, 2.7]$
+%(\autoref{fig:gain-sweep}). Below the stability boundary, the
+%discrete model of \autoref{eq:discrete-map} holds well: the
+%measured per-beat contraction of the velocity error follows
+%$1 - K T^*$, with a slightly milder slope---at these gains the
+%velocity changes appreciably \emph{within} a beat, weakening the
+%realized braking relative to the frozen-velocity trim---which
+%places the measured one-beat gain near $K T^* \approx 1.1$
+%rather than $1$. The settling time is U-shaped with its minimum
+%there, staying under one time unit for $K T^*$ between roughly
+%$1$ and $1.3$, and the accumulated drift follows the discrete
+%prediction $|\vec{u}^*(0)| \left( 1/K - T^*/2 \right)$. The
+%loop remains stable out to $K T^* \approx 2.1$, just past the
+%predicted bound of $2$. Two findings round out the picture.
+%First, the trim never saturates across the entire stable range:
+%for a perturbation of this size, the reachable-force ceiling is
+%not the binding constraint. Second, past the stability boundary
+%the growing errors do saturate the trim, and the saturation
+%clamps the divergence into a bounded wandering of a few body
+%lengths rather than an escape. The gain used throughout,
+%$K = \omega^*/2\pi$ ($K T^* = 1$), sits in the flat basin around
+%the measured one-beat optimum---settling in two wingbeats, with
+%a factor of two of gain margin.
+%\begin{figure}[htbp]
+%    \centering
+%    \includegraphics{figures/gain_sweep.light.png}
+%    \caption{Gain sensitivity of the hover recovery of
+%    \autoref{fig:hover}, swept over $K T^*$ (gain $\times$
+%    wingbeat period). Open circle: the gain used throughout,
+%    at the one-beat gain $K T^* = 1$ (dotted line);
+%    shaded band: beyond the predicted stability bound
+%    $K T^* = 2$. (a) Per-beat contraction of the velocity error
+%    (least-squares fit of $\vec{e}_{n+1} = r\, \vec{e}_n$ over
+%    the transient beats), against the discrete-model line
+%    $1 - K T^*$; in the unstable band the fit reflects bounded
+%    wandering, not contraction. (b) Time for the beat-sampled
+%    error to settle below $5\%$ of the perturbation; the last
+%    stable gain ($K T^* = 2.1$) settles off scale at $16$, and
+%    unstable gains never settle. (c) Accumulated position
+%    offset, against the discrete prediction
+%    $|\vec{u}^*(0)| \left( 1/K - T^*/2 \right)$; unstable gains
+%    wander off scale. (d) Fraction of transient beats on which
+%    the trim saturates: zero across the stable range, nonzero
+%    only past the stability boundary, where the saturation
+%    bounds the divergence.}\label{fig:gain-sweep}
+%\end{figure}
 
 \subsection{Prescribed Trajectory}
 
@@ -1537,17 +1545,17 @@ speed $0.5$), which together define $\vec{u}^*_r(t)$. The cruise
 speed is kept moderate because the vertical descent is the
 demanding segment: at faster descent rates the trim saturates
 (see the descent caveat in the conclusion). Starting from rest on
-the path, the tracking response with $K = 2.7$ is shown in
+the path, the tracking response with $K T^* = 1$ is shown in
 \autoref{fig:traj}.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/trajectory_gains.light.png}
     \caption{Prescribed trajectory under the velocity law
-    ($K = 2.7$): the body follows the commanded velocity with a
+    ($K T^* = 1$): the body follows the commanded velocity with a
     first-order lag, trailing the reference point by
-    $|\vec{u}^*_r| / K \approx 0.19$ body lengths through the
+    $|\vec{u}^*_r| / K \approx 0.22$ body lengths through the
     cruise and cutting slightly inside the sharp corners, with the
-    tracking error peaking at $0.28$. Position drift is not
+    tracking error peaking at $0.34$. Position drift is not
     corrected, but the achieved path stays close to the course
     throughout---including the loop and the descent---and the body
     settles next to the course endpoint (final offset
@@ -1559,15 +1567,11 @@ the recorded drawing---$19$ body lengths of continuous turns through
 four wing lobes, a tail sweep, and a head. Its near-vertical plunges
 into the lower wing lobes are steeper than the descent of the course
 above and saturate the trim at the same cruise speed, so it is flown
-at a reduced cruise of $0.4$.
+at a reduced cruise of $0.35$.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/trajectory_gains_drawn.light.png}
-    \caption{Freehand trajectory under the velocity law ($K = 2.7$,
-    cruise $0.4$): a hand-drawn closed course tracing a dragonfly. The
-    body stays within $0.27$ body lengths of the reference point
-    throughout and closes the course with a final offset of
-    $0.09$.}\label{fig:traj-drawn}
+    \caption{Freehand trajectory  with $K T^* = 1$ and cruise speed $0.35$.}\label{fig:traj-drawn}
 \end{figure}
 
 \subsection{Prey Pursuit}
@@ -1577,7 +1581,7 @@ with the reference velocity of \autoref{eq:ur-pursuit}: the
 desired closing speed along the line of sight to the prey.
 The prey starts at $(2.5, 2.0)$ and moves
 at the constant velocity $(0.35, 0)$; the body starts at rest at
-the origin, with $u^*_\text{cmd} = 0.7$ and $K = 2.7$.
+the origin, with $u^*_\text{cmd} = 0.7$ and $K T^* = 1$.
 Interception is declared at a range of $0.5$ body lengths. The
 resulting pursuit is shown in \autoref{fig:pursuit}.
 \begin{figure}[htbp]
@@ -1585,7 +1589,7 @@ resulting pursuit is shown in \autoref{fig:pursuit}.
     \includegraphics{figures/pursuit_traces.light.png}
     \caption{Prey pursuit. (a) The line-of-sight command produces
     the classical pure-pursuit tail chase, with capture at
-    $t^* \approx 7.5$ (star). (b) The body accelerates to the
+    $t^* \approx 7.7$ (star). (b) The body accelerates to the
     commanded closing speed ($J \approx 0.2$). $\gamma$ leans
     from $\gamma^\text{hover}$ toward alignment with the flight
     direction, $\psi_1$ follows its slaved schedule
@@ -1598,7 +1602,8 @@ resulting pursuit is shown in \autoref{fig:pursuit}.
 The proposed control scheme is capable of
 achieving hover and prey pursuit, and of
 following arbitrary trajectories to
-a reasonable degree of accuracy.
+a reasonable degree of accuracy at
+moderate velocities.
 Some caveats are worth mentioning:
 \begin{itemize}
     \item \emph{Not strictly proportional control}. While
@@ -1607,10 +1612,10 @@ Some caveats are worth mentioning:
     the control variables vary nonlinearly with
     the force demand, since we are solving the inverse
     problem of which variable values satisfy the force demand.
-    Following the hover controller presented in
-    the previous report, we may be able to resolve this
-    by linearizing the force, using the expressions
-    we derived in \autoref{sec:maf}.
+    We may be able to resolve this by 1) obtaining closed-form
+    expressions for the mean aerodynamic force using the
+    simplified, constant-pitch kinematics and 2) linearizing
+    those expressions.
 \item \emph{Issue with descent}. When descending (towards $-\hat{z}$)
     at a fast rate, the stroke-plane normal will point downwards.
     However, to achieve a steady descent velocity, the force vector must

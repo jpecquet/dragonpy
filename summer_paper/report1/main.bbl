@@ -1,4 +1,4 @@
-\begin{thebibliography}{6}
+\begin{thebibliography}{8}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -35,6 +35,19 @@ A.~Andersen, U.~Pesavento, and Z.~Jane Wang.
 Akira Azuma, Soichi Azuma, Isao Watanabe, and Toyohiko Furuta.
 \newblock Flight mechanics of a dragonfly.
 \newblock \emph{Journal of Experimental Biology}, 116:\penalty0 79--107, 1997.
+
+\bibitem[Haselsteiner et~al.(2014)Haselsteiner, Gilbert, and
+  Wang]{haselsteiner2014}
+A.~F. Haselsteiner, C.~Gilbert, and Z.~J. Wang.
+\newblock Tiger beetles pursue prey using a proportional control law with a
+  delay of one half-stride.
+\newblock \emph{Journal of The Royal Society Interface}, 11, 2014.
+\newblock \doi{10.1098/rsif.2014.0216}.
+
+\bibitem[{\AA}str{\"o}m and Wittenmark(1997)]{astrom1997}
+Karl~J. {\AA}str{\"o}m and Bj{\"o}rn Wittenmark.
+\newblock \emph{Computer-Controlled Systems: Theory and Design}.
+\newblock Prentice Hall, Upper Saddle River, NJ, 3rd edition, 1997.
 
 \bibitem[Wakeling(1997)]{wakeling1997}
 J.~M. Wakeling.
