@@ -149,9 +149,9 @@ class SimRunner:
     @staticmethod
     def _dump_path(points, anchor, path, v_follow, taper):
         """Persist the last committed drawing (raw + smoothed) so the report's
-        prescribed-trajectory figure (scripts/trajectory_gains.py) can replay
-        it. Overwritten on every committed path; best-effort (a failed write
-        never disturbs the sim)."""
+        prescribed-trajectory figure (backend/figures.py, trajectory case) can
+        replay it. Overwritten on every committed path; best-effort (a failed
+        write never disturbs the sim)."""
         try:
             DATA_DIR.mkdir(parents=True, exist_ok=True)
             out = {"points": [[float(x), float(z)] for x, z in points],

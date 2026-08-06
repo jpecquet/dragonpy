@@ -33,7 +33,7 @@ REPO_ROOT = HERE.parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
-from cf_components_contour import cf_components  # noqa: E402
+from summer_paper.backend.sim import cf_quad as cf_components  # noqa: E402
 
 OUT_DIR = HERE.parent / "figures"
 

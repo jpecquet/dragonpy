@@ -7,9 +7,9 @@ chosen speed, then hovers at the end until you draw the next one (which starts
 from the body's actual position at the moment you release the mouse).
 
 The physics and controller are the *same* validated code as the report
-(`summer_paper/scripts/feasibility.py` force model + the generalized controller
-of `generalized_control.py`), re-expressed for live, mutable morphology. Nothing
-is reimplemented in the browser — the backend streams the real simulation.
+(`summer_paper/backend/sim.py`: force model, schedules, and Newton trim),
+re-expressed for live, mutable morphology. Nothing is reimplemented in the
+browser — the backend streams the real simulation.
 
 ## Run
 
@@ -41,10 +41,10 @@ third-party packages.
 - **Report hand-off**: every committed path is also saved to
   `summer_paper/data/drawn_path.json` (raw points, anchor, smoothed polyline,
   current follow speed/taper), overwritten on each release.
-  `summer_paper/scripts/trajectory_gains.py` picks the file up automatically —
+  `summer_paper/backend/figures.py` picks the file up automatically —
   re-smoothed with the same `smooth_path`, shifted to start at the origin, and
-  replayed at the report's canonical speed schedule — as the prescribed-trajectory
-  test case of the report; without the file it falls back to its built-in bend.
+  replayed at the report's canonical speed schedule — as the freehand
+  prescribed-trajectory test case of the report.
 - **Left panel**:
   - *Morphology* — wing length \(L_w^*\), inverse wing loading \(A^*/m^*\),
     wingbeat frequency \(\omega^*\) (Table 1 ranges).
@@ -70,7 +70,7 @@ body (point mass).
 
 | file | role |
 |------|------|
-| `dragonfly_sim.py` | `Config`, the morphology-parametrized controller (γ-schedule, ψ₁-slave, φ₁/ψ₀ trim), path smoothing, and the real-time RK4 `Simulator`. |
+| `dragonfly_sim.py` | thin real-time layer over `summer_paper/backend` (`sim.py` physics/controller, `trajectory.py` path pipeline): mutable `Config`, the GUI allocation tweaks, and the real-time RK4 `Simulator`. |
 | `server.py` | stdlib HTTP server: serves the page, streams render state over Server-Sent Events (`/stream`), accepts `/path`, `/target`, `/params`, `/reset` POSTs; runs the sim on a background thread paced to the wall clock. |
 | `index.html` | single-file front end (canvas + control panel), styled after `reference.html`. |
 

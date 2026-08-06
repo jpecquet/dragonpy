@@ -70,7 +70,6 @@ from feasibility import (
     _rot_x, _rot_z, drag_coeff, lift_coeff, avg_force_magnitude,
     cycle_averaged_force, replace,
 )
-from feasibility_reduction import q_star, cpsi_of_pitch
 from hover_drift import base_params, solve_equilibrium, _bisect
 
 HERE = Path(__file__).resolve().parent
@@ -82,6 +81,23 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 OUT_DIR = HERE.parent / "figures"
 N_PHASE = 256
 HINGES = (R_HINGE_RIGHT, R_HINGE_LEFT, R_HINGE_RIGHT, R_HINGE_LEFT)
+
+# Inlined from the retired feasibility_reduction.py (report section 2): the
+# amplitude group q* and the numerical pitch-efficiency C_{F^*} at the
+# reference amplitude (s0 = 0.25 realized at Lw = 0.75).
+_AMP_NOM = dict(A_over_m=REF_A_OVER_M, omega_star=REF_OMEGA_STAR,
+                phi1=REF_S0 / (STUDY_SPAN_FRAC * REF_LW), Lw=REF_LW)
+
+
+def q_star(p):
+    s0 = STUDY_SPAN_FRAC * p.Lw * p.phi1
+    return p.aw_over_m * s0 ** 2 * p.omega_star ** 2
+
+
+def cpsi_of_pitch(psi0, psi1, delta0, n_phase=128):
+    p = replace(Params(gamma0=0.0, element_span_fracs=STUDY_ELEMENT),
+                psi0=psi0, psi1=psi1, delta0=delta0, **_AMP_NOM)
+    return avg_force_magnitude(p, n_phase) / q_star(p)
 
 
 # ---------------------------------------------------------------------------
