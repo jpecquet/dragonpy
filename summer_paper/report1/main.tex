@@ -9,8 +9,8 @@
 \graphicspath{{../}}
 \usepackage{booktabs}
 \usepackage{siunitx}
-\usepackage{hyperref}
 \usepackage[numbers]{natbib}
+\usepackage{hyperref}
 \usepackage{microtype}
 \usepackage{newtxtext,newtxmath}
 \usepackage{caption}
@@ -36,7 +36,7 @@
 
 \title{Controller Design for Flapping Flight}
 \author{Jean Pecquet}
-\date{July 2, 2026}
+\date{\today}
 
 \begin{document}
 \maketitle
@@ -59,7 +59,7 @@ We propose a control strategy for flapping flight.
     by rotating the fixed frame basis $(\hat{x},\hat{z})$ by the stroke plane
     angle $\gamma$. The lumped wing sits at position $s(t)\,\hat{s}$ relative
     to the point mass body, with chord direction $\hat{c}$ at pitch angle
-    $\psi$ from the stroke plane normal $\hat{n}$. For simplicity, only one
+    $\psi$ from the stroke-plane normal $\hat{n}$. For simplicity, only one
     lumped wing is drawn.}\label{fig:model-geometry}
 \end{figure}
 The flapping flight dynamics model consists of a
@@ -93,12 +93,12 @@ by the \emph{stroke plane angle} $\gamma$. That is
     \hat{n} &= -\sin\gamma\hat{x} + \cos\gamma\hat{z}
 \end{align}
 Each lumped wing translates along the stroke axis $\hat{s}$,
-and $\hat{n}$ represents the stroke plane normal.
+and $\hat{n}$ represents the stroke-plane normal.
 The lumped wing position relative to the point mass body is
 $\vec{s} = s(t) \hat{s}$, where $s(t)$ is the prescribed
 flapping coordinate. Because the wing
 is instantaneously at a distance $|s(t)|$ from the body,
-the aerodynamic force acts on the body via a moment arm $|s(t)|$.
+the aerodynamic force acts on the body via a moment arm.
 However, in the present point mass model, there is no
 rotational degree of freedom, and the force is effectively
 considered to act through the center of mass.
@@ -111,7 +111,7 @@ the wing velocity relative to the air is $\vec{v} = \vec{\dot{s}} + \vec{u}$.
 The aerodynamic force for wing pair $i$ is given below (note the
 subscript $i$ is omitted from quantities on the right-hand side for tidiness)
 \begin{align}
-    \vec{F}_i = \frac12 \rho \frac{A}{N} |\vec{v}|^2 \left[ C_L(\alpha) \hat{\ell} + C_D(\alpha) \hat{d} \right]
+    \vec{F}_i = \frac12 \rho \frac{A}{N} |\vec{v}|^2 \left[ C_L(\alpha) \hat{\ell} + C_D(\alpha) \hat{d} \right] \label{eq:faero}
 \end{align}
 where $\rho$ is the air density and the drag direction vector $\hat{d}$
 is defined as
@@ -127,7 +127,7 @@ As a result, $(\hat{\ell},\hat{d})$ forms a direct orthonormal basis.
 To express the angle of attack $\alpha$, it is convenient to
 define the chord direction vector $\hat{c}$, pointing from the
 trailing edge to the leading edge. Let $\psi(t)$ be the wing pitch angle,
-relative to the stroke plane normal $\hat{n}$. The chord direction vector is
+relative to the stroke-plane normal $\hat{n}$. The chord direction vector is
 \begin{align}
     \hat{c} = - \sin\psi\hat{s} + \cos\psi\hat{n}
 \end{align}
@@ -185,7 +185,7 @@ scalar form
     C_L &= -2 C_{L,0} \frac{v_c\, v_p}{v_c^2 + v_p^2} \\
     C_D &= \frac{C_{D,0}\, v_c^2 + C_{D,\frac{\pi}{2}}\, v_p^2}{v_c^2 + v_p^2}
 \end{align}
-This treatment of $C_L$ is the same as that of \cite{andersen2005},
+This treatment of $C_L$ is the same as that of Andersen et al.~\cite{andersen2005},
 but with the opposite sign convention, $\alpha$ being defined
 from $\hat{c}$ to $\hat{v}$ in that work, whereas
 it is defined from $\hat{v}$ to $\hat{c}$ here.
@@ -233,15 +233,15 @@ and $\delta_0$ (pitch phase lead) are set parameters
 for all wing pairs. The second kinematics law is simpler: through each
 half of the wing stroke, the wing pitch remains constant.
 The half-stroke along $-\hat{s}$
-corresponds to $\omega t + \phi \in [0,\,\pi[\pmod{2\pi}$,
+corresponds to $\omega t + \phi \in [0,\,\pi)\pmod{2\pi}$,
 and the half-stroke along $+\hat{s}$
-to $\omega t + \phi \in [\pi,\,2\pi[\pmod{2\pi}$.
+to $\omega t + \phi \in [\pi,\,2\pi)\pmod{2\pi}$.
 The simplified pitch kinematics are, then,
 \begin{align}
     \psi(t) =
     \begin{cases}
-        \psi_0 + \psi_1 & \text{if } \omega t + \phi \in [0,\,\pi[\pmod{2\pi} \\
-        \psi_0 - \psi_1 & \text{if } \omega t + \phi \in [\pi,\,2\pi[\pmod{2\pi}
+        \psi_0 + \psi_1 & \text{if } \omega t + \phi \in [0,\,\pi)\pmod{2\pi} \\
+        \psi_0 - \psi_1 & \text{if } \omega t + \phi \in [\pi,\,2\pi)\pmod{2\pi}
    \end{cases}
 \end{align}
 This can be considered an approximation of
@@ -261,7 +261,7 @@ extremes at the reversals.
     sinusoidal pitch kinematics with
     $\delta_0 \in \{0, \frac{\pi}{2}, -\frac{\pi}{2}, \pi\}$ and for
     the constant-pitch simplification.
-    All panels drawn with $\psi_0 = 0$ and $\psi_1 = 45^\circ$.
+    All panels drawn with $\psi_0 = 0^\circ$ and $\psi_1 = 45^\circ$.
     The top row shows the half-stroke along $+\hat{s}$
     ($\hat{s}$ pointing right) and the bottom row shows
     the half-stroke along $-\hat{s}$. Arrows indicate the direction
@@ -331,7 +331,7 @@ including prey pursuit trajectories. We assume that
 the flyer's own state is known using a variety
 of sensory inputs, so position and velocity are
 available as inputs to the controller. In addition,
-when a prey is present in the environment,
+when prey is present in the environment,
 the bearing angle to the prey, as detected by the eyes,
 is also an available input. Because we are
 particularly interested in \emph{dragonfly}
@@ -348,7 +348,7 @@ component parallel to the stroke plane can be neglected.
 With these choices in mind, the contents of this section
 otherwise hold for flapping flight in general, as we
 do not assume specific morphological characteristics
-like number of wing pairs, size, etc.
+such as the number of wing pairs, size, etc.
 
 \subsection{Mean Aerodynamic Force}\label{sec:maf}
 
@@ -359,7 +359,7 @@ must modulate and direct the aerodynamic force
 acting on its wings. Because the aerodynamic force
 on a flapping wing is by nature highly unsteady,
 it is convenient to consider the wingbeat-cycle average
-of the aerodynamic force, summed over each of the wings,
+of the aerodynamic force, summed over the wings,
 which we call the \emph{mean aerodynamic force}, $\langle \vec{F}^* \rangle$.
 Throughout, $\langle \cdot \rangle$ denotes the average over one
 wingbeat cycle,
@@ -397,9 +397,9 @@ in-plane components
     v_n^* &= \langle u^* \rangle = s_0^* \omega^* J \\
     v_s^* &= -s_0^* \omega^* \sin\tau^*
 \end{align}
-with $\tau^*$ as introduced in \autoref{sec:model},
-and the $+\hat{s}$ half-stroke corresponds to $\sin\tau^* < 0$.
-Note that the phase term $\phi$ is dropped. Indeed each wing pair
+with $\tau^*$ as introduced in \autoref{sec:model};
+the $+\hat{s}$ half-stroke corresponds to $\sin\tau^* < 0$.
+Note that the phase term $\phi$ is dropped. Indeed, each wing pair
 carries the same area fraction $1/N$ and differs from the others only by
 its phase $\phi$, which shifts its force history within the cycle
 without changing the cycle average at fixed body velocity. The
@@ -420,7 +420,7 @@ $\hat{n}$ to $\vec{v}^*$, defined as
 \end{align}
 Both $\psi$ and $\chi$ are signed angles measured from $\hat{n}$ with
 the same sense (positive tilting counterclockwise, toward $-\hat{s}$).
-They locate the chord direction $\hat{c}$, and the velocity direction $\hat{v}$, respectively.
+They locate the chord direction $\hat{c}$ and the velocity direction $\hat{v}$, respectively.
 The angle of attack as defined in \autoref{sec:model} (the
 signed angle from $\hat{v}$ to $\hat{c}$) is therefore simply
 \begin{align}
@@ -492,7 +492,7 @@ The mean aerodynamic force components are
     \langle F_s^* \rangle &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \langle C_D \sin \tau^* |\sin \tau^*| \rangle \nonumber \\
     &= \frac12 \frac{A^*}{m^*} \left( s_0^* \omega^* \right)^2 \frac{C_{D,\frac\pi2} - C_{D,0}}{2}\, \langle \cos 2\psi\; \sin \tau^* |\sin \tau^*| \rangle
 \end{align}
-Note the constant drag term vanishes because
+Note that the constant drag term vanishes because
 $\langle \sin \tau^* |\sin \tau^*| \rangle = 0$.
 We introduce the shorthand $\Delta C_D = C_{D,\frac\pi2} - C_{D,0}$.
 The expressions feature a common pre-factor
@@ -523,7 +523,7 @@ With our parametrization
 of the pitch kinematics, and with the lift
 and drag coefficient parameters set, $C_{F^*}$
 and its $(n,s)$ decomposition are functions
-of 3 variables: $\psi_0$, $\psi_1$, and $\delta_0$.
+of three variables: $\psi_0$, $\psi_1$, and $\delta_0$.
 We visualize $C_{F^*}$, $C_{F^*_n}$, and $C_{F^*_s}$
 across slices of this 3D space in \autoref{fig:cf_components}
 and \autoref{fig:cf}.
@@ -648,8 +648,8 @@ normal $\hat{n}$. $\beta$ is shown as a function
 of $\psi_0$ in \autoref{fig:beta_vs_psi0}.
 As discussed above, $C_{F^*}$ becomes less than
 its maximum when $\psi_0 \neq 0^\circ\pmod{90^\circ}$, away
-from the reference pitch kinematics, so it is also shown
-in addition to $\beta$.
+from the reference pitch kinematics, so it is shown
+alongside $\beta$.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/force_direction_test.light.png}
@@ -675,7 +675,7 @@ The two hover configurations are illustrated in
     \caption{Hover at (a) a horizontal stroke plane and (b) an inclined
     stroke plane (drawn here with $\gamma < 0$). The wing is drawn over one full wingbeat at
     equal time increments, with the $-\hat{s}$ half-stroke behind, in
-    darker grey, and the $+\hat{s}$ half-stroke in front. In (a), the
+    darker gray, and the $+\hat{s}$ half-stroke in front. In (a), the
     reference pitch kinematics ($\psi_0 = 0^\circ$) set the mean force
     $\langle \vec{F}^* \rangle$ vertically along $\hat{n}$.
     In (b), the mean force remains vertical while $\hat{n}$
@@ -768,7 +768,7 @@ coefficients are
     C_{F^*_s} &= -2 \left\langle \frac{J \left[ C_{L,0} \left( J^2 - \sin^2\tau^* \right) + \Delta C_D \sin^2\tau^* \right] \sin2\psi}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \nonumber \\
     &\quad + 2 \left\langle \frac{\left[ 2 C_{L,0} J^2 - \frac{\Delta C_D}{2} \left( J^2 - \sin^2\tau^* \right) \right] \sin\tau^*\, \cos2\psi}{\sqrt{J^2 + \sin^2\tau^*}} \right\rangle \label{eq:cfs-general}
 \end{align}
-Note the constant ($\bar{C}_D$) drag term of $C_{F^*_s}$ vanishes
+Note that the constant ($\bar{C}_D$) drag term of $C_{F^*_s}$ vanishes
 because $\langle \sin\tau^* \sqrt{J^2 + \sin^2\tau^*} \rangle = 0$.
 Setting $J = 0$ recovers \autoref{eq:cfn} and \autoref{eq:cfs},
 as expected. At the operating point $\delta_0 = 90^\circ$,
@@ -804,7 +804,7 @@ recovering \autoref{eq:beta-hover}. The overall force
 coefficient $C_{F^*}$ is shown in \autoref{fig:cf_J}
 for values of $J$ from 0 to 1, at $\delta_0 = 90^\circ$.
 Highlighted on each panel
-is the reference point from the hover plot \autoref{fig:cf},
+is the reference point from the hover plot of \autoref{fig:cf},
 tracked as it turns from a global maximum at $J=0$ to a local
 maximum, and eventually to a saddle point.
 This point represents the maximum
@@ -817,19 +817,20 @@ component of the mean force points towards $+\hat{n}$.
 The values of $C_{F^*}$ and $\psi_1^\text{opt}$ at the reference point
 are shown as functions of $J$ in \autoref{fig:hover_opt_J}.
 As the figure makes clear, $\psi_1^\text{opt}(J)$ decreases as $J$ increases.
-Recall that $\alpha = \psi - \chi$ and consider the stroke half
+Recall that $\alpha = \psi - \chi$ and consider the half-stroke
 along $+\hat{s}$, as pictured in \autoref{fig:flow-angles}.
 Mid-stroke, when $\sin\tau^* = \mp 1$, $\chi = \mp \tan^{-1} (1/J)$
 ($-$ when the stroke is along $+\hat{s}$, $+$ when it is along $-\hat{s}$).
 This corresponds to a rotation of $\vec{v}^*$ \emph{towards}
-the stroke plane normal $\hat{n}$ by an angle of magnitude
+the stroke-plane normal $\hat{n}$ by an angle of magnitude
 $\pi/2 - \tan^{-1} (1/J) = \tan^{-1} J$. This suggests the following
 trend for $\psi_1^\text{opt}(J)$:
 \begin{align}
     \psi_1^\text{opt}(J) \approx \psi_1^\text{opt}(0) - \tan^{-1} J
+    \label{eq:psi1-opt-trend}
 \end{align}
 which is also shown in \autoref{fig:hover_opt_J}, and
-does appear to be the leading order effect.
+does appear to be the leading-order effect.
 
 \begin{figure}[htbp]
     \centering
@@ -853,7 +854,7 @@ does appear to be the leading order effect.
     \autoref{fig:cf_J}) as functions of advance ratio $J$.
     The dashed line is the approximation
     $\psi_1^\text{opt}(0) - \tan^{-1} J$,
-    which holds the midstroke $\alpha$ constant as $J$ increases.
+    which holds the mid-stroke $\alpha$ constant as $J$ increases.
     }\label{fig:hover_opt_J}
 \end{figure}
 
@@ -862,7 +863,7 @@ as a function of $\psi_0$ for $J$ from 0 to 1.
 Specifically, since $\beta$ now depends on $\psi_1$
 in addition to $\psi_0$ (see \autoref{eq:beta-general}),
 each line is obtained using the $\psi_1$ value
-adapted to the value of $J$ (as shown in \autoref{fig:cf_J}).
+adapted to the value of $J$ (as shown in \autoref{fig:hover_opt_J}).
 As $J$ is increased, there is a clear steepening of
 the slope around $\psi_0 = 0$,
 meaning control authority is significantly increased.
@@ -878,8 +879,8 @@ meaning control authority is significantly increased.
 
 We summarize the kinematic parameters
 for the general case in \autoref{tab:param-general}. Since there is no requirement
-for steady flight like in hover, no specific values for the control
-variables $s_0^*$ and $\psi_0$ are prescribed, however the relevant
+for steady flight as in hover, no specific values for the control
+variables $s_0^*$ and $\psi_0$ are prescribed; however, the relevant
 variables that would inform the choice of the values are still listed.
 \begin{table}[htbp]
   \centering
@@ -1136,7 +1137,7 @@ In summary, the two variables that directly act to
 modulate and direct the force are $s_0^*$ and $\psi_0$.
 The two remaining variables, $\gamma$ and $\psi_1$,
 adapt to the velocity vector to respectively
-approximate an axial inflow, and maximize the
+approximate an axial inflow and maximize the
 available force.
 
 A comment should be made here about the $\hat{x}$-wise
@@ -1158,7 +1159,7 @@ The force demand is formed by a velocity tracking law.
 Given a reference velocity $\vec{u}^*_r$, the desired
 acceleration is proportional to the velocity error through a
 proportional gain $K$, and the force demand is obtained
-by adding a $+\hat{z}$ term which compensates the weight:
+by adding a $+\hat{z}$ term which compensates for the weight:
 \begin{align}
     \vec{a}^*_\text{des} &= K \left( \vec{u}^*_r - \vec{u}^* \right) \label{eq:ades} \\
     \langle \vec{F}^* \rangle^\text{des} &= \vec{a}^*_\text{des} + \hat{z} \label{eq:fdes}
@@ -1167,7 +1168,7 @@ A previous version of
 this report discusses augmenting \autoref{eq:ades} with
 position feedback and acceleration feedforward terms to
 provide positional accuracy, but we do not pursue this here.
-The definition of the reference velocity $u_r^*$ depends on the use case:
+The definition of the reference velocity $\vec{u}^*_r$ depends on the use case:
 \begin{itemize}
     \item \emph{Hover:} $\vec{u}^*_r = \vec{0}$. The control law
         attempts to zero out the body velocity. See \autoref{fig:hover-diagram}.
@@ -1178,7 +1179,7 @@ The definition of the reference velocity $u_r^*$ depends on the use case:
         where $\hat{t}$ is the local unit vector tangent to the
         path and $u^*_\text{cmd}$ is the prescribed magnitude.
         $\vec{u}^*_r$ is fed to the control law at the same
-        rate at which a point travelling along the
+        rate at which a point traveling along the
         path at exactly $\vec{u}^*_r$ would experience it.
         See \autoref{fig:trajectory-diagram}.
     \item \emph{Prey pursuit:} the reference velocity is the
@@ -1263,7 +1264,7 @@ so, assuming the reference velocity remains constant over one beat,
 \end{align}
 The factor $\left( 1 - K T^* \right)$ represents the
 decay (or amplification) of the velocity error over one cycle.
-The convergence behavior follows e.g.~\cite{astrom1997}: monotone convergence for
+The convergence behavior is standard (see e.g.~\cite{astrom1997}): monotone convergence for
 $K T^* < 1$, single-beat (so-called \emph{deadbeat}) convergence at $K T^* = 1$,
 where the beat delivers exactly the velocity increment that
 cancels the sampled error, and sign-alternating convergence up to
@@ -1307,15 +1308,15 @@ $\gamma$ blends from $\gamma^\text{hover}$ to $\gamma_u$ as
     f(J) = 1 - e^{-(J/J_c)^2} \label{eq:gamma-schedule}
 \end{align}
 with a somewhat arbitrary $J_c = 0.35$, placed between the two velocity regimes.
-Tuning of $J_c$ has not been pursued as of yet.
-At residual station-keeping velocities ($J \lesssim 0.1$)
+Tuning of $J_c$ has not been pursued yet.
+At small body velocities ($J \lesssim 0.1$)
 the stroke plane effectively remains in its hover inclination.
 At cruising speeds ($J \gtrsim 2 J_c$) the blend is essentially
 complete ($f > 0.98$). The sign $\sigma_x \in \{-1, +1\}$ sets the
-lean of the hover stroke plane (\autoref{sec:strategy}): it is
+tilt direction of the hover stroke plane (\autoref{sec:strategy}): it is
 the sign of the horizontal component of the commanded velocity,
 $\sigma_x = \operatorname{sgn} \left( \vec{u}^*_r \cdot \hat{x}
-\right)$. It is latched (retaining its previous value whenever
+\right)$. $\sigma_x$ is latched (retaining its previous value whenever
 $\vec{u}^*_r \cdot \hat{x} = 0$) and initialized to $+1$.
 \autoref{fig:gamma-schedule-level} illustrates the change in
 $\gamma$ for accelerating level flight.
@@ -1347,18 +1348,17 @@ An alternate control scheme making passive use of drag to
 control descent velocity could perhaps be devised.
 
 The other passive variable, the pitch amplitude $\psi_1$,
-is slaved to the optimal value of \autoref{fig:hover_opt_J}
+is slaved to the optimal value
 \begin{align}
     \psi_1 = \psi_1^\text{opt}(J)
     \label{eq:psi1-slave}
 \end{align}
-under an assumed axial inflow. The actual inflow deviates from
-the stroke-plane normal during transients, but only appreciably
-at low advance ratio, where the optimum is insensitive to the
-inflow direction, so the deviation is neglected.
+where $\psi_1^\text{opt}(J)$ maximizes the stroke-normal
+coefficient $C_{F^*_n}$ of \autoref{eq:cfn-general-op} at
+neutral mean pitch $\psi_0 = 0^\circ$.
 
 With $(\gamma, \psi_1)$ now set, the remaining two variables
-$(s_0^*,\psi_0)$ are trimmed to the force demand by solving
+$(s_0^*,\psi_0)$ are set to satisfy the force demand by solving
 \begin{align}
     \langle \vec{F}^* \rangle \left( s_0^*, \psi_0;\,
     \gamma, \psi_1, \vec{u}^* \right)
@@ -1368,7 +1368,7 @@ The two unknowns match the two numbers that the planar force demand supplies
 once resolved in the stroke frame: direction and magnitude.
 The direction is the signed angle $\beta^\text{des}$
 from the stroke-plane normal $\hat{n}$ to
-$\langle \vec{F}^* \rangle^\text{des}$. The magnitude
+$\langle \vec{F}^* \rangle^\text{des}$. The magnitude is
 $F^\text{des} = | \langle \vec{F}^* \rangle^\text{des} |$.
 Both are known once $\gamma$ is set.
 
@@ -1399,44 +1399,59 @@ yields the amplitude explicitly through $q^*$ (\autoref{eq:q})
 \end{align}
 with $C_{F^*}$ evaluated at the new $\psi_0$ and $\psi_1$ using
 \autoref{eq:cfn-general-op} and \autoref{eq:cfs-general-op}.
-This is the demand-driven generalization of the hover trim of
+This is the generalization of the hover condition of
 \autoref{sec:maf}, recovered when the body is at rest and the
 demand reduces to the weight: $\beta^\text{des} =
 -\gamma^\text{hover}$ returns $\psi_0^\text{hover}$, and
 $F^\text{des} = 1$ returns $(s_0^*)^\text{hover}$.
 
-In practice, the once-per-wingbeat actuation matches the
-cycle-averaged nature of \autoref{eq:trim}, and we solve the
-coupled form rather than the split \autoref{eq:trim-split}:
-at the measured velocity, the inflow is generally oblique to the
-stroke plane, and the advance ratio experienced by the wing
-varies with $s_0^*$, re-coupling the pair beyond the axial,
-frozen-$J$ picture. A damped Newton iteration on
-the residual of \autoref{eq:trim}, with a finite-difference
-Jacobian and iterates confined to the admissible kinematic ranges,
-converges in a handful of steps: the near-triangular structure
-keeps the system well-conditioned, and each solve is warm-started
-from the previous wingbeat's $(s_0^*, \psi_0)$, so the demand
-moves little between solves.
+In practice, the expressions we derived assuming
+normal inflow are only adequate about either the hover
+condition (low velocity) or when the stroke-plane
+normal $\hat{n}$ is actually closely aligned with the
+velocity, which is generally the case for pursuit.
+As a result, both the hover and pursuit force demands
+can be adequately solved in the manner described above,
+as shown in \autoref{sec:results}.
+For more complex trajectories with tight maneuvers, which are
+likely to result in large transient deviations of the inflow angles
+from the ideal normal case, the above method tends to fail
+unless $u^*_\text{cmd}$ is very small.
+In such cases, a numerical solve using a Newton iteration on
+the residual of \autoref{eq:trim}, with the force
+obtained using the general form (\autoref{eq:faero}),
+without any assumption on the inflow angle,
+has proven necessary
+to achieve adequate trajectory tracking.
+Convergence occurs in a handful of steps and each solve is warm-started
+from the previous wingbeat's $(s_0^*, \psi_0)$, since the demand
+moves little between solves. This numerical solve method
+is used for the prescribed trajectory test cases,
+while the analytical method is used for hover and prey pursuit.
+Using the simplified constant-pitch kinematics
+for the analytical derivation could allow us to obtain a general
+expression for any inflow angle, removing the need for the numerical solve.
+Furthermore, by linearizing this result, the control law could
+be simplified and expressed directly with the control variables.
 %In the constant-pitch limit the split
 %becomes fully explicit and can initialize---or replace---the
 %iteration, as noted in \autoref{sec:square-wave}.
-When the demand
-leaves the reachable force set, the iteration saturates at the
-kinematic bounds and the demand is met only approximately; this is
-the trim saturation encountered in the steep descents of
-\autoref{sec:results}.
+%When the demand
+%leaves the reachable force set, the iteration saturates at the
+%kinematic bounds and the demand is met only approximately; this is
+%the trim saturation encountered in the steep descents of
+%\autoref{sec:results}.
 
-Finally, once the commanded reference velocity vanishes
-(hover, or an exhausted reference trajectory) and the body has
-settled near rest ($J < 0.05$ in our simulations),
-$\gamma$ and $\psi_1$ are pinned to their hover values
-$\sigma_x \gamma^\text{hover}$ and $\psi_1^\text{opt}(0)$,
-avoiding jitter from the residual hover velocity, while
-\autoref{eq:trim} continues to hold hover equilibrium. The pin
-is seamless: at this threshold the blend is engaged by about
-$2\%$, and both schedules sit within a few degrees of their
-hover values.
+%Finally, once the commanded reference velocity vanishes
+%(hover, or an exhausted reference trajectory) and the body has
+%settled near rest ($J < 0.05$ in our simulations),
+%$\gamma$ and $\psi_1$ are pinned to their hover values
+%$\sigma_x \gamma^\text{hover}$ and $\psi_1^\text{opt}(0)$,
+%avoiding jitter from the residual hover velocity, while
+%\autoref{eq:trim} continues to hold hover equilibrium. The pin
+%is seamless: at this threshold the blend is engaged by about
+%$2\%$, and both schedules sit within a few degrees of their
+%hover values.
 
 \section{Results}\label{sec:results}
 
@@ -1447,7 +1462,7 @@ reference configuration based on morphological
 and wingbeat frequency data for \emph{Anisoptera}
 from~\cite{wakeling1997} and~\cite{aracheloff2024},
 respectively. Nondimensionalized, the data range
-is [0.2, 1.0] for $A^* / m^*$, and [8, 20] for $\omega^*$.
+is $[0.2, 1.0]$ for $A^* / m^*$, and $[8, 20]$ for $\omega^*$.
 For the reference configuration, we select the intermediate values
 \begin{align}
     \frac{A^*}{m^*} = 0.6 \quad\quad\quad\quad\quad \omega^* = 14
@@ -1473,13 +1488,15 @@ $\vec{u}^*(0) = (0.2, 0.2)$, and $\vec{u}^*_r = 0$, with
 $K T^* = 1$. The response is shown in \autoref{fig:hover}.
 \begin{figure}[htbp]
     \centering
-    \includegraphics{figures/hover_gains.light.png}
+    \includegraphics{figures/analytic_trim_hover.light.png}
     \caption{Hover control with initial velocity perturbation
-    at $K T^* = 1$. The velocity perturbation is
-    eliminated within about one time unit. The small position offset
+    at $K T^* = 1$. The final hover values of the control parameters
+    are reached effectively after the first wingbeat, and the
+    velocity perturbation is eliminated within a few wingbeats.
+    The small position offset
     accumulated meanwhile is never corrected since there is no
     position feedback, and some slow residual drift remains,
-    but the body settles into a clean hover about the settled point.}\label{fig:hover}
+    but the body settles into a clean hover about its final position.}\label{fig:hover}
 \end{figure}
 
 %The sensitivity to the single gain is checked by repeating this
@@ -1532,69 +1549,62 @@ $K T^* = 1$. The response is shown in \autoref{fig:hover}.
 
 \subsection{Prescribed Trajectory}
 
-The reference path is a closed-course test trajectory covering
-several flight regimes: a level start easing into a $45^\circ$
-climb, a tight self-crossing loop (radius $0.4$), a vertical
-descent of nearly three body lengths, two sharp corners (radius
-$0.25$) framing a level run, and a gentle quarter-turn (radius
-$1$) onto a level finish. The course is assembled from straight
-lines and tangent circular arcs, with all control vertices on the
-integer grid, and is traversed with a trapezoidal speed schedule
-(linear ramps from and to rest over a distance of $0.3$, cruise
-speed $0.5$), which together define $\vec{u}^*_r(t)$. The cruise
-speed is kept moderate because the vertical descent is the
-demanding segment: at faster descent rates the trim saturates
-(see the descent caveat in the conclusion). Starting from rest on
-the path, the tracking response with $K T^* = 1$ is shown in
-\autoref{fig:traj}.
+Results for two reference trajectories are shown in
+\autoref{fig:traj} and \autoref{fig:traj-drawn}. The
+first is designed to exhibit a variety of features
+including tighter and wider turns, loops, and straight lines
+in all orientations, while the second is a freehand trajectory.
+Both trajectories are traversed with a trapezoidal speed schedule $\vec{u}^*_r(t)$
+made of linear ramps from and to rest over a distance of $0.3$.
+$u^*_\text{cmd}$ is kept moderate ($0.5$ and $0.35$ for the first
+and the second trajectory, respectively) because of the vertical descent
+segments, which fail at high descent rates (\autoref{sec:force_demand}).
+At the relatively low speeds shown, trajectory tracking is
+fairly adequate and the achieved trajectories closely match
+the originals. These trajectory tracking cases rely on the numerical
+solve method discussed at the end of \autoref{sec:force_demand}.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/trajectory_gains.light.png}
-    \caption{Prescribed trajectory under the velocity law
-    ($K T^* = 1$): the body follows the commanded velocity with a
+    \caption{Prescribed trajectory with $u^*_\text{cmd} = 0.5$
+    and $K T^* = 1$. The body follows the commanded velocity with a
     first-order lag, trailing the reference point by
     $|\vec{u}^*_r| / K \approx 0.22$ body lengths through the
     cruise and cutting slightly inside the sharp corners, with the
     tracking error peaking at $0.34$. Position drift is not
     corrected, but the achieved path stays close to the course
-    throughout---including the loop and the descent---and the body
+    throughout, including the loop and the descent, and the body
     settles next to the course endpoint (final offset
-    $0.06$).}\label{fig:traj}
+$0.06$). This same trajectory fails on descent when $u^*_\text{cmd} = 1$.}\label{fig:traj}
 \end{figure}
-A second, freehand test case is shown in \autoref{fig:traj-drawn}: a
-hand-drawn closed course tracing a dragonfly, replayed directly from
-the recorded drawing---$19$ body lengths of continuous turns through
-four wing lobes, a tail sweep, and a head. Its near-vertical plunges
-into the lower wing lobes are steeper than the descent of the course
-above and saturate the trim at the same cruise speed, so it is flown
-at a reduced cruise of $0.35$.
 \begin{figure}[htbp]
     \centering
     \includegraphics{figures/trajectory_gains_drawn.light.png}
-    \caption{Freehand trajectory  with $K T^* = 1$ and cruise speed $0.35$.}\label{fig:traj-drawn}
+    \caption{Freehand trajectory with $K T^* = 1$ and $u^*_\text{cmd} = 0.35$.}\label{fig:traj-drawn}
 \end{figure}
 
 \subsection{Prey Pursuit}
 
 Prey pursuit closes the guidance loop through the control law
-with the reference velocity of \autoref{eq:ur-pursuit}: the
-desired closing speed along the line of sight to the prey.
-The prey starts at $(2.5, 2.0)$ and moves
-at the constant velocity $(0.35, 0)$; the body starts at rest at
-the origin, with $u^*_\text{cmd} = 0.7$ and $K T^* = 1$.
+with the reference velocity of \autoref{eq:ur-pursuit}, giving the
+desired pursuit speed along the line of sight to the prey.
+Here the prey starts above and to the right, at $(4, 4)$, and moves
+at the constant velocity $(1, 0)$; the body starts at rest at
+the origin, with $u^*_\text{cmd} = 1.5$ and $K T^* = 1$.
 Interception is declared at a range of $0.5$ body lengths. The
-resulting pursuit is shown in \autoref{fig:pursuit}.
+resulting pursuit is shown in \autoref{fig:pursuit},
+and exhibits the classical pure-pursuit form, albeit with some overshoot.
 \begin{figure}[htbp]
     \centering
-    \includegraphics{figures/pursuit_traces.light.png}
-    \caption{Prey pursuit. (a) The line-of-sight command produces
-    the classical pure-pursuit tail chase, with capture at
-    $t^* \approx 7.7$ (star). (b) The body accelerates to the
-    commanded closing speed ($J \approx 0.2$). $\gamma$ leans
+    \includegraphics{figures/analytic_trim_pursuit.light.png}
+    \caption{Prey pursuit with $u^*_\text{cmd} = 1.5$, $\vec{u}^*_\text{prey} = 1\hat{x}$,
+        and $K T^* = 1$. The line-of-sight command produces
+    a classical pure-pursuit trajectory, with successful capture.
+    The body accelerates to the
+    commanded pursuit speed and $\gamma$ leans
     from $\gamma^\text{hover}$ toward alignment with the flight
-    direction, $\psi_1$ follows its slaved schedule
-    (\autoref{eq:psi1-slave}), and $(s_0^*, \psi_0)$ trim the
-    force demand.}\label{fig:pursuit}
+    direction, as $\psi_1$ follows its slaved schedule
+    and $(s_0^*, \psi_0)$ adjust to the force demand.}\label{fig:pursuit}
 \end{figure}
 
 \section{Conclusion}
@@ -1620,8 +1630,8 @@ Some caveats are worth mentioning:
     at a fast rate, the stroke-plane normal will point downwards.
     However, to achieve a steady descent velocity, the force vector must
     point up, opposed to gravity. The force vector, then,
-    must point toward $-\hat{n}$. This can be achieved
-    as we saw in \autoref{sec:maf} with large enough $|\psi_0|$,
+    must point toward $-\hat{n}$. This can be achieved,
+    as we saw in \autoref{sec:maf}, with large enough $|\psi_0|$,
     but at high $J$ it results in large force magnitudes
     which lead to instability in the unsteady dynamics,
     and prevent clean descent trajectories.

@@ -35,11 +35,11 @@ from post.style import apply_matplotlib_style, resolve_style  # noqa: E402
 OUT_DIR = HERE.parent / "figures"
 
 KD = REF_OMEGA_STAR / (2.0 * np.pi)  # one-beat velocity gain, K T* = 1 (report control law)
-V_CMD = 0.7                         # desired closing speed
+V_CMD = 1.5                         # desired closing speed
 R_CAP = 0.5                         # capture radius (body lengths)
 T_MAX = 22.0
-PREY_P0 = (2.5, 0.0, 2.0)
-PREY_V = (0.35, 0.0, 0.0)
+PREY_P0 = (4.0, 0.0, 4.0)
+PREY_V = (1.0, 0.0, 0.0)
 
 
 def prey_pos(t):
